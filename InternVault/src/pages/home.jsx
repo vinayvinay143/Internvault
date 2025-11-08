@@ -1,7 +1,8 @@
 import { BsArrowUpRight } from "react-icons/bs";
 import { GoOrganization } from "react-icons/go";
 import { MdOutlineLocalOffer, MdOutlinePayment } from "react-icons/md";
-import { CiCircleCheck } from "react-icons/ci";
+import { IoMdInformationCircleOutline } from "react-icons/io";
+
 
 export function Home() {
   const cards = [
@@ -21,7 +22,7 @@ export function Home() {
       text: "Never pay for an internship opportunity. Legitimate internships do not require fees for application processing, training, or materials.",
     },
     {
-      icon: <CiCircleCheck className="text-4xl text-blue-500 mb-3" />,
+      icon: <IoMdInformationCircleOutline className="text-4xl text-blue-500 mb-3" />,
       title: "Check Contact Information",
       text: "Trustworthy companies use professional email addresses. If details look suspicious or unprofessional, proceed with caution.",
     },
@@ -29,7 +30,7 @@ export function Home() {
 
   return (
     <>
-      <div className="flex flex-col items-center mt-60 gap-7 text-center">
+      <div className="flex flex-col items-center mt-60 gap-7 text-center ">
         <h1 className="text-5xl font-semibold">Looking for an internship?</h1>
         <h2 className="text-lg text-gray-600">
           Here are some trusted sites to begin your journey.
@@ -40,12 +41,11 @@ export function Home() {
       </div>
 
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-20 px-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-90 mb-60 px-10">
         {cards.map((card, index) => (
           <div
             key={index}
-            className="bg-white shadow-md rounded-2xl p-6 hover:shadow-lg transition"
-          >
+            className="bg-white shadow-md border-l-3 border-l-blue-400 rounded-2xl p-6 hover:shadow-lg transition">
             {card.icon}
             <h1 className="text-xl font-semibold mb-2">{card.title}</h1>
             <p className="text-gray-600">{card.text}</p>
