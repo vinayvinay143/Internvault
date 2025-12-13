@@ -1,23 +1,13 @@
 import { useState } from "react";
-import { FaCopy } from "react-icons/fa";
+import { FaCopy, FaCheck } from "react-icons/fa";
 
 export function SkillPrompt() {
   const [copiedId, setCopiedId] = useState(null);
 
   const skills = [
-    "Python",
-    "JavaScript",
-    "Java",
-    "HTML & CSS",
-    "React",
-    "Node.js",
-    "SQL",
-    "Data Structures & Algorithms",
-    "Machine Learning",
-    "Artificial Intelligence",
-    "Cloud (AWS / Azure / GCP)",
-    "Cybersecurity",
-    "DevOps",
+    "Python", "JavaScript", "Java", "HTML & CSS", "React", "Node.js",
+    "SQL", "Data Structures", "Machine Learning", "AI Concepts",
+    "Cloud Computing", "Cybersecurity", "DevOps"
   ];
 
   const basePrompt = (skill) => `
@@ -41,33 +31,37 @@ Start now by teaching me: **${skill}**
   const copyPrompt = async (skill, id) => {
     await navigator.clipboard.writeText(basePrompt(skill));
     setCopiedId(id);
-
     setTimeout(() => setCopiedId(null), 1500);
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        SkillVault – AI Learning Prompts
-      </h1>
+    <div className="space-y-8">
+      <div className="text-center max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-800 mb-3">
+          AI Learning <span className="text-blue-600">Assistant</span>
+        </h1>
+        <p className="text-gray-500">
+          Select a topic below and copy the prompt to use with ChatGPT or Gemini.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {skills.map((skill, index) => (
-          <div
+          <button
             key={index}
-            className="bg-white rounded-2xl shadow-lg p-5 flex flex-col items-center gap-4 hover:shadow-xl transition border border-gray-200"
+            onClick={() => copyPrompt(skill, index)}
+            className="group bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-200 transition-all duration-300 text-left flex flex-col justify-between h-32"
           >
-            <h2 className="text-xl font-semibold">{skill}</h2>
+            <h2 className="text-lg font-bold text-gray-700 group-hover:text-blue-600 transition-colors">
+              {skill}
+            </h2>
 
-            <button
-              onClick={() => copyPrompt(skill, index)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full 
-              bg-blue-500 text-white hover:bg-blue-600 transition"
-            >
-              <FaCopy />
-              {copiedId === index ? "Copied!" : "Copy Prompt"}
-            </button>
-          </div>
+            <div className={`mt-auto self-start flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all duration-300
+              ${copiedId === index ? "bg-green-100 text-green-700" : "bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500"}`}>
+              {copiedId === index ? <FaCheck /> : <FaCopy />}
+              {copiedId === index ? "Copied" : "Copy Prompt"}
+            </div>
+          </button>
         ))}
       </div>
     </div>

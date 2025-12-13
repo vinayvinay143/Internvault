@@ -3,6 +3,9 @@
     "@tailwindcss/vite": "^4.1.17"
   },
   "dependencies": {
+    "axois": "^0.0.1-security",
+    "express": "^5.2.1",
+    "hook": "^0.1.0",
     "tailwindcss": "^4.1.17"
   }
 }
