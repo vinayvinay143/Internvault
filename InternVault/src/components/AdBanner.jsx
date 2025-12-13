@@ -10,34 +10,18 @@ export function AdBanner() {
     const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
-        // Check local storage for dismissal
-        const dismissed = localStorage.getItem("adBannerDismissed");
-        if (dismissed) {
-            // If dismissed, check if expired (optional logic, but simple dismissal persists here)
-            // For now, simple session-like dismissal or permanent. 
-            // User asked "last only 24 hrs it will disapper once the other use click X button"
-            // Let's assume X hides it for the session or permanently for THAT batch.
-            // Let's implement timestamp check: if new ads come, maybe show again?
-            // Simpler: Just check if explicit 'dismissed' exists.
-            // But user wants to see "add in the home page like add remenber" -> likely means reminders? 
-            // Or likely "Ads" as in advertisements. "add" -> "Ad".
+        const fetchAds = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/ads/active`);
+                setAds(response.data);
+            } catch (error) {
+                console.error("Error fetching ads:", error);
+            }
+        };
 
-            // Let's fetch anyway to see if there are ads.
-        }
-
+        // Check local storage for dismissal logic here if needed
         fetchAds();
     }, []);
-
-    const fetchAds = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/ads/active`);
-            // Filter out dismissed ads if tracking individually, but simpler is global dismiss for now
-            // or just show list.
-            setAds(response.data);
-        } catch (error) {
-            console.error("Error fetching ads:", error);
-        }
-    };
 
     const handleDismiss = () => {
         setIsVisible(false);
