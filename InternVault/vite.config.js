@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   css: {
     devSourcemap: true,
+    transformer: "postcss"
   },
   build: {
     sourcemap: true,
