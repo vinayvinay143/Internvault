@@ -44,7 +44,7 @@ export function Prompts() {
   };
 
   return (
-    <div className="container mx-auto px-5 my-10">
+    <div className="mt-25 container mx-auto px-5 my-10">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Career <span className="text-blue-600">Accelerators</span></h1>
         <p className="text-gray-500 max-w-xl mx-auto">Use these prompts to supercharge your job search and application process.</p>

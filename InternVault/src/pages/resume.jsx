@@ -1,134 +1,79 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { AiFillHeart, AiOutlineHeart, AiOutlineDownload, AiOutlineEye } from "react-icons/ai";
-
-const API_URL = "http://localhost:5000/api";
+import { BsFileEarmarkText, BsDownload, BsEye } from "react-icons/bs";
 
 export function Resume() {
-  const [user, setUser] = useState(null);
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user?._id) {
-      fetchFavorites();
-    }
-  }, [user]);
-
-  const fetchFavorites = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/favorites/${user._id}`);
-      const favoriteIds = response.data.map((fav) => fav.projectId);
-      setFavorites(favoriteIds);
-    } catch (error) {
-      // Silently handle error
-      setFavorites([]);
-    }
-  };
-
-  const toggleFavorite = async (resume) => {
-    if (!user) {
-      alert("Please login to add favorites");
-      return;
-    }
-
-    setLoading(true);
-    const uniqueId = `resume_${resume.id}`;
-    const isFavorited = favorites.includes(uniqueId);
-
-    try {
-      if (isFavorited) {
-        await axios.delete(`${API_URL}/favorites/remove/${user._id}/${uniqueId}`);
-        setFavorites((prev) => prev.filter((id) => id !== uniqueId));
-      } else {
-        await axios.post(`${API_URL}/favorites/add`, {
-          userId: user._id,
-          projectId: uniqueId,
-          title: `Resume Template ${resume.id}`,
-          domain: "Career",
-          level: "Draft",
-        });
-        setFavorites((prev) => [...prev, uniqueId]);
-      }
-    } catch (error) {
-      console.error("Error toggling favorite:", error);
-      if (error.response?.status === 400 && !isFavorited) {
-        setFavorites((prev) => [...prev, uniqueId]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const resumes = [
-    { id: 1, image: "/resume1.png", file: "/resume1.pdf" },
-    // Adding more mock data for better UI demo
-    { id: 2, image: "/resume1.png", file: "#" },
-    { id: 3, image: "/resume1.png", file: "#" },
+    { id: 1, name: "Professional Modern", image: "/resume1.png", file: "/resume1.pdf", tag: "Best for Tech" },
+    { id: 2, name: "Minimalist Clean", image: "/resume1.png", file: "#", tag: "Best for Design" },
+    { id: 3, name: "Executive Suite", image: "/resume1.png", file: "#", tag: "Senior Roles" },
+    { id: 4, name: "Creative Bold", image: "/resume1.png", file: "#", tag: "Creative" },
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="text-center md:text-left">
-        <h1 className="text-3xl font-bold text-gray-800">Resume <span className="text-blue-600">Templates</span></h1>
-        <p className="text-gray-500 mt-2">ATS-friendly formats to get you hired.</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {resumes.map((item) => {
-          const uniqueId = `resume_${item.id}`;
-          return (
+        {/* Header - Consistent with Home/Internship */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Resume Templates
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Professional, ATS-friendly templates designed to get you hired.
+          </p>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {resumes.map((item) => (
             <div
               key={item.id}
-              className="group bg-white shadow-lg rounded-2xl p-4 flex flex-col items-center border border-gray-100 hover:shadow-2xl transition duration-500 hover:-translate-y-2 relative"
+              className="group bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col"
             >
-              <div className="absolute top-4 right-4 z-10">
-                <button
-                  onClick={() => toggleFavorite(item)}
-                  disabled={loading}
-                  className="bg-white/90 p-2 rounded-full text-gray-400 hover:text-red-500 shadow-md border border-gray-100 transition"
-                >
-                  {favorites.includes(uniqueId) ? <AiFillHeart className="text-red-500" /> : <AiOutlineHeart />}
-                </button>
-              </div>
+              {/* Image Container */}
+              <div className="relative aspect-[3/4] rounded-xl bg-gray-100 overflow-hidden mb-5">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <a href={item.file} target="_blank" className="px-4 py-2 bg-white text-gray-900 rounded-full font-bold text-sm transform scale-90 group-hover:scale-100 transition-transform">
+                    Preview Template
+                  </a>
+                </div>
 
-              <div className="w-full h-64 bg-gray-100 rounded-xl mb-6 overflow-hidden relative">
-                {/* Placeholder for actual resume preview if image fails */}
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm font-medium">Preview</div>
+                {/* Placeholder if image missing */}
                 <img
                   src={item.image}
-                  alt={`Resume ${item.id}`}
-                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 relative z-10"
+                  alt={item.name}
+                  className="w-full h-full object-cover relative z-10"
                 />
+                <div className="absolute top-2 right-2 z-20">
+                  <span className="bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded text-gray-700 shadow-sm border border-gray-100">
+                    {item.tag}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex gap-3 w-full">
-                <a
-                  href={item.file}
-                  target="_blank"
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-semibold hover:bg-blue-100 transition"
-                >
-                  <AiOutlineEye /> View
-                </a>
+              {/* Content */}
+              <div className="mt-auto">
+                <h3 className="text-base font-bold text-gray-900 mb-3">{item.name}</h3>
 
-                <a
-                  href={item.file}
-                  download
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-black transition shadow-lg shadow-gray-200"
-                >
-                  <AiOutlineDownload /> Save
-                </a>
+                <div className="grid grid-cols-2 gap-3">
+                  <a
+                    href={item.file}
+                    target="_blank"
+                    className="flex items-center justify-center gap-2 py-2.5 bg-gray-50 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    <BsEye /> View
+                  </a>
+                  <a
+                    href={item.file}
+                    download
+                    className="flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors shadow-sm"
+                  >
+                    <BsDownload /> Use
+                  </a>
+                </div>
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );

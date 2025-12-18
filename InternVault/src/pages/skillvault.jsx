@@ -17,23 +17,22 @@ export function Skillvault() {
       <div className="max-w-7xl mx-auto">
 
         {/* Top Navbar Navigation */}
-        <div className="bg-white rounded-2xl shadow-sm p-2 mb-8 sticky top-5 z-40 overflow-x-auto no-scrollbar">
-          <nav className="flex items-center gap-2 min-w-max">
+        <div className="bg-white/80 backdrop-blur-md rounded-full shadow-lg border border-white/50 p-1.5 mb-8 sticky top-24 z-40 mx-auto max-w-fit overflow-x-auto no-scrollbar ring-1 ring-black/5">
+          <nav className="flex items-center gap-1 min-w-max">
             {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.to === "."}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300
+                  `flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors duration-200
                   ${isActive
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-200 scale-105"
-                    : "text-gray-500 hover:bg-gray-100 hover:text-blue-600"
-                  }`
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
+                    : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"}`
                 }
               >
                 <span className="text-lg">{link.icon}</span>
-                {link.label}
+                <span className="hidden md:inline">{link.label}</span>
               </NavLink>
             ))}
           </nav>
@@ -48,4 +47,3 @@ export function Skillvault() {
     </div>
   );
 }
-

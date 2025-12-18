@@ -6,7 +6,7 @@ const router = express.Router();
 // Register new user
 router.post("/register", async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, avatar, phone, organization, yearOfStudy } = req.body;
 
         // Check if user already exists
         const existingUser = await User.findOne({
@@ -20,7 +20,15 @@ router.post("/register", async (req, res) => {
         }
 
         // Create new user
-        const user = await User.create({ username, email, password });
+        const user = await User.create({
+            username,
+            email,
+            password,
+            avatar,
+            phone,
+            organization,
+            yearOfStudy
+        });
 
         // Return user without password
         res.status(201).json({

@@ -1,0 +1,51 @@
+[33m4ac802d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to 4ac802d
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{1}: checkout: moving from main to main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{2}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{3}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{4}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{5}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{6}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{7}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{8}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{9}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{10}: checkout: moving from main to main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{11}: checkout: moving from backup-main to main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{12}: checkout: moving from main to backup-main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{13}: checkout: moving from backup-main to main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{14}: rebase (finish): returning to refs/heads/backup-main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{15}: rebase (finish): refs/heads/backup-main onto 4ac802db95de16143d9485ca15c72b92e9e43aa3
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{16}: rebase (abort): returning to refs/heads/backup-main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{17}: rebase (abort): returning to refs/heads/backup-main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{18}: checkout: moving from main to backup-main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{19}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{20}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{21}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{22}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{23}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{24}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{25}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{26}: rebase (abort): returning to refs/heads/main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{27}: checkout: moving from main to main
+[33m2e6e3e3[m[33m ([m[1;32mbackup-main2[m[33m, [m[1;32mbackup-main[m[33m)[m HEAD@{28}: commit (merge): Merge branch 'feature-branch'
+[33mfb90016[m HEAD@{29}: checkout: moving from feature-branch to main
+[33m154b00b[m[33m ([m[1;31morigin/feature-branch[m[33m, [m[1;32mfeature-branch[m[33m)[m HEAD@{30}: commit: chore: ignore env files
+[33m4ac802d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{31}: reset: moving to 4ac802d
+[33m55f6c04[m HEAD@{32}: commit: remove env file and ignore secrets
+[33mfb90016[m HEAD@{33}: checkout: moving from main to feature-branch
+[33mfb90016[m HEAD@{34}: commit: save ponit 1, before attempeting the deploy
+[33m4ac802d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{35}: commit: feat: Implement AdBanner component to display animated, dismissible advertisements fetched from an API.
+[33m79748ca[m HEAD@{36}: commit: chore: Install initial project dependencies and generate package lock file.
+[33m356c8b3[m HEAD@{37}: commit: updated the app.js code
+[33mc387b0f[m HEAD@{38}: commit: added the project section
+[33m5158936[m HEAD@{39}: commit: added project section
+[33mddf34fc[m HEAD@{40}: commit: updated the code
+[33m26296e0[m HEAD@{41}: commit: corrected main.jsx
+[33m798f108[m HEAD@{42}: commit: Add vercel.json for proper deployment configuration
+[33m8604746[m HEAD@{43}: commit: add versel file
+[33m272db85[m HEAD@{44}: commit: updated the code
+[33mec64083[m HEAD@{45}: pull --tags origin main: Merge made by the 'ort' strategy.
+[33mea72746[m HEAD@{46}: commit: updated internship portals
+[33mb9ceb59[m HEAD@{47}: commit: add prompt and internship section
+[33mc374b18[m HEAD@{48}: commit: changed everything
+[33m6487acf[m HEAD@{49}: commit: added build
+[33ma488380[m HEAD@{50}: commit (initial): first commit

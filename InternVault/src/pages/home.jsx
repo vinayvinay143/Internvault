@@ -1,199 +1,119 @@
 import { motion } from "framer-motion";
-import { AdBanner } from "../components/AdBanner";
-import { BsArrowUpRight, BsShieldCheck, BsLightningCharge, BsPeople } from "react-icons/bs";
-import { GoOrganization } from "react-icons/go";
-import { MdOutlineLocalOffer, MdOutlinePayment, MdWorkOutline, MdSchool } from "react-icons/md";
-import { IoMdInformationCircleOutline, IoMdRocket } from "react-icons/io";
 import { Link } from "react-router-dom";
+import { BsArrowRight, BsShieldCheck, BsLightningCharge, BsCodeSquare } from "react-icons/bs";
+import { GoOrganization } from "react-icons/go";
 
 export function Home() {
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  const features = [
-    {
-      icon: <GoOrganization className="text-4xl text-blue-500 mb-4" />,
-      title: "Trusted Organizations",
-      text: "We partner with verified companies to ensure every listing is legitimate and offers real growth potential.",
-    },
-    {
-      icon: <MdOutlinePayment className="text-4xl text-green-500 mb-4" />,
-      title: "Zero Hidden Fees",
-      text: "Transparent processes. No upfront payments for internship applications. Your talent is your currency.",
-    },
-    {
-      icon: <BsShieldCheck className="text-4xl text-indigo-500 mb-4" />,
-      title: "Verified Offers",
-      text: "Every offer is vetted. We ensure clear terms, mentorship availability, and structured learning paths.",
-    },
-    {
-      icon: <BsLightningCharge className="text-4xl text-yellow-500 mb-4" />,
-      title: "Fast-Track Careers",
-      text: "Skip the noise. Connect directly with hiring managers and teams looking for fresh talent like you.",
-    },
-  ];
-
-  const contentSections = [
-    {
-      title: "Why Use InternVault?",
-      description: "We Bridge the Gap Between Talent and Opportunity.",
-      content: (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
-          <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-            <h3 className="font-bold text-xl text-blue-800 mb-2">For Students</h3>
-            <p className="text-gray-700">Access premium internships that matter. Build your resume with real-world projects and mentorship.</p>
-          </div>
-          <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
-            <h3 className="font-bold text-xl text-indigo-800 mb-2">For Employers</h3>
-            <p className="text-gray-700">Find motivated, skilled interns ready to contribute from day one. streamline your hiring process.</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "How It Works",
-      description: "Your Journey to Success in 3 Simple Steps",
-      content: (
-        <div className="flex flex-col md:flex-row justify-center gap-8 mt-12">
-          {[
-            { step: "01", title: "Create Profile", text: "Sign up and showcase your skills, projects, and education.", icon: <BsPeople /> },
-            { step: "02", title: "Apply to Jobs", text: "Browse curated listings and apply with a single click.", icon: <MdWorkOutline /> },
-            { step: "03", title: "Get Hired", text: "Ace the interview and start your professional journey.", icon: <IoMdRocket /> },
-          ].map((item, idx) => (
-            <motion.div
-              key={idx}
-              whileHover={{ scale: 1.05 }}
-              className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 flex-1 relative overflow-hidden"
-            >
-              <div className="absolute -right-4 -top-4 text-9xl font-bold text-gray-50 opacity-50 z-0 select-none">{item.step}</div>
-              <div className="relative z-10">
-                <div className="text-4xl text-blue-600 mb-4 bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center">{item.icon}</div>
-                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{item.text}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      title: "Who is this for?",
-      description: "Tailored for every stage of your early career",
-      content: (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-          <div className="text-center p-4">
-            <div className="mx-auto bg-orange-100 w-20 h-20 rounded-full flex items-center justify-center text-orange-600 text-3xl mb-4">
-              <MdSchool />
-            </div>
-            <h3 className="font-bold text-lg mb-2">University Students</h3>
-            <p className="text-sm text-gray-500">Looking for summer internships or semester breaks opportunities.</p>
-          </div>
-          <div className="text-center p-4 border-l-0 md:border-l border-r-0 md:border-r border-gray-100">
-            <div className="mx-auto bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center text-purple-600 text-3xl mb-4">
-              <BsLightningCharge />
-            </div>
-            <h3 className="font-bold text-lg mb-2">Fresh Graduates</h3>
-            <p className="text-sm text-gray-500">Seeking first full-time roles or traineeships to kickstart careers.</p>
-          </div>
-          <div className="text-center p-4">
-            <div className="mx-auto bg-teal-100 w-20 h-20 rounded-full flex items-center justify-center text-teal-600 text-3xl mb-4">
-              <IoMdRocket />
-            </div>
-            <h3 className="font-bold text-lg mb-2">Career Switchers</h3>
-            <p className="text-sm text-gray-500">Wanting to gain experience in a new field through internships.</p>
-          </div>
-        </div>
-      )
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 overflow-hidden font-sans text-gray-800">
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
 
       {/* Hero Section */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="relative pt-32 pb-20 px-6 text-center"
-      >
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200 rounded-full blur-[100px] opacity-30"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-200 rounded-full blur-[100px] opacity-30"></div>
-        </div>
-
-        <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-          Unlock Your Future <br className="hidden md:block" /> with <span className="text-blue-600">InternVault</span>
-        </motion.h1>
-
-        <motion.p variants={itemVariants} className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-          The ultimate platform for students and graduates to find verified internships, build skills, and launch professional careers.
-        </motion.p>
-
-        <motion.div variants={itemVariants}>
-          <button className="bg-blue-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-blue-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 mx-auto">
-            Get Started Now <BsArrowUpRight className="text-xl font-bold" />
-          </button>
-        </motion.div>
-      </motion.div>
-
-      {/* Features Grid */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <section className="pt-32 pb-24 px-6 max-w-7xl mx-auto">
         <motion.div
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+          animate="visible"
           variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="text-center max-w-4xl mx-auto"
         >
-          {features.map((card, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              whileHover={{ y: -5 }}
-              className="bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-xl border border-gray-100 rounded-2xl p-8 transition-all duration-300"
-            >
-              {card.icon}
-              <h3 className="text-xl font-bold mb-3 text-gray-800">{card.title}</h3>
-              <p className="text-gray-500 leading-relaxed text-sm">{card.text}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* Content Sections */}
-      <div className="max-w-6xl mx-auto px-6 py-12 space-y-32 mb-32">
-        {contentSections.map((section, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">{section.title}</h2>
-              <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full mb-4"></div>
-              <p className="text-xl text-gray-500">{section.description}</p>
-            </div>
-            {section.content}
+          <motion.div variants={itemVariants} className="inline-block px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold mb-8">
+            🚀 The #1 Platform for Internships
           </motion.div>
-        ))}
-      </div>
 
-      <AdBanner />
+          <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold tracking-tight text-gray-900 mb-8 leading-tight">
+            Launch Your Career with <span className="text-blue-600">Confidence</span>
+          </motion.h1>
+
+          <motion.p variants={itemVariants} className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto font-medium">
+            Discover verified internships, master in-demand skills, and connect with top employers. No spam, just opportunities.
+          </motion.p>
+
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link to="/signup" className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+              Get Started Free
+            </Link>
+            <Link to="/internships" className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded-xl font-semibold text-lg hover:bg-gray-50 transition-all">
+              Browse Jobs
+            </Link>
+          </motion.div>
+
+          {/* Trust Badges */}
+          <motion.div variants={itemVariants} className="mt-16 pt-8 border-t border-gray-200">
+            <p className="text-sm font-medium text-gray-500 mb-6">TRUSTED BY STUDENTS FROM</p>
+            <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+              {/* Placeholders for logos, using text styling for now */}
+              <span className="text-xl font-bold font-serif text-gray-800">Stanford</span>
+              <span className="text-xl font-bold font-serif text-gray-800">MIT</span>
+              <span className="text-xl font-bold font-serif text-gray-800">IIT Bombay</span>
+              <span className="text-xl font-bold font-serif text-gray-800">Google</span>
+            </div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Value Props */}
+      <section className="py-20 bg-white border-y border-gray-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why InternVault?</h2>
+            <p className="text-lg text-gray-600 font-medium">Everything you need to succeed in one place.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {[
+              {
+                icon: <BsShieldCheck className="text-4xl text-blue-600" />,
+                title: "Verified Listings",
+                desc: "Every internship is vetted by AI and our team. Say goodbye to scams and fake offers."
+              },
+              {
+                icon: <BsCodeSquare className="text-4xl text-purple-600" />,
+                title: "Skill Growth",
+                desc: "Access curated courses and prompts to build the exact skills employers are looking for."
+              },
+              {
+                icon: <GoOrganization className="text-4xl text-green-600" />,
+                title: "Direct Access",
+                desc: "Apply directly to companies. No middleman agencies taking a cut of your stipend."
+              }
+            ].map((item, i) => (
+              <div key={i} className="p-8 rounded-3xl bg-gray-50 hover:bg-blue-50 transition-colors border border-gray-100 hover:border-blue-100 group">
+                <div className="mb-6 p-4 bg-white rounded-2xl w-fit shadow-sm border border-gray-100 group-hover:scale-110 transition-transform">
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">{item.title}</h3>
+                <p className="text-gray-600 font-medium leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-24 px-6">
+        <div className="max-w-5xl mx-auto bg-blue-600 rounded-[2.5rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white opacity-10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500 opacity-20 blur-2xl rounded-full translate-y-1/2 -translate-x-1/2"></div>
+
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 relative z-10">Ready to start your journey?</h2>
+          <p className="text-blue-100 text-lg mb-10 max-w-xl mx-auto font-medium relative z-10">
+            Join thousands of students who have found their dream internships through InternVault.
+          </p>
+          <Link to="/signup" className="relative z-10 inline-flex items-center gap-2 bg-white text-blue-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-colors">
+            Join Now <BsArrowRight />
+          </Link>
+        </div>
+      </section>
+
     </div>
   );
 }

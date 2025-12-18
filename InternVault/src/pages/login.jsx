@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import axios from "axios";
 
@@ -7,7 +7,6 @@ const API_URL = "http://localhost:5000/api";
 
 export function Login({ setIsLoggedIn }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -21,37 +20,15 @@ export function Login({ setIsLoggedIn }) {
     const password = e.target.password.value;
 
     try {
-      if (isRegister) {
-        // Registration
-        const username = e.target.username.value;
-        const response = await axios.post(`${API_URL}/auth/register`, {
-          username,
-          email,
-          password,
-        });
+      const response = await axios.post(`${API_URL}/auth/login`, {
+        email,
+        password,
+      });
 
-        // Auto-login after registration
-        const loginResponse = await axios.post(`${API_URL}/auth/login`, {
-          email,
-          password,
-        });
-
-        const userData = loginResponse.data;
-        localStorage.setItem("user", JSON.stringify(userData));
-        setIsLoggedIn(userData);
-        navigate("/");
-      } else {
-        // Login
-        const response = await axios.post(`${API_URL}/auth/login`, {
-          email,
-          password,
-        });
-
-        const userData = response.data;
-        localStorage.setItem("user", JSON.stringify(userData));
-        setIsLoggedIn(userData);
-        navigate("/");
-      }
+      const userData = response.data;
+      localStorage.setItem("user", JSON.stringify(userData));
+      setIsLoggedIn(userData);
+      navigate("/");
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong. Please try again.");
     } finally {
@@ -60,94 +37,69 @@ export function Login({ setIsLoggedIn }) {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh] p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white shadow-xl rounded-2xl p-6 flex flex-col gap-5"
-      >
-        <h2 className="text-2xl font-bold text-center">
-          {isRegister ? "Create Account" : "Login"}
-        </h2>
+    <div className="flex justify-center items-center min-h-[80vh] p-4 bg-gray-50/50">
+      <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-8 md:p-10">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
+          <p className="text-gray-500 mt-2">Please enter your details to sign in.</p>
+        </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
             {error}
           </div>
         )}
 
-        {/* Username (only for registration) */}
-        {isRegister && (
-          <div className="flex flex-col gap-1">
-            <label className="font-medium">Username</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Email</label>
             <input
-              type="text"
-              name="username"
+              type="email"
+              name="email"
               required
-              minLength={3}
-              placeholder="Enter your username"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 
-              focus:ring-blue-400 focus:outline-none"
+              placeholder="Enter your email"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
             />
           </div>
-        )}
 
-        {/* Email */}
-        <div className="flex flex-col gap-1">
-          <label className="font-medium">Email</label>
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="Enter your email"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 
-            focus:ring-blue-400 focus:outline-none"
-          />
-        </div>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                required
+                minLength={6}
+                placeholder="Enter password"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+              </button>
+            </div>
+          </div>
 
-        {/* Password */}
-        <div className="flex flex-col gap-1 relative">
-          <label className="font-medium">Password</label>
-
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            required
-            minLength={6}
-            placeholder="Enter password"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 
-            focus:ring-blue-400 focus:outline-none"
-          />
-
-          <span
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-10 text-xl cursor-pointer"
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2"
           >
-            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-          </span>
-        </div>
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-500 text-white py-2 rounded-full hover:bg-blue-600 
-          transition font-semibold disabled:bg-blue-300 disabled:cursor-not-allowed"
-        >
-          {loading ? "Please wait..." : isRegister ? "Sign Up" : "Login"}
-        </button>
-
-        <p className="text-center text-sm text-gray-500">
-          {isRegister ? "Already have an account? " : "Don't have an account? "}
-          <span
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError("");
-            }}
-            className="text-blue-500 cursor-pointer hover:underline"
-          >
-            {isRegister ? "Login" : "Sign up"}
-          </span>
-        </p>
-      </form>
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-blue-600 font-semibold hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
+

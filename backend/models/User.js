@@ -20,6 +20,22 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 6
+    },
+    avatar: {
+        type: String,
+        default: ""
+    },
+    phone: {
+        type: String,
+        default: ""
+    },
+    organization: {
+        type: String,
+        default: ""
+    },
+    yearOfStudy: {
+        type: String,
+        default: ""
     }
 }, {
     timestamps: true
