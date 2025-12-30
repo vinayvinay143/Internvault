@@ -12,16 +12,19 @@
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.13.2",
     "framer-motion": "^12.23.26",
+    "pdfjs-dist": "^5.4.530",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.9.5"
+    "react-router-dom": "^7.9.5",
+    "recharts": "^3.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
-    "@vitejs/plugin-react": "^5.0.4",
+    "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.23",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",

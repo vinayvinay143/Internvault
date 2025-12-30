@@ -15,12 +15,18 @@ const favoriteSchema = new mongoose.Schema({
     required: true
   },
   domain: String,
-  level: String
+  level: String,
+  description: String,
+  image: String,
+  sources: [{
+    name: String,
+    link: String
+  }]
 }, {
   timestamps: true
 });
 
-// Compound index to prevent duplicate favorites
+
 favoriteSchema.index({ userId: 1, projectId: 1 }, { unique: true });
 
 export default mongoose.model("Favorite", favoriteSchema);

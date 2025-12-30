@@ -14,11 +14,11 @@ async function testGroqAPI() {
                 "Authorization": `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
+                model: "meta-llama/llama-4-scout-17b-16e-instruct",
                 messages: [
                     {
                         role: "user",
-                        content: "Say hello in 5 words"
+                        content: "Are you a vision model?"
                     }
                 ],
                 max_tokens: 50,

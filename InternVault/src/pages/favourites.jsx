@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { AiOutlineClose, AiOutlineStar } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineStar, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { BsFolder } from "react-icons/bs";
+import { FaYoutube, FaGoogle } from "react-icons/fa";
+import { SiUdemy, SiCoursera } from "react-icons/si";
 import { Link } from "react-router-dom";
 
 // Consider moving this to a config file
@@ -26,7 +29,7 @@ export function Favorites({ user }) {
       setFavs(response.data);
     } catch (err) {
       setError("Failed to load favorites");
-      // Error handled via UI state
+      console.error('❌ Error fetching favorites:', err);
     } finally {
       setLoading(false);
     }
@@ -37,8 +40,17 @@ export function Favorites({ user }) {
       await axios.delete(`${API_URL}/favorites/remove/${favoriteId}`);
       setFavs((prev) => prev.filter((fav) => fav._id !== favoriteId));
     } catch (err) {
-      // Silently handle error - item might already be removed
+      console.error('Error removing favorite:', err);
     }
+  };
+
+  // Helper function to get the appropriate icon for each source
+  const getSourceIcon = (sourceName) => {
+    const name = sourceName.toLowerCase();
+    if (name.includes('youtube')) return <FaYoutube />;
+    if (name.includes('udemy')) return <SiUdemy />;
+    if (name.includes('coursera')) return <SiCoursera />;
+    return <FaGoogle />;
   };
 
   // --- Render States ---
@@ -82,7 +94,7 @@ export function Favorites({ user }) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">My <span className="text-blue-600">Dashboard</span></h1>
+          <h1 className="text-3xl font-bold text-gray-800">My <span className="text-blue-600">Favorites</span></h1>
           <p className="text-gray-500 mt-1">Manage your saved items.</p>
         </div>
         <div className="bg-blue-50 px-4 py-2 rounded-xl text-blue-700 font-medium text-sm">
@@ -99,39 +111,87 @@ export function Favorites({ user }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favs.map((fav) => (
-            <div key={fav._id} className="group bg-white border border-gray-100 rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button
-                  onClick={() => removeFavorite(fav._id)}
-                  className="bg-white/80 p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition shadow-sm border border-gray-100"
-                  title="Remove"
-                >
-                  <AiOutlineClose />
-                </button>
-              </div>
+          {favs.map((fav) => {
+            // Check if this item has course sources
+            const hasSources = fav.sources && Array.isArray(fav.sources) && fav.sources.length > 0;
 
-              <div className="mb-4">
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
-                   ${fav.level === 'Beginner' ? 'bg-green-100 text-green-700' :
-                    fav.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                  {fav.level || 'Project'}
-                </span>
-              </div>
+            return (
+              <div
+                key={fav._id}
+                className="group p-6 border border-gray-100 rounded-3xl shadow-sm bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden"
+              >
+                {/* Background Decoration */}
+                <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br opacity-10 rounded-bl-full transition-transform group-hover:scale-150
+                    ${fav.level === 'Beginner' ? 'from-green-400 to-emerald-600' :
+                    fav.level === 'Intermediate' ? 'from-yellow-400 to-orange-600' :
+                      fav.level === 'Advanced' ? 'from-red-400 to-pink-600' :
+                        'from-blue-400 to-indigo-600'}`}>
+                </div>
 
-              <h2 className="text-lg font-bold text-gray-800 mb-2 pr-8 leading-tight line-clamp-2">{fav.title}</h2>
-              <p className="text-gray-500 text-sm mb-4 line-clamp-3">{fav.description || "No description available."}</p>
+                <div className="flex justify-between items-start mb-4 relative z-10">
+                  {hasSources && fav.image ? (
+                    <img
+                      src={fav.image}
+                      alt={fav.title}
+                      className="w-16 h-16 object-contain rounded-xl mb-2"
+                    />
+                  ) : (
+                    <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+                      <BsFolder className="text-xl" />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => removeFavorite(fav._id)}
+                    className="text-2xl transition hover:scale-110 active:scale-95"
+                    title="Remove from favorites"
+                  >
+                    <AiFillHeart className="text-red-500 drop-shadow-sm" />
+                  </button>
+                </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
-                  {fav.domain || "General"}
-                </span>
-                <button className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition">
-                  View Details →
-                </button>
+                <h2 className="text-xl font-bold text-gray-800 mb-2 relative z-10">{fav.title}</h2>
+                <p className="text-gray-500 text-sm mb-6 leading-relaxed relative z-10 line-clamp-3">
+                  {fav.description || "No description available."}
+                </p>
+
+                {/* Display course links if they exist */}
+                {hasSources ? (
+                  <div className="space-y-2 relative z-10">
+                    <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Learning Resources:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {fav.sources.map((src, index) => (
+                        <a
+                          key={index}
+                          href={src.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 text-gray-600 font-medium text-xs hover:bg-blue-600 hover:text-white transition"
+                        >
+                          {getSourceIcon(src.name)}
+                          {src.name}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 relative z-10">
+                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-semibold tracking-wide uppercase">
+                      {fav.domain || "General"}
+                    </span>
+                    {fav.level && fav.level !== 'Course' && (
+                      <span className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-wide uppercase
+                         ${fav.level === 'Beginner' ? 'bg-green-100 text-green-700' :
+                          fav.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' :
+                            fav.level === 'Advanced' ? 'bg-red-100 text-red-700' :
+                              'bg-blue-100 text-blue-700'}`}>
+                        {fav.level}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

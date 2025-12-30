@@ -11,17 +11,17 @@ const adSchema = new mongoose.Schema({
         required: true
     },
     link: {
-        type: String, // URL to apply
+        type: String, 
         required: true
     },
     imageUrl: {
-        type: String, // URL of company logo/poster
+        type: String,
         default: ""
     },
     expiresAt: {
         type: Date,
         required: true,
-        index: { expires: 0 } // TTL Index: MongoDB automatically deletes docs after this time
+        index: { expires: 0 } 
     }
 }, {
     timestamps: true

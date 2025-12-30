@@ -27,6 +27,7 @@ export function Login({ setIsLoggedIn }) {
 
       const userData = response.data;
       localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", userData.token); // Store token separately if needed, or just access it via userData.token
       setIsLoggedIn(userData);
       navigate("/");
     } catch (err) {
@@ -37,7 +38,7 @@ export function Login({ setIsLoggedIn }) {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh] p-4 bg-gray-50/50">
+    <div className="flex justify-center items-center min-h-screen pt-32 pb-12 px-4 bg-gray-50/50">
       <div className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-8 md:p-10">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>

@@ -2,11 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth scroll behavior globally */
 html {
   scroll-behavior: smooth;
 }
 
 * {
   scroll-behavior: smooth;
+}
+
+@keyframes shine {
+  0% {
+    background-position: 200% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.shiny-text {
+  background: linear-gradient(to right,
+      #2563eb 20%,
+      #4f46e5 40%,
+      #93c5fd 50%,
+      /* This is the lighter "shine" color */
+      #4f46e5 60%,
+      #2563eb 80%);
+  background-size: 200% auto;
+  color: #000;
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
+  font-weight: 800;
+}
+
+/* Image Slider Styles */
+.slider-container {
+  width: 600px;
+  height: 360px;
+  margin: auto;
+  overflow: visible;
+}
+
+.slider-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50px;
+  padding: 16px;
+  background: white;
+  border: 3px solid #e5e7eb;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Hosting Section Image */
+.hosting-image {
+  padding: 16px;
+  border: 3px solid #e5e7eb;
+  background: white;
+  border-radius: 50px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }

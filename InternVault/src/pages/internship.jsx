@@ -19,14 +19,6 @@ export function Internship({ isLoggedIn }) {
     { id: 8, name: "Smart Internz", image: "/i8.png", link: "https://skillwallet.smartinternz.com/virtual-internship-programs/" },
   ];
 
-  // Fake / Generic External Jobs (To be avoided/contrasted)
-  const FAKE_EXTERNAL_JOBS = [
-    { id: "f1", title: "Social Media Intern (Unpaid)", company: "StartUp X", location: "Remote", type: "Unverified" },
-    { id: "f2", title: "Data Entry Volunteer", company: "Generic Corp", location: "Anywhere", type: "Unverified" },
-    { id: "f3", title: "Campus Ambassador", company: "Viral Marketing Ltd", location: "Campus", type: "Unverified" },
-    { id: "f4", title: "Content Writer Trainee", company: "BlogNetwork", location: "Remote", type: "Unverified" },
-  ];
-
   // Function to fetch Jooble Jobs
   const fetchJoobleJobs = async () => {
     try {
@@ -67,7 +59,6 @@ export function Internship({ isLoggedIn }) {
     fetchData();
   }, [isLoggedIn]);
 
-  // Render Job Card
   // Render Job Card
   const renderJobCard = (job, isPremium = false) => {
     const isFake = job.type === "Unverified";
@@ -142,35 +133,32 @@ export function Internship({ isLoggedIn }) {
   const renderPortalCard = (portal) => (
     <div
       key={portal.id}
-      className="bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 border border-gray-100 group cursor-pointer"
+      className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 group cursor-pointer flex flex-col items-center text-center h-full"
     >
-      <div className="relative overflow-hidden rounded-2xl mb-4 h-40 bg-gray-50">
+      <div className="w-16 h-16 mb-4 relative flex items-center justify-center">
         <img
           src={portal.image}
           alt={portal.name}
-          className="w-full h-full object-contain p-4 transform group-hover:scale-105 transition duration-500 mix-blend-multiply"
+          className="w-full h-full object-contain filter group-hover:brightness-110 transition-all"
         />
       </div>
 
-      <div className="flex items-center justify-between px-2">
-        <div>
-          <h4 className="text-lg font-bold text-gray-800">{portal.name}</h4>
-          <p className="text-xs text-gray-400">External Platform</p>
-        </div>
-        <a
-          href={portal.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-white border border-gray-200 p-2.5 rounded-full text-gray-400 group-hover:bg-black group-hover:text-white group-hover:border-black transition-all duration-300"
-        >
-          <BsArrowUpRight className="text-lg" />
-        </a>
-      </div>
+      <h4 className="text-gray-900 font-bold mb-1">{portal.name}</h4>
+      <p className="text-xs text-gray-400 mb-4">External Platform</p>
+
+      <a
+        href={portal.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-auto text-blue-600 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all"
+      >
+        Visit Site <BsArrowUpRight className="text-xs" />
+      </a>
     </div>
   );
 
   return (
-    <div className="container mx-auto px-5 py-12 mt-16 min-h-screen bg-gray-50/50">
+    <div className="container mx-auto px-5 py-12 mt-16 min-h-screen bg-white">
 
       {/* 🟢 LOGGED IN VIEW */}
       {isLoggedIn ? (
@@ -202,93 +190,98 @@ export function Internship({ isLoggedIn }) {
             </div>
           )}
 
-          {/* External / Unverified Section */}
-          <div className="bg-gray-100 rounded-[2.5rem] p-8 md:p-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                  <BsExclamationTriangle className="text-orange-500" /> External Portals & Listings
-                </h3>
-                <p className="text-gray-500 max-w-xl">
-                  These opportunities are aggregated from external sources. Please verify them independently before applying.
-                </p>
-              </div>
-            </div>
+          {/* External Portals Section - Clean List Only */}
+          <div className="border-t border-gray-100 pt-16">
+            <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+              Explore More Opportunities
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {internshipPortals.map((portal) => (
+                <div
+                  key={portal.id}
+                  className="bg-white rounded-3xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer flex flex-col items-center text-center h-full"
+                >
+                  <div className="w-full h-64 mb-6 relative flex items-center justify-center p-2">
+                    <img
+                      src={portal.image}
+                      alt={portal.name}
+                      className="w-full h-full object-contain filter group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {/* Fake Jobs */}
-              {FAKE_EXTERNAL_JOBS.map((job) => renderJobCard(job))}
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-              {/* Portals */}
-              {internshipPortals.map(renderPortalCard)}
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">{portal.name}</h4>
+
+                  <a
+                    href={portal.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-auto text-blue-600 font-bold flex items-center gap-2 hover:gap-3 transition-all"
+                  >
+                    Visit Platform <BsArrowUpRight className="text-sm font-bold" />
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       ) : (
-        /* 🔴 NOT LOGGED IN VIEW */
+        /* 🔴 NOT LOGGED IN VIEW - REFINED */
         <div className="animate-fade-in pb-20">
-          <div className="text-center mb-20">
-            <div className="inline-block bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
-              🚀 Launch Your Career
-            </div>
-            <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-[1.1] tracking-tight">
-              Unlock Your <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Dream Internship</span>
+          <div className="text-center py-20 px-4">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight">
+              Find Your <span className="text-blue-600">Dream Internship</span>
             </h1>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">
-              Access exclusive premium listings from Google, Netflix, and more. Stop searching, start applying.
+
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
+              Unlock exclusive access to verified premium listings from top tech companies.
             </p>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 bg-black text-white px-10 py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
-            >
-              <BsLock className="text-lg" /> Login to Unlock Premium
-            </Link>
+
+            <div className="flex justify-center gap-4">
+              <Link
+                to="/login"
+                className="bg-black text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-900 transition shadow-xl hover:-translate-y-1"
+              >
+                Login to Access Premium
+              </Link>
+            </div>
           </div>
 
-          {/* Public Portals Grid */}
-          <div className="mb-12">
-            <h3 className="text-center text-gray-400 font-semibold uppercase tracking-wider text-sm mb-10">
-              Aggregated from top platforms
+          {/* Feature Highlights - Removed to simplify */}
+
+          {/* Clean Portals Grid - 4 Columns */}
+          <div id="portals" className="max-w-7xl mx-auto px-4">
+            <h3 className="text-center text-gray-400 font-bold uppercase tracking-wider text-sm mb-12">
+              Trusted Platforms
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-4">
-              {internshipPortals.map(renderPortalCard)}
-            </div>
-          </div>
 
-
-          {/* Fake External Listing Teaser - Mixed in */}
-          <div className="mt-20 max-w-6xl mx-auto">
-            <div className="relative">
-              {/* Overlay */}
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gradient-to-b from-white/0 via-white/80 to-white pt-20">
-                <div className="bg-white/80 backdrop-blur-xl border border-white/50 p-8 rounded-3xl shadow-2xl text-center max-w-md mx-4">
-                  <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">
-                    <BsLock />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {internshipPortals.map((portal) => (
+                <div
+                  key={portal.id}
+                  className="bg-white rounded-3xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer flex flex-col items-center text-center h-full"
+                >
+                  <div className="w-full h-64 mb-6 relative flex items-center justify-center p-2">
+                    <img
+                      src={portal.image}
+                      alt={portal.name}
+                      className="w-full h-full object-contain filter group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <h4 className="text-2xl font-bold text-gray-800 mb-2">500+ Premium Jobs Hidden</h4>
-                  <p className="text-gray-500 mb-8">
-                    You are viewing generic external listings. Log in to see verified premium opportunities.
-                  </p>
-                  <Link to="/login" className="block w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-                    Login to View All
-                  </Link>
+
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">{portal.name}</h4>
+
+                  <a
+                    href={portal.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-auto text-blue-600 font-bold flex items-center gap-2 hover:gap-3 transition-all"
+                  >
+                    Visit Platform <BsArrowUpRight className="text-sm font-bold" />
+                  </a>
                 </div>
-              </div>
-
-              {/* Blurred Grid of Fake Jobs */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 blur-sm select-none opacity-60">
-                {[...FAKE_EXTERNAL_JOBS, ...FAKE_EXTERNAL_JOBS].map((job, i) => (
-                  <div key={i} className="bg-white p-5 rounded-2xl border border-gray-100">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-100 rounded w-1/2"></div>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
-
         </div>
       )}
     </div>

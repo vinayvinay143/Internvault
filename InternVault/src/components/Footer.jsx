@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BsGithub, BsTwitter, BsLinkedin, BsInstagram } from "react-icons/bs";
+
 
 export function Footer() {
     return (
@@ -13,12 +13,7 @@ export function Footer() {
                         <p className="text-gray-500 text-sm leading-relaxed">
                             Empowering the next generation of tech leaders with verified internships and skill-building resources.
                         </p>
-                        <div className="flex gap-4">
-                            <a href="#" className="p-2 bg-gray-50 rounded-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"><BsGithub /></a>
-                            <a href="#" className="p-2 bg-gray-50 rounded-full text-gray-600 hover:text-blue-400 hover:bg-blue-50 transition-colors"><BsTwitter /></a>
-                            <a href="#" className="p-2 bg-gray-50 rounded-full text-gray-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"><BsLinkedin /></a>
-                            <a href="#" className="p-2 bg-gray-50 rounded-full text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-colors"><BsInstagram /></a>
-                        </div>
+
                     </div>
 
                     <div>
@@ -34,28 +29,29 @@ export function Footer() {
                     <div>
                         <h4 className="font-bold text-gray-900 mb-6">Resources</h4>
                         <ul className="space-y-3 text-sm text-gray-600">
-                            <li><Link to="/resume" className="hover:text-blue-600 transition-colors">Resume Builder</Link></li>
-                            <li><Link to="/courses" className="hover:text-blue-600 transition-colors">Free Courses</Link></li>
-                            <li><a href="#" className="hover:text-blue-600 transition-colors">Success Stories</a></li>
-                            <li><a href="#" className="hover:text-blue-600 transition-colors">Blog</a></li>
+                            <li><Link to="/skillvault/courses" className="hover:text-blue-600 transition-colors">Free Courses</Link></li>
+                            <li><Link to="/skillvault/project" className="hover:text-blue-600 transition-colors">Projects</Link></li>
+                            <li><Link to="/skillvault/favorites" className="hover:text-blue-600 transition-colors">Favorites</Link></li>
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-gray-900 mb-6">Legal</h4>
+                        <h4 className="font-bold text-gray-900 mb-6">Tools</h4>
                         <ul className="space-y-3 text-sm text-gray-600">
-                            <li><a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a></li>
-                            <li><a href="#" className="hover:text-blue-600 transition-colors">Terms of Service</a></li>
-                            <li><a href="#" className="hover:text-blue-600 transition-colors">Cookie Policy</a></li>
-                            <li><a href="#" className="hover:text-blue-600 transition-colors">Contact Us</a></li>
+                            <li><Link to="/tools/interview-dojo" className="hover:text-blue-600 transition-colors">Interview Dojo</Link></li>
+                            <li><Link to="/tools/resume-analyzer" className="hover:text-blue-600 transition-colors">Resume Analyzer</Link></li>
+                            <li><Link to="/tools/cold-email" className="hover:text-blue-600 transition-colors">Cold Email</Link></li>
+                            <li><Link to="/tools/skill-radar" className="hover:text-blue-600 transition-colors">Skill Radar</Link></li>
+                            <li><Link to="/tools/coffee-detector" className="hover:text-blue-600 transition-colors">Coffee Detector</Link></li>
                         </ul>
                     </div>
+
                 </div>
 
                 <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-                    <p>© 2024 InternVault. All rights reserved.</p>
+                    <p>© 2026 InternVault. All rights reserved.</p>
                     <div className="flex gap-6">
-                        <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500"></div> System Operational</span>
+                        <span className="flex items-center gap-2">ID 82789868CC</span>
                     </div>
                 </div>
             </div>

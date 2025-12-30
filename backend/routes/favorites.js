@@ -6,7 +6,8 @@ const router = express.Router();
 // Add to favorites
 router.post("/add", async (req, res) => {
     try {
-        const { userId, projectId, title, domain, level } = req.body;
+        console.log("📥 [DEBUG] Received favorite/add request:", JSON.stringify(req.body, null, 2));
+        const { userId, projectId, title, domain, level, description, image, sources } = req.body;
 
         // Check if already favorited
         const existing = await Favorite.findOne({ userId, projectId });
@@ -22,7 +23,10 @@ router.post("/add", async (req, res) => {
             projectId,
             title,
             domain,
-            level
+            level,
+            description,
+            image,
+            sources
         });
 
         res.status(201).json(fav);

@@ -1,19 +1,19 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { BsCodeSlash, BsFileEarmarkText, BsJournalBookmark, BsLightbulb, BsKanban, BsStar } from "react-icons/bs";
+import { SkillVaultChatbot } from "../components/SkillVaultChatbot";
 
 export function Skillvault() {
   const links = [
     { to: ".", label: "Home", icon: <BsKanban /> },
     { to: "skills", label: "Skills", icon: <BsCodeSlash /> },
     { to: "courses", label: "Courses", icon: <BsJournalBookmark /> },
-    { to: "resume", label: "Resume", icon: <BsFileEarmarkText /> },
     { to: "skillprompt", label: "Prompt", icon: <BsLightbulb /> },
     { to: "project", label: "Project", icon: <BsKanban /> },
     { to: "favorites", label: "Favorites", icon: <BsStar /> },
   ];
 
   return (
-    <div className="mt-16 min-h-screen bg-gray-50 pt-10 pb-10 px-4 md:px-10">
+    <div className="mt-8 bg-gray-50 pt-10 pb-10 px-4 md:px-10">
       <div className="max-w-7xl mx-auto">
 
         {/* Top Navbar Navigation */}
@@ -44,6 +44,9 @@ export function Skillvault() {
         </main>
 
       </div>
+
+      {/* SkillVault Chatbot - Only visible on SkillVault pages */}
+      <SkillVaultChatbot />
     </div>
   );
 }

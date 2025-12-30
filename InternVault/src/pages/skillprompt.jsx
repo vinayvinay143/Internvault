@@ -5,10 +5,75 @@ export function SkillPrompt() {
   const [copiedId, setCopiedId] = useState(null);
 
   const skills = [
-    "Python", "JavaScript", "Java", "HTML & CSS", "React", "Node.js",
-    "SQL", "Data Structures", "Machine Learning", "AI Concepts",
-    "Cloud Computing", "Cybersecurity", "DevOps"
-  ];
+  // Core Programming
+  "Python", "JavaScript", "Java", "C", "C++", "C#", "Go", "Rust", "PHP", "Ruby",
+  "HTML & CSS", "TypeScript", "Swift", "Kotlin", "R", "MATLAB", "Shell Scripting", "Perl", "Scala", "Dart",
+
+  // Web Development
+  "React", "Angular", "Vue.js", "Next.js", "Svelte", "Node.js", "Express.js", "Django", "Flask", "Spring Boot",
+  "ASP.NET", "Tailwind CSS", "Bootstrap", "jQuery", "GraphQL", "REST APIs", "WebSockets", "Responsive Design", "Accessibility Standards", "Web Performance Optimization",
+
+  // Mobile Development
+  "React Native", "Flutter", "Android Development", "iOS Development", "Xamarin", "Mobile UI/UX", "App Deployment", "API Integration", "Cross-Platform Development", "SwiftUI",
+
+  // Databases & Data
+  "SQL", "MySQL", "PostgreSQL", "MongoDB", "Redis", "Cassandra", "Oracle DB", "Firebase", "Elasticsearch", "Data Warehousing",
+  "Data Structures", "Algorithms", "ETL Pipelines", "Data Cleaning", "Data Visualization", "Tableau", "Power BI", "Excel Advanced", "Hadoop", "Apache Spark",
+
+  // AI & Machine Learning
+  "Machine Learning", "Deep Learning", "AI Concepts", "Neural Networks", "Computer Vision", "NLP", "Reinforcement Learning", "Generative AI", "LLMs", "MLOps",
+  "TensorFlow", "PyTorch", "Scikit-learn", "Keras", "OpenCV", "Transformers", "AI Ethics", "Explainable AI", "AI Deployment", "AI in Healthcare",
+
+  // Cloud & DevOps
+  "Cloud Computing", "AWS", "Microsoft Azure", "Google Cloud", "Serverless Computing", "Microservices", "Docker", "Kubernetes", "Terraform", "Ansible",
+  "DevOps", "CI/CD Pipelines", "Jenkins", "Git", "GitHub", "GitLab", "Monitoring (Prometheus, Grafana)", "Logging Systems", "Agile Practices", "Site Reliability Engineering",
+
+  // Cybersecurity
+  "Cybersecurity", "Network Security", "Ethical Hacking", "Penetration Testing", "Cryptography", "Cloud Security", "Incident Response", "Threat Intelligence", "Risk Management", "Compliance Standards",
+
+  // Emerging Tech
+  "Blockchain", "Smart Contracts", "Ethereum", "Web3", "NFTs", "DeFi", "AR/VR Development", "Unity", "Unreal Engine", "Metaverse Applications",
+  "IoT", "Embedded Systems", "Edge Computing", "5G Networks", "Robotics", "ROS", "Quantum Computing", "Qiskit", "Space Tech", "Biotechnology",
+
+  // Professional & Business Skills
+  "Digital Marketing", "SEO", "SEM", "Content Strategy", "Email Marketing", "Social Media Marketing", "Influencer Marketing", "Business Analytics", "Product Management", "UI/UX Design",
+  "Wireframing", "Prototyping", "Figma", "Adobe XD", "Leadership", "Agile & Scrum", "Project Management", "Entrepreneurship", "Communication Skills", "Critical Thinking",
+    // Cloud & Infrastructure
+  "Multi-Cloud Strategy", "Hybrid Cloud", "Cloud FinOps (Cost Optimization)", "Cloud-native Security", "Service Mesh (Istio, Linkerd)",
+  "Cloud Monitoring", "Cloud Automation", "Cloud Migration", "Cloud Governance", "Cloud Disaster Recovery",
+
+  // Cybersecurity Deep Skills
+  "Zero Trust Architecture", "Red Teaming", "Blue Teaming", "Digital Forensics", "Malware Analysis",
+  "Secure Coding Practices", "Application Security", "Identity & Access Management (IAM)", "Security Information & Event Management (SIEM)", "Blockchain Security",
+
+  // Emerging Tech
+  "Digital Twins", "Smart Cities Tech", "Brain-Computer Interfaces", "Bioinformatics", "Space Technology Systems",
+  "Nanotechnology", "Wearable Tech Development", "Smart Manufacturing (Industry 4.0)", "Drone Technology", "3D Printing",
+
+  // Creative & Design Tech
+  "Motion Graphics (After Effects)", "3D Modeling (Blender, Maya)", "Game Physics Engines", "AR Storytelling", "Generative Design",
+  "Virtual Production", "Interactive Media Design", "Creative Coding (Processing, p5.js)", "Digital Illustration", "Sound Design",
+
+  // Business & Strategy
+  "Design Thinking", "Lean Six Sigma", "Strategic Foresight", "Change Management", "Innovation Management",
+  "Business Process Automation", "Enterprise Architecture", "Financial Modeling", "Risk Analysis", "Corporate Governance",
+
+  // Soft Skills & Leadership
+  "Negotiation", "Emotional Intelligence", "Conflict Resolution", "Leadership in Tech", "Cross-functional Collaboration",
+  "Team Facilitation", "Decision-Making Under Uncertainty", "Critical Problem Solving", "Adaptability", "Mentoring & Coaching",
+  // Advanced Programming & Paradigms
+  "Haskell", "F#", "Functional Programming Concepts", "Parallel Programming", "Concurrent Programming",
+  "Compiler Design", "Low-Level Assembly", "Systems Programming", "Embedded C", "Microcontroller Programming",
+
+  // Advanced Data & Analytics
+  "Data Mining", "Knowledge Graphs", "Semantic Web", "Time Series Analysis", "Geospatial Analytics (GIS)",
+  "Data Governance", "Data Privacy", "Data Cataloging", "DataOps", "Streaming Analytics",
+
+  // AI & ML Specializations
+  "Federated Learning", "Edge AI", "AI for Robotics", "AI in Finance", "AI in Climate Tech",
+  "Synthetic Data Generation", "AI Model Compression", "Transfer Learning", "Few-Shot Learning", "AI Safety Research",
+
+];
 
   const basePrompt = (skill) => `
 You are my personal Skill Coach. Teach me the skill: **${skill}**

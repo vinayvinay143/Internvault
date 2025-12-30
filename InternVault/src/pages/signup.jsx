@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -26,7 +27,8 @@ export function Signup() {
         phone: "",
         organization: "",
         yearOfStudy: "",
-        avatar: avatars[0]
+        avatar: avatars[0],
+        whatsappNotifications: true
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -35,16 +37,138 @@ export function Signup() {
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === "phone") {
+            // Only allow numbers and max 10 digits
+            const formattedValue = value.replace(/\D/g, "").slice(0, 10);
+            setFormData({ ...formData, [name]: formattedValue });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
+    };
+
+    const validateForm = () => {
+        const { username, email, password, phone } = formData;
+
+        // Email Validation
+
+        // 1. One @ symbol
+        if ((email.match(/@/g) || []).length !== 1) {
+            return "Email must contain exactly one '@' symbol.";
+        }
+
+        // 6. No spaces
+        if (/\s/.test(email)) {
+            return "Email must not contain spaces.";
+        }
+
+        // 9. Consecutive dots or special chars (dots)
+        if (/\.\./.test(email)) {
+            return "Email must not contain consecutive dots.";
+        }
+
+        // Regex for overall structure:
+        // ^[a-zA-Z0-9]        -> Must start with alphanumeric
+        // (?:[._-][a-zA-Z0-9]+)* -> Allow dots/hyphens/underscores but not at start, and must be followed by alphanumeric (handles consecutive specials implicitly if we want, or at least ensures no special at end of local part)
+        // Actually user said "Avoid consecutive dots or special characters".
+        // Let's use a standard strict regex and then explicit checks if needed.
+
+        // Rules implemented in regex:
+        // - Start adjacent to @ must be alphanumeric? No, typically just not dot.
+        // User rule: "Should not start or end with special characters" (implied for local part and domain part edges)
+
+        // Local part:
+        const [localPart, domainPart] = email.split('@');
+
+        // 2 & 3. content before and after @
+        if (!localPart || !domainPart) {
+            return "Email must have characters before and after '@'.";
+        }
+
+        // 8. Should not start or end with special characters
+        // Check local part start/end
+        if (/^[^a-zA-Z0-9]/.test(localPart) || /[^a-zA-Z0-9]$/.test(localPart)) {
+            return "Username part of email must not start or end with special characters.";
+        }
+        // Check domain part start
+        if (/^[^a-zA-Z0-9]/.test(domainPart)) {
+            return "Domain part of email must not start with special characters.";
+        }
+
+        // 5. Allowed chars: letters, numbers, dots (and hyphen/underscore implicitly for emails usually, but user mentioned dots specifically. Standard email allows - _)
+        // Regex to validate characters allowed
+        if (/[^a-zA-Z0-9._@-]/.test(email)) {
+            return "Email contains invalid characters.";
+        }
+
+        // 4. Domain valid extension
+        if (!domainPart.includes('.')) {
+            return "Domain must include a valid extension.";
+        }
+        const lastDotIndex = domainPart.lastIndexOf('.');
+        if (lastDotIndex === domainPart.length - 1) { // Ends with dot
+            return "Email must not end with a special character (dot).";
+        }
+        const extension = domainPart.substring(lastDotIndex + 1);
+        if (extension.length < 2) {
+            return "Invalid domain extension.";
+        }
+
+        // 9. Avoid consecutive special chars (._-)
+        if (/[\.\_\-]{2,}/.test(email)) {
+            return "Email must not contain consecutive special characters.";
+        }
+
+        // Phone Validation
+        const phoneRegex = /^\d{10}$/;
+        if (!phone.match(phoneRegex)) {
+            return "Phone number must be exactly 10 digits.";
+        }
+
+        // Password Validation
+        if (password.length < 8) {
+            return "Password must be at least 8 characters long.";
+        }
+        if (/\s/.test(password)) {
+            return "Password must not contain spaces.";
+        }
+        if (!/[A-Z]/.test(password)) {
+            return "Password must contain at least one uppercase letter.";
+        }
+        if (!/[a-z]/.test(password)) {
+            return "Password must contain at least one lowercase letter.";
+        }
+        if (!/\d/.test(password)) {
+            return "Password must contain at least one number.";
+        }
+        if (!/[@$!%*?&]/.test(password)) {
+            return "Password must contain at least one special character (@$!%*?&).";
+        }
+        if (password === username || password === email) {
+            return "Password must not be the same as the username or email.";
+        }
+
+        return null;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+
+        const validationError = validateForm();
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+
         setLoading(true);
 
         try {
-            await axios.post(`${API_URL}/auth/register`, formData);
+            const submissionData = {
+                ...formData,
+                phone: `91${formData.phone}`
+            };
+            await axios.post(`${API_URL}/auth/register`, submissionData);
             navigate("/login");
         } catch (err) {
             setError(err.response?.data?.error || "Registration failed. Please try again.");
@@ -115,15 +239,19 @@ export function Signup() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-gray-700">Phone</label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    placeholder="+1 234 567 890"
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                />
+                                <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                                <div className="relative flex items-center">
+                                    <span className="absolute left-4 text-gray-500 font-medium">+91</span>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        placeholder="9876543210"
+                                        className="w-full pl-12 pr-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">Enter your 10-digit mobile number</p>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-700">Year of Study</label>
@@ -154,6 +282,23 @@ export function Signup() {
                                 onChange={handleChange}
                             />
                         </div>
+
+                        {/* WhatsApp Notifications Opt-in */}
+                        {formData.phone && (
+                            <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
+                                <input
+                                    type="checkbox"
+                                    id="whatsappNotifications"
+                                    name="whatsappNotifications"
+                                    checked={formData.whatsappNotifications}
+                                    onChange={(e) => setFormData({ ...formData, whatsappNotifications: e.target.checked })}
+                                    className="mt-1 w-4 h-4 text-green-600 border-green-300 rounded focus:ring-green-500"
+                                />
+                                <label htmlFor="whatsappNotifications" className="text-sm text-gray-700 cursor-pointer">
+                                    <span className="font-semibold">Get WhatsApp notifications 📱</span>
+                                </label>
+                            </div>
+                        )}
 
                         <div className="space-y-1 relative">
                             <label className="text-sm font-medium text-gray-700">Password</label>

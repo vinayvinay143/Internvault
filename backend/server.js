@@ -2,9 +2,13 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import authRoutes from "./routes/auth.js";
 import favoritesRoutes from "./routes/favorites.js";
 import adsRoutes from "./routes/ads.js";
+import notificationsRoutes from "./routes/notifications.js";
+import userRoutes from "./routes/user.js";
 
 // Load environment variables
 dotenv.config();
@@ -15,6 +19,10 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/internvault";
@@ -33,6 +41,8 @@ mongoose.connect(MONGODB_URI)
 app.use("/api/auth", authRoutes);
 app.use("/api/favorites", favoritesRoutes);
 app.use("/api/ads", adsRoutes);
+app.use("/api/notifications", notificationsRoutes);
+app.use("/api/user", userRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

@@ -42,6 +42,10 @@ router.post("/register", async (req, res) => {
     }
 });
 
+import jwt from "jsonwebtoken";
+
+// ... (existing code)
+
 // Login user
 router.post("/login", async (req, res) => {
     try {
@@ -61,11 +65,24 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Invalid email or password" });
         }
 
-        // Return user without password
+        // Create JWT Token
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET || "fallback_secret_key_123", // Use env var in production
+            { expiresIn: "7d" }
+        );
+
+        // Return user and token
         res.json({
             _id: user._id,
             username: user.username,
             email: user.email,
+            phone: user.phone,
+            organization: user.organization,
+            yearOfStudy: user.yearOfStudy,
+            avatar: user.avatar,
+            whatsappNotifications: user.whatsappNotifications,
+            token: token,
             message: "Login successful"
         });
     } catch (error) {
