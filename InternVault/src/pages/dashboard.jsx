@@ -1,22 +1,61 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { BsPersonCircle, BsBriefcase, BsLink45Deg, BsImage, BsPencil, BsCheck, BsX, BsTrash } from "react-icons/bs";
+import { BsPersonCircle, BsBriefcase, BsLink45Deg, BsImage, BsPencil, BsCheck, BsX, BsTrash, BsShieldCheck, BsExclamationTriangleFill, BsCheckCircleFill } from "react-icons/bs";
 import toast from "react-hot-toast";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { GroqService } from "../services/groq";
+
+const tavilyApiKey = import.meta.env.VITE_TAVILY_API_KEY;
 
 const API_URL = "http://localhost:5000/api";
 
 const avatars = [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Callie",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Dante",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Eliza",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Flo",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Granny",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Happy",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack"
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Eliza&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Flo&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Mira&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Zara&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Ivy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Nova&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Dante&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Kai&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Theo&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Max&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Orion&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Happy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Joy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sunny&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Smiley&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Cheer&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Giggles&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bliss&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jolly&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Grin&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sparkle&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Chuckle&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Glow&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bright&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Delight&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=SmileMore&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Happiness&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Laughs&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sunbeam&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Radiant&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Twinkle&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Cheeky&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Playful&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Peppy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=BrightEyes&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=GlowUp&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Chirpy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Radiance&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Spark&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Beaming&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=LightHeart&mouth=smile"
 ];
 
 export function Dashboard({ user, setUser }) {
@@ -28,6 +67,8 @@ export function Dashboard({ user, setUser }) {
     });
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [verifying, setVerifying] = useState(false);
+    const [verificationResult, setVerificationResult] = useState(null); // { status: 'Verified' | 'Flagged', reason: '...' }
     const [deleteId, setDeleteId] = useState(null);
 
     // Profile editing state
@@ -75,10 +116,93 @@ export function Dashboard({ user, setUser }) {
         setLoading(true);
 
         try {
+            // 1. STRICT VERIFICATION
+            let verificationStatus = 'Unverified';
+            let verificationReason = '';
+
+            // Re-using the verify logic here for blocking
+            toast.loading("Verifying Company & Link...", { id: "verifyToast" });
+
+            let searchContext = "No web results found.";
+            if (tavilyApiKey) {
+                try {
+                    const response = await fetch("https://api.tavily.com/search", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            api_key: tavilyApiKey,
+                            query: `${formData.companyName} company official site reviews scam`,
+                            search_depth: "basic",
+                            max_results: 3
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.results && data.results.length > 0) {
+                        searchContext = data.results.map(r => `${r.title}: ${r.content}`).join("\n");
+                    }
+                } catch (e) {
+                    console.error("Search failed", e);
+                }
+            }
+
+            // 2. AI Logic - SMART STRICT MODE
+            const prompt = `
+                Analyze this internship hosting request for LEGITIMACY.
+                
+                Company Name: "${formData.companyName}"
+                Provided Application Link: "${formData.link}"
+                Search Context: ${searchContext}
+
+                YOUR TASK:
+                You are a security firewall. You must FLAG suspicious requests but ALLOW valid ones.
+
+                CRITICAL CHECKS:
+                1. DOMAIN MATCHING: 
+                   - Does the URL domain match the Company Name? (e.g. "Microsoft" -> "microsoft.com") -> VERIFIED.
+                   - Is it a TRUSTED HIRING PLATFORM? (e.g., internshala.com, linkedin.com, ycombinator.com, unstop.com, wellfound.com, glassdoor.com) -> VERIFIED.
+                   
+                2. SCAM DETECTION:
+                   - If Link is a URL shortener (bit.ly, tinyurl) -> FLAGGED.
+                   - If Link is a generic form (docs.google, forms.gle) -> FLAGGED (unless Company is a small student club).
+                   - If search results warn about scams -> FLAGGED.
+
+                3. VERDICT RULES:
+                   - If it's a known job board (Internshala, etc.) -> "Verified".
+                   - If domain matches company -> "Verified".
+                   - If mismatch and NOT a job board -> "Flagged".
+
+                Return JSON ONLY:
+                {
+                    "status": "Verified" | "Flagged",
+                    "reason": "Direct, short reason (max 10 words)"
+                }
+            `;
+
+            const result = await GroqService.generateJSON(prompt);
+
+            toast.dismiss("verifyToast");
+
+            // STRICT BLOCKING: Block if Flagged OR Unverified
+            if (result.status !== 'Verified') {
+                toast.error(`Blocked: ${result.reason}`, { duration: 6000, icon: '🛡️' });
+                setVerificationResult(result);
+                setVerifying(false);
+                setLoading(false);
+                return; // 🛑 BLOCK SUBMISSION 🛑
+            }
+
+            verificationStatus = result.status;
+            verificationReason = result.reason;
+            setVerificationResult(result);
+
+            // 2. PROCEED TO POST
             const data = new FormData();
             data.append('userId', user._id);
             data.append('companyName', formData.companyName);
             data.append('link', formData.link);
+            data.append('verificationStatus', verificationStatus);
+            data.append('verificationReason', verificationReason);
+
             if (imageFile) {
                 data.append('image', imageFile);
             }
@@ -88,9 +212,10 @@ export function Dashboard({ user, setUser }) {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            toast.success("Internship posted successfully!");
+            toast.success("Verified & Posted Successfully!");
             setFormData({ companyName: "", link: "", imageUrl: "" });
             setImageFile(null);
+            setVerificationResult(null);
             fetchUserAds();
         } catch (error) {
             console.error("Error posting ad:", error);
@@ -157,6 +282,8 @@ export function Dashboard({ user, setUser }) {
             setEditLoading(false);
         }
     };
+
+
 
     if (!user) {
         return (
@@ -375,6 +502,22 @@ export function Dashboard({ user, setUser }) {
                                     <BsBriefcase className="absolute left-3.5 top-3.5 text-gray-400" />
                                 </div>
                             </div>
+
+                            {/* Verification Section - Status Display Only */}
+                            {verificationResult && (
+                                <div className={`bg-blue-50 p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 ${verificationResult.status === 'Verified'
+                                    ? 'bg-green-50 border-green-200 text-green-800'
+                                    : 'bg-red-50 border-red-200 text-red-800'
+                                    }`}>
+                                    <div className="flex items-center gap-2 font-bold mb-1">
+                                        {verificationResult.status === 'Verified'
+                                            ? <><BsCheckCircleFill className="text-green-600" /> Detected: Legitimate Opportunity</>
+                                            : <><BsExclamationTriangleFill className="text-red-500" /> Detected: Suspicious / Unverified</>
+                                        }
+                                    </div>
+                                    <p className="opacity-90 text-sm">{verificationResult.reason}</p>
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Application Link</label>

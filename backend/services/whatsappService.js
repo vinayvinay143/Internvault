@@ -105,6 +105,7 @@ export const sendBulkInternshipNotification = async (adData, users) => {
 
 ━━━━━━━━━━━━━━━━━━━━
 *${adData.companyName}*
+${adData.verificationStatus === 'Verified' ? '✅ *Verified & Safe*' : '⚠️ *Unverified*'}
 ━━━━━━━━━━━━━━━━━━━━
 
 ⏰ *Expires in:* 24 hours

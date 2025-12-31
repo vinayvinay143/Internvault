@@ -46,7 +46,7 @@ router.get("/active", async (req, res) => {
 
 router.post("/add", upload.single('image'), async (req, res) => {
     try {
-        const { userId, companyName, link } = req.body;
+        const { userId, companyName, link, verificationStatus, verificationReason } = req.body;
         let imageUrl = req.body.imageUrl;
 
         if (req.file) {
@@ -65,7 +65,9 @@ router.post("/add", upload.single('image'), async (req, res) => {
             companyName,
             link,
             imageUrl,
-            expiresAt
+            expiresAt,
+            verificationStatus: verificationStatus || 'Unverified',
+            verificationReason: verificationReason || ''
         });
 
         try {

@@ -17,7 +17,7 @@ import { Course } from "./pages/courses";
 import { SkillPrompt } from "./pages/skillprompt";
 import { Project } from "./pages/project";
 import { Favorites } from "./pages/favourites";
-import { SkillRadar, CoffeeDetector } from "./pages/Tools";
+import { SkillRadar, CoffeeDetector, Tools } from "./pages/Tools";
 
 import { Login } from "./pages/login";
 import { Signup } from "./pages/signup";
@@ -75,7 +75,8 @@ function App() {
           {/* Protected Individual Routes */}
           <Route path="/dashboard" element={<ProtectedRoute user={user}><Dashboard user={user} setUser={setUser} /></ProtectedRoute>} />
           <Route path="/skillhome" element={<ProtectedRoute user={user}><Skillhome /></ProtectedRoute>} />
-          {/* Resume route removed */}
+          <Route path="/tools" element={<ProtectedRoute user={user}><div className="pt-24"><Tools /></div></ProtectedRoute>} />
+
           <Route path="/host" element={<ProtectedRoute user={user}><Dashboard user={user} setUser={setUser} /></ProtectedRoute>} />
 
 

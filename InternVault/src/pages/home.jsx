@@ -113,10 +113,7 @@ export function Home() {
           variants={containerVariants}
           className="text-center max-w-5xl mx-auto"
         >
-          <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-blue-100 text-blue-600 text-xs font-semibold mb-6 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow cursor-default">
-            <BsStars className="text-yellow-500" />
-            <span>The Future of Internships is Here</span>
-          </motion.div>
+
 
           <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]">
             Unlock Your <br className="hidden md:block" />
@@ -391,7 +388,7 @@ export function Home() {
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
                 <Link
-                  to="/skillhome"
+                  to="/skillvault"
                   className="group inline-flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors duration-300"
                 >
                   Explore SkillVault
@@ -475,7 +472,7 @@ export function Home() {
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
                 <Link
-                  to="/skillvault"
+                  to="/tools"
                   className="group inline-flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors duration-300"
                 >
                   Explore Tools
@@ -509,14 +506,14 @@ export function Home() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight"
               >
-                Are You a{" "}
+                Found a Verified{" "}
                 <motion.span
                   initial={{ backgroundPosition: "200% center" }}
                   animate={{ backgroundPosition: "-200% center" }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                   className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-[length:200%_auto]"
                 >
-                  Company?
+                  Internship?
                 </motion.span>
               </motion.h2>
 
@@ -527,7 +524,7 @@ export function Home() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className="text-xl text-slate-600 mb-8 leading-relaxed"
               >
-                Host your internship opportunities on InternVault and connect with talented, verified candidates. Reach thousands of skilled students ready to contribute to your team.
+                You don't need to be a recruiter to help! Students can host and share verified internship opportunities they've found. Contribute to the community by posting authentic roles for your peers.
               </motion.p>
 
               <motion.div
@@ -610,6 +607,11 @@ export function Home() {
                   <span className="text-xs font-semibold text-green-700">
                     {Math.max(0, Math.floor((new Date(currentAd.expiresAt) - new Date()) / (1000 * 60 * 60)))}h left
                   </span>
+                  {currentAd.verificationStatus === 'Verified' && (
+                    <span className="flex items-center gap-1 bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                      <BsShieldCheck /> Verified
+                    </span>
+                  )}
                 </div>
 
                 <h4 className="font-bold text-gray-900 text-sm leading-tight truncate mb-0.5">

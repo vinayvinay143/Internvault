@@ -11,7 +11,7 @@ const adSchema = new mongoose.Schema({
         required: true
     },
     link: {
-        type: String, 
+        type: String,
         required: true
     },
     imageUrl: {
@@ -21,7 +21,16 @@ const adSchema = new mongoose.Schema({
     expiresAt: {
         type: Date,
         required: true,
-        index: { expires: 0 } 
+        index: { expires: 0 }
+    },
+    verificationStatus: {
+        type: String,
+        enum: ['Pending', 'Verified', 'Flagged', 'Unverified'],
+        default: 'Unverified'
+    },
+    verificationReason: {
+        type: String,
+        default: ""
     }
 }, {
     timestamps: true

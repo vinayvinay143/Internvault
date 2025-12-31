@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { BsArrowUpRight, BsBriefcase, BsBuilding, BsLock, BsExclamationTriangle, BsGlobe } from "react-icons/bs";
+import { BsArrowUpRight, BsBriefcase, BsBuilding, BsLock, BsExclamationTriangle, BsGlobe, BsShieldCheck, BsCheckCircleFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export function Internship({ isLoggedIn }) {
   const [joobleJobs, setJoobleJobs] = useState([]);
-  const [internsignalJobs, setInternsignalJobs] = useState([]);
+  const [internsignalJobs, setInternsignalJobs] = useState([]); // This will now hold real ads
   const [loading, setLoading] = useState(true);
+  const API_URL = "http://localhost:5000/api";
 
   // Static list of Internship Portals
   const internshipPortals = [
@@ -52,7 +54,15 @@ export function Internship({ isLoggedIn }) {
       setLoading(true);
       if (isLoggedIn) {
         await fetchJoobleJobs();
-        setInternsignalJobs(MOCK_PREMIUM_JOBS);
+
+        // Fetch Real Active Ads from Backend
+        try {
+          const response = await axios.get(`${API_URL}/ads/active`);
+          setInternsignalJobs(response.data);
+        } catch (error) {
+          console.error("Failed to fetch verified ads", error);
+          setInternsignalJobs(MOCK_PREMIUM_JOBS); // Fallback
+        }
       }
       setLoading(false);
     };
@@ -61,11 +71,15 @@ export function Internship({ isLoggedIn }) {
 
   // Render Job Card
   const renderJobCard = (job, isPremium = false) => {
-    const isFake = job.type === "Unverified";
-    let title = job.title;
-    let company = job.company || job.company_name || "Unknown Company";
+    const isFake = job.type === "Unverified"; // Legacy check
+    const isVerified = job.verificationStatus === 'Verified';
+    const isFlagged = job.verificationStatus === 'Flagged';
+
+    let title = job.title || "Internship Opportunity";
+    let company = job.company || job.companyName || "Unknown Company";
     let link = job.link || job.url || "#";
     let location = job.location || "Remote";
+    let imageUrl = job.imageUrl || "";
 
     return (
       <div
@@ -79,19 +93,26 @@ export function Internship({ isLoggedIn }) {
         `}
       >
         {isPremium && (
-          <div className="absolute top-0 right-0 p-3">
-            <div className="bg-yellow-100/50 backdrop-blur-sm text-yellow-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-yellow-200">
-              Premium
-            </div>
+          <div className="absolute top-0 right-0 p-3 flex gap-2">
+            {isVerified && (
+              <div className="bg-green-100/90 backdrop-blur-sm text-green-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-green-200 flex items-center gap-1">
+                <BsShieldCheck className="text-sm" /> Verified
+              </div>
+            )}
+            {isFlagged && (
+              <div className="bg-red-100/90 backdrop-blur-sm text-red-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-red-200 flex items-center gap-1">
+                <BsExclamationTriangle className="text-sm" /> Flagged
+              </div>
+            )}
           </div>
         )}
 
         <div>
           {/* Icon / Logo Area */}
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-2xl transition-transform group-hover:scale-110
-              ${isPremium ? "bg-yellow-50 text-yellow-600" : isFake ? "bg-gray-100 text-gray-500" : "bg-blue-50 text-blue-600"}
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-2xl transition-transform group-hover:scale-110 border overflow-hidden
+              ${isPremium ? "bg-white border-blue-100" : isFake ? "bg-gray-100 text-gray-500" : "bg-blue-50 text-blue-600"}
            `}>
-            {isPremium ? <BsBuilding /> : isFake ? <BsExclamationTriangle /> : <BsBriefcase />}
+            {imageUrl ? <img src={imageUrl} alt={company} className="w-full h-full object-cover" /> : (isPremium ? <BsBriefcase className="text-blue-600" /> : <BsBriefcase />)}
           </div>
 
           {/* Content */}

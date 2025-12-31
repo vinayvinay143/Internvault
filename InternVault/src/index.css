@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,7 +36,9 @@ html {
   text-fill-color: transparent;
   -webkit-text-fill-color: transparent;
   animation: shine 3s linear infinite;
-  font-weight: 800;
+  font-weight: 500;
+  font-family: 'Roboto Slab', serif;
+  letter-spacing: 1px;
 }
 
 /* Image Slider Styles */
@@ -49,7 +52,7 @@ html {
 .slider-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 50px;
   padding: 16px;
   background: white;
