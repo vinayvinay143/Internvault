@@ -43,7 +43,7 @@ export function InternChat({ user }) {
                 },
                 body: JSON.stringify({
                     api_key: tavilyApiKey,
-                    query: query.includes('.') ? query : `${query} company registration reviews official site`,
+                    query: query.includes('.') ? query : `"${query}" company internship reviews scam check`,
                     search_depth: "basic",
                     max_results: 5,
                     include_answer: true,
@@ -170,7 +170,7 @@ export function InternChat({ user }) {
         // If image is uploaded, use Groq Llama 4 Vision (Scout)
         if (imageToAnalyze) {
             try {
-                console.log("Analyzing image with Groq Llama 4 Vision...");
+
 
                 // Convert image to data URL format for Groq
                 const reader = new FileReader();
@@ -250,7 +250,7 @@ Be specific about what you see.`;
             return;
         }
 
-        console.log("Sending request to Groq with web search...");
+
 
         try {
             // Search the web for company information
@@ -258,11 +258,11 @@ Be specific about what you see.`;
             let searchContext = "";
             let rawSources = [];
 
-            console.log("Searching web for company information...");
+
             searchResults = await searchCompanyInfo(userMessage);
 
             if (searchResults && searchResults.results && searchResults.results.length > 0) {
-                console.log("Search results found:", searchResults.results.length);
+
                 rawSources = searchResults.results;
 
                 // Build context from search results
@@ -279,7 +279,7 @@ Be specific about what you see.`;
                     searchContext += `${idx + 1}. ${result.title}\n   ${truncatedContent}\n   URL: ${result.url}\n\n`;
                 });
             } else {
-                console.log("No search results - using AI knowledge only");
+
                 searchContext = "\\n\\n CRITICAL: Web search returned NO matching results. This might be a ghost company.\\n";
             }
 
@@ -312,41 +312,44 @@ Be specific about what you see.`;
    - **Job Details:** Are role, duration, stipend, and location clearly explained?
    - **Contact Info:** Is the email address professional (e.g., hr@company.com)?
    - **Reputation (TRUSTED SOURCES ONLY):** Check for reviews/experiences ONLY from these platforms:
-     * Trustpilot, CareerBliss, Comparably, MouthShut, Naukri Reviews, RateMyInternship
-     * Facebook (company pages), Glassdoor, Indeed, LinkedIn, Internshala, AmbitionBox
-     * Quora, Reddit, Google Reviews, Discord (career servers)
+     * Reddit.com/r/internships, Reddit.com/r/cscareerquestions (internship threads)
+     * TeamBlind.com, FishbowlApp.com, Levels.fyi (tech internships)
+     * Indeed.com, LinkedIn.com, Handshake.com
+     * Vault.com, CareerBliss.com, Glassdoor.com
+     * RateMyInternships.org, CanaryStudent.com, Internships.com, WayUp.com
      * **RULE:** If negative reviews exist on these sites →  FAKE.
    - **Legality:** Does the company have a verified registration (CIN, MCA, Zauba)?
    - **Selection Process:** Is there a proper interview/task/screening process?
    - **Too Good To Be True:** Are there unrealistic promises (high pay for little work)?
 
 3. **CONTEXT AWARENESS (Crucial):**
-   - Do NOT mark as FAKE just because search results contain the word "scam" in a question (e.g. "Is X a scam?").
-   - READ the content to see if the answer is "Yes, it is a scam" or "No, it is legit".
-   - Negative reviews are a major red flag, but look for patterns (multiple people saying the same thing).
-   - **Matching:** Company name matching should be **CASE-INSENSITIVE**. (e.g. "internvault" == "InternVault").
+   - **Dual Meanings:** If a user query sounds like a technical term (e.g., "Null Class", "Code Soft", "Byte"), CHECK if there is a company by that name in the search results.
+   - **Prioritize Company:** If even ONE search result mentions a "Company", "Services", "Solutions", or "LLP" matching the name, treat it as a COMPANY inquiry, NOT off-topic.
+   - **Do NOT** mark as "Off Topic" if the user asks about a specific name that turns out to be a company, even if it has a technical name.
+   - **Course Selling:** If a company asks for money for training/internship → VERDICT: **FAKE** (Reason: "Pay-to-work scheme / Course selling disguised as internship").
+   - **Innoversity/NullClass cases:** Be careful to distinguish between "EdTech Company" (Real) and "Fake Internship" (Scam). If the company exists but the internship is "pay-to-work", verdict is FAKE (Internship is fake), but acknowledge the company exists.
 
 4. **TOPIC & ENTITY CHECK (STRICT):**
-   - **Scope:** I ONLY verify companies, startups, and internship offers.
-   - **Off-Topic:** IF the user asks about general life advice, coding help, movies, songs, celebrities, or random chitchat → " OFF TOPIC: I only verify companies and internships."
-   - **Educational Institutions:** Colleges, Universities, and Schools are **OFF TOPIC** unless the query is specifically about an internship/job offer AT that institution.
+   - **Scope:** I verify companies, startups, and internship offers.
+   - **Off-Topic:** Only if the query is clearly about *concepts* (e.g. "What is null in Java?", "How to write a for loop") with NO intent to verify a company.
+   - **Educational Institutions:** Colleges/Universities are OFF TOPIC unless checking a specific job offer.
    - **Unknown Companies:** IF search results are empty or reveal NO information about the company:
      - Verdict:  FAKE
      - Reason: "No official records, website, or digital footprint found."
 
 5. **DECISION HIERARCHY** (Follow in order):
    
-   Step 1: Check for scam keywords or "Pay to work" →  FAKE
-   Step 2: Check for negative reviews confirming fraud →  FAKE
-   Step 3: Check for mixed reviews (some positive, some scam reports) →  FAKE
+   Step 1: Check for "Pay to work" / "Registration Fee" / "Security Deposit" →  FAKE
+   Step 2: Check for negative reviews confirming fraud/scam →  FAKE
+   Step 3: Check is it a "Course Selling" scheme? →  FAKE
    Step 4: Check for official registration + professional presence →  REAL
-   Step 5: **No information found / Unknown company →  FAKE (Reason: "No official records or digital footprint found")**
+   Step 5: **No information found / Unknown company →  FAKE**
    Step 6: Only positive reviews + official website →  REAL
 
 6. **OUTPUT FORMAT** (STRICT):
 
 **1. VERDICT**
- REAL /  FAKE
+ REAL /  FAKE /  SUSPICIOUS
 
 **2. REASONS**
 - [First specific reason based on search evidence]
@@ -419,7 +422,7 @@ ${searchContext}`
             }
 
             const data = await response.json();
-            console.log("Groq Response:", data);
+
 
             const text = data.choices?.[0]?.message?.content;
 
@@ -556,7 +559,7 @@ ${searchContext}`
                 } else if (assessment.toLowerCase().includes('scam') || assessment.toLowerCase().includes('fake')) {
                     badgeColor = "bg-red-100 text-red-800 border-2 border-red-300";
                     icon = <BsXCircleFill className="text-red-600" />;
-                } else if (assessment.toLowerCase().includes('suspicious')) {
+                } else if (assessment.toLowerCase().includes('suspicious') || assessment.toLowerCase().includes('caution')) {
                     badgeColor = "bg-yellow-100 text-yellow-800 border-2 border-yellow-300";
                     icon = <BsExclamationTriangleFill className="text-yellow-600" />;
                 }

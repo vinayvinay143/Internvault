@@ -2,11 +2,17 @@ import { useState, useEffect } from "react";
 import { BsArrowUpRight, BsBriefcase, BsBuilding, BsLock, BsExclamationTriangle, BsGlobe, BsShieldCheck, BsCheckCircleFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { fetchAllInternships, getAPIStatus } from "../services/internshipApis";
 
 export function Internship({ isLoggedIn }) {
   const [joobleJobs, setJoobleJobs] = useState([]);
+  const [findworkJobs, setFindworkJobs] = useState([]);
+  const [indianapiJobs, setIndianapiJobs] = useState([]);
+  const [arbeitnowJobs, setArbeitnowJobs] = useState([]);
   const [internsignalJobs, setInternsignalJobs] = useState([]); // This will now hold real ads
+  const [usajobsJobs, setUsajobsJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [apiStatus, setApiStatus] = useState({});
   const API_URL = "http://localhost:5000/api";
 
   // Static list of Internship Portals
@@ -21,23 +27,34 @@ export function Internship({ isLoggedIn }) {
     { id: 8, name: "Smart Internz", image: "/i8.png", link: "https://skillwallet.smartinternz.com/virtual-internship-programs/" },
   ];
 
-  // Function to fetch Jooble Jobs
-  const fetchJoobleJobs = async () => {
+  // Function to fetch jobs from all APIs
+  const fetchAllJobs = async () => {
     try {
-      const apiKey = import.meta.env.VITE_JOOBLE_API_KEY;
-      if (!apiKey || apiKey === "YOUR_JOOBLE_KEY_HERE") return;
+      // Check API status
+      const status = getAPIStatus();
+      setApiStatus(status);
 
-      const response = await fetch(`https://jooble.org/api/${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keywords: "internship", location: "Remote" }),
+      // Fetch from all APIs in parallel
+      const results = await fetchAllInternships({
+        keywords: "internship",
+        location: "Remote",
+        includeIndianAPI: false, // Explicitly disable
+        includeUSAJobs: false // Explicitly disable
       });
 
-      if (!response.ok) throw new Error("Failed to fetch Jooble jobs");
-      const data = await response.json();
-      setJoobleJobs(data.jobs || []);
+      // Update state with results from each API
+      setJoobleJobs(results.jooble || []);
+      setFindworkJobs(results.findwork || []);
+      setIndianapiJobs(results.indianapi || []);
+      setArbeitnowJobs(results.arbeitnow || []);
+      setUsajobsJobs(results.usajobs || []);
     } catch (error) {
+      console.error("Error fetching jobs:", error);
       setJoobleJobs([]);
+      setFindworkJobs([]);
+      setIndianapiJobs([]);
+      setArbeitnowJobs([]);
+      setUsajobsJobs([]);
     }
   };
 
@@ -53,7 +70,7 @@ export function Internship({ isLoggedIn }) {
     const fetchData = async () => {
       setLoading(true);
       if (isLoggedIn) {
-        await fetchJoobleJobs();
+        await fetchAllJobs();
 
         // Fetch Real Active Ads from Backend
         try {
@@ -199,14 +216,62 @@ export function Internship({ isLoggedIn }) {
             {loading && <p className="col-span-full text-center text-gray-400">Loading premium jobs...</p>}
           </div>
 
-          {/* Latest Openings (API) */}
+          {/* Latest Openings (Jooble API) */}
           {joobleJobs.length > 0 && (
             <div>
               <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center gap-3">
-                <span className="w-1.5 h-8 bg-blue-500 rounded-full"></span> Latest Remote Openings
+                <span className="w-1.5 h-8 bg-blue-500 rounded-full"></span> Jooble - Remote Openings
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {joobleJobs.map((job) => renderJobCard(job))}
+                {joobleJobs.slice(0, 8).map((job) => renderJobCard(job))}
+              </div>
+            </div>
+          )}
+
+          {/* Findwork Jobs */}
+          {findworkJobs.length > 0 && (
+            <div>
+              <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center gap-3">
+                <span className="w-1.5 h-8 bg-purple-500 rounded-full"></span> Findwork - Tech Opportunities
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {findworkJobs.slice(0, 8).map((job) => renderJobCard(job))}
+              </div>
+            </div>
+          )}
+
+          {/* IndianAPI Jobs */}
+          {indianapiJobs.length > 0 && (
+            <div>
+              <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center gap-3">
+                <span className="w-1.5 h-8 bg-orange-500 rounded-full"></span> IndianAPI - India Opportunities
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {indianapiJobs.slice(0, 8).map((job) => renderJobCard(job))}
+              </div>
+            </div>
+          )}
+
+          {/* Arbeitnow Jobs */}
+          {arbeitnowJobs.length > 0 && (
+            <div>
+              <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center gap-3">
+                <span className="w-1.5 h-8 bg-green-500 rounded-full"></span> Arbeitnow - European & Remote
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {arbeitnowJobs.slice(0, 8).map((job) => renderJobCard(job))}
+              </div>
+            </div>
+          )}
+
+          {/* USA Jobs */}
+          {usajobsJobs.length > 0 && (
+            <div>
+              <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center gap-3">
+                <span className="w-1.5 h-8 bg-red-500 rounded-full"></span> USA Jobs - Federal Opportunities
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {usajobsJobs.slice(0, 8).map((job) => renderJobCard(job))}
               </div>
             </div>
           )}

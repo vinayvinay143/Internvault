@@ -9,6 +9,10 @@ import favoritesRoutes from "./routes/favorites.js";
 import adsRoutes from "./routes/ads.js";
 import notificationsRoutes from "./routes/notifications.js";
 import userRoutes from "./routes/user.js";
+import internshipsRoutes from "./routes/internships.js";
+
+// Load environment variables
+dotenv.config();
 
 // Load environment variables
 dotenv.config();
@@ -43,6 +47,7 @@ app.use("/api/favorites", favoritesRoutes);
 app.use("/api/ads", adsRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/internships", internshipsRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

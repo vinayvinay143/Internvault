@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { BsList, BsX, BsSafe, BsTools, BsChevronDown, BsStars, BsEnvelopePaper, BsFileEarmarkPerson, BsMic, BsPersonCircle } from "react-icons/bs";
 
 export function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
 
@@ -37,23 +38,32 @@ export function Navbar({ user, onLogout }) {
 
           <div className="hidden lg:flex absolute left-1/2 transform -translate-x-1/2">
             <ul className="flex gap-1 items-center">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all duration-300 border-b-2 border-transparent text-gray-600 hover:text-blue-600 hover:border-blue-600"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all duration-300 border-b-2 ${isActive
+                        ? 'text-blue-600 border-blue-600'
+                        : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-600'
+                        }`}
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                );
+              })}
 
               {/* SkillVault Direct Link - Only show when logged in */}
               {user && (
                 <li>
                   <Link
                     to="/skillvault"
-                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-all border-b-2 border-transparent hover:border-blue-600"
+                    className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all border-b-2 ${location.pathname === '/skillvault'
+                        ? 'text-blue-600 border-blue-600'
+                        : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-600'
+                      }`}
                   >
                     <BsSafe /> SkillVault
                   </Link>
@@ -72,15 +82,21 @@ export function Navbar({ user, onLogout }) {
                   {isToolsOpen && (
                     <div className="absolute top-full left-0 w-64 pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
                       <div className="bg-white rounded-xl shadow-xl border border-gray-100 p-2 overflow-hidden">
-                        {toolsLinks.map((tool) => (
-                          <Link
-                            key={tool.name}
-                            to={tool.path}
-                            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors"
-                          >
-                            {tool.icon} {tool.name}
-                          </Link>
-                        ))}
+                        {toolsLinks.map((tool) => {
+                          const isActive = location.pathname === tool.path;
+                          return (
+                            <Link
+                              key={tool.name}
+                              to={tool.path}
+                              className={`flex items-center gap-3 px-4 py-3 text-sm rounded-lg transition-colors ${isActive
+                                ? 'bg-blue-50 text-blue-600'
+                                : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                                }`}
+                            >
+                              {tool.icon} {tool.name}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -105,7 +121,10 @@ export function Navbar({ user, onLogout }) {
                   </span>
                   <Link
                     to="/dashboard"
-                    className="text-sm font-medium text-gray-500 hover:text-blue-600 transition"
+                    className={`text-sm font-medium transition ${location.pathname === '/dashboard'
+                      ? 'text-blue-600'
+                      : 'text-gray-500 hover:text-blue-600'
+                      }`}
                   >
                     Dashboard
                   </Link>
@@ -138,17 +157,23 @@ export function Navbar({ user, onLogout }) {
         {isMenuOpen && (
           <div className="lg:hidden border-t border-gray-100 p-4 space-y-4 animate-in slide-in-from-top-2 fade-in duration-200 h-[calc(100vh-64px)] overflow-y-auto">
             <ul className="space-y-2">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <li key={link.name}>
+                    <Link
+                      to={link.path}
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-medium ${isActive
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                );
+              })}
 
               {/* Mobile SkillVault - Only show when logged in */}
               {user && (
@@ -157,7 +182,10 @@ export function Navbar({ user, onLogout }) {
                     <Link
                       to="/skillvault"
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+                      className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-medium ${location.pathname === '/skillvault'
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
+                        }`}
                     >
                       <BsSafe /> SkillVault
                     </Link>
@@ -169,17 +197,23 @@ export function Navbar({ user, onLogout }) {
               {user && (
                 <div className="py-2 border-t border-b border-gray-100 my-2">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 text-center">Tools</p>
-                  {toolsLinks.map((tool) => (
-                    <li key={tool.name}>
-                      <Link
-                        to={tool.path}
-                        onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        {tool.icon} {tool.name}
-                      </Link>
-                    </li>
-                  ))}
+                  {toolsLinks.map((tool) => {
+                    const isActive = location.pathname === tool.path;
+                    return (
+                      <li key={tool.name}>
+                        <Link
+                          to={tool.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-medium ${isActive
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                            }`}
+                        >
+                          {tool.icon} {tool.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </div>
               )}
             </ul>
@@ -203,7 +237,10 @@ export function Navbar({ user, onLogout }) {
                   <Link
                     to="/dashboard"
                     onClick={() => setIsMenuOpen(false)}
-                    className="w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors text-center"
+                    className={`w-full py-3 rounded-xl text-sm font-medium transition-colors text-center ${location.pathname === '/dashboard'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                      }`}
                   >
                     Dashboard
                   </Link>
