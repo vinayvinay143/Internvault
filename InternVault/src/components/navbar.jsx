@@ -18,6 +18,7 @@ export function Navbar({ user, onLogout }) {
     { name: "Home", path: "/" },
     { name: "Internships", path: "/internships" },
     { name: "Intern Chatbot", path: "/internchat" },
+    { name: "Report Fraud", path: "/report-fraud" },
   ];
 
   const toolsLinks = [

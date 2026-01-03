@@ -43,7 +43,7 @@ export function InternChat({ user }) {
                 },
                 body: JSON.stringify({
                     api_key: tavilyApiKey,
-                    query: query.includes('.') ? query : `"${query}" company internship reviews scam check`,
+                    query: query.includes('.') ? query : `${query} official website internship reviews authenticity check`,
                     search_depth: "basic",
                     max_results: 5,
                     include_answer: true,
@@ -185,6 +185,7 @@ export function InternChat({ user }) {
 ${userMessage ? `User's specific question: ${userMessage}\n` : ''}
 
 🚨 CRITICAL RULE #1: If you see ANY request for payment (training fee, security deposit, registration charges) → IMMEDIATE ❌ FAKE verdict.
+🚨 CRITICAL RULE #2: If the image is an OFFER LETTER or JOINING LETTER, it **MUST** contain a CIN (Corporate Identification Number) or MCA Registration. If missing → VERDICT: ❌ FAKE.
 
 ANALYSIS GUIDELINES:
 
@@ -298,30 +299,35 @@ Be specific about what you see.`;
 
  CRITICAL SCAM DETECTION RULES (HIGHEST PRIORITY):
 
-1. **IMMEDIATE  FAKE if you see:**
-   - ANY request for payment (training fee, security deposit, registration charges)
-   - "Pay ₹X for training/registration/certificate"
-   - Unprofessional email (@gmail.com, @yahoo.com, @rediffmail.com)
-   - Poor grammar + spelling errors
-   - Unrealistic salary (e.g., ₹50,000/month for fresher with no experience)
-   - Pressure tactics ("Limited seats", "Pay now")
-   - "Course selling" disguised as an internship
+1. **IMMEDIATE FAKE if reviews on Trusted Platforms mention these TRAITS:**
+   - **Upfront Payment Requests:** Asking for fees for training, registration, security deposit, or placement.
+   - **No Official Presence:** No proper website, LinkedIn page, or verifiable contact details.
+   - **Generic/Vague Job Descriptions:** Listings without clear responsibilities or required skills.
+   - **Unprofessional Communication:** Poor grammar, informal emails, or personal email IDs (@gmail/@yahoo).
+   - **Too-Good-To-Be-True:** Extremely high stipends for freshers, guaranteed placements, or unrealistic perks.
+   - **No Interview/Screening:** Offers made without a proper interview or skill assessment.
+   - **Pressure Tactics:** Pushing for immediate acceptance/payment or threatening to withdraw the offer.
 
 2. **VERIFICATION CHECKLIST (Must Verify):**
    - **Official Presence:** Does the company have an official website and active social media profiles?
    - **Job Details:** Are role, duration, stipend, and location clearly explained?
    - **Contact Info:** Is the email address professional (e.g., hr@company.com)?
    - **Reputation (TRUSTED SOURCES ONLY):** Check for reviews/experiences ONLY from these platforms:
-     * Reddit.com/r/internships, Reddit.com/r/cscareerquestions (internship threads)
-     * TeamBlind.com, FishbowlApp.com, Levels.fyi (tech internships)
-     * Indeed.com, LinkedIn.com, Handshake.com
-     * Vault.com, CareerBliss.com, Glassdoor.com
-     * RateMyInternships.org, CanaryStudent.com, Internships.com, WayUp.com
+     * Reddit.com (r/internships, r/cscareerquestions)
+     * Quora.com
+     * Glassdoor.com
+     * Indeed.com
+     * FishbowlApp.com
+     * Handshake.com
+     * WayUp.com
+     * Internshala.com
+     * LinkedIn.com
+     * ElevateSkill
+     * InternsInAsia
      * **RULE:** If negative reviews exist on these sites →  FAKE.
    - **Legality:** Does the company have a verified registration (CIN, MCA, Zauba)?
    - **Selection Process:** Is there a proper interview/task/screening process?
    - **Too Good To Be True:** Are there unrealistic promises (high pay for little work)?
-   - **Ambiguity:** If info is scarce/unclear, mark as SUSPICIOUS (Yellow) instead of FAKE.
 
 3. **CONTEXT AWARENESS (Crucial):**
    - **Dual Meanings:** If a user query sounds like a technical term (e.g., "Null Class", "Code Soft", "Byte"), CHECK if there is a company by that name in the search results.
@@ -335,8 +341,8 @@ Be specific about what you see.`;
    - **Off-Topic:** Only if the query is clearly about *concepts* (e.g. "What is null in Java?", "How to write a for loop") with NO intent to verify a company.
    - **Educational Institutions:** Colleges/Universities are OFF TOPIC unless checking a specific job offer.
    - **Unknown Companies:** IF search results are empty or reveal NO information about the company:
-     - Verdict: SUSPICIOUS
-     - Reason: "No verifiable digital footprint found. Proceed with caution."
+     - Verdict: **FAKE**
+     - Reason: "No verifiable digital footprint found. High risk of scam."
 
 5. **DECISION HIERARCHY** (Follow in order):
    
@@ -347,10 +353,10 @@ Be specific about what you see.`;
    Step 5: **No information found / Unknown company →  FAKE**
    Step 6: Only positive reviews + official website →  REAL
 
-6. **OUTPUT FORMAT** (STRICT):
+6. **OUTPUT FORMAT (STRICT - BINARY ONLY):**
 
 **1. VERDICT**
- REAL / FAKE / SUSPICIOUS
+ REAL / FAKE
 
 **2. REASONS**
 - [First specific reason based on search evidence]
@@ -362,6 +368,7 @@ Be specific about what you see.`;
 3. Source Title - [Source](actual_url)
 
  CRITICAL FORMATTING RULES:
+- **VERDICT MUST BE ONLY "REAL" OR "FAKE". NO "SUSPICIOUS".**
 - Provide exactly 2 reasons (not 3)
 - Write the source title as plain text, then add " - [Source](URL)"
 - ONLY the word "Source" should be hyperlinked, NOT the title

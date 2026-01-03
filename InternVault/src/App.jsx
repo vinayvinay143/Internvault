@@ -27,6 +27,7 @@ import { InternChat } from "./pages/InternChat";
 import { ColdEmail } from "./pages/ColdEmail";
 import { ResumeAnalyzer } from "./pages/ResumeAnalyzer";
 import { InterviewDojo } from "./pages/InterviewDojo";
+import { ReportFraud } from "./pages/ReportFraud";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -64,6 +65,7 @@ function App() {
           <Route path="/login" element={<Login setIsLoggedIn={setUser} />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/internchat" element={<InternChat user={user} />} />
+          <Route path="/report-fraud" element={<ReportFraud />} />
 
 
           {/* Protected Tools Routes */}
