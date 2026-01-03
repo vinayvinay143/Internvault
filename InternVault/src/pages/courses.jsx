@@ -69,7 +69,6 @@ export function Course() {
           sources: sourcesData,
         };
 
-        console.log('Adding course to favorites:', favoriteData);
 
         await axios.post(`${API_URL}/favorites/add`, favoriteData);
         setFavorites((prev) => [...prev, uniqueId]);

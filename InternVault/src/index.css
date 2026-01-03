@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -37,7 +37,9 @@ html {
   text-fill-color: transparent;
   -webkit-text-fill-color: transparent;
   animation: shine 3s linear infinite;
-  font-weight: 800;
+  font-weight: 500;
+  font-family: 'Roboto Slab', serif;
+  letter-spacing: 1px;
 }
 
 /* Image Slider Styles */
@@ -52,8 +54,8 @@ html {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 25px;
-  padding: 8px;
+  border-radius: 50px;
+  padding: 16px;
   background: white;
   border: 3px solid #e5e7eb;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
