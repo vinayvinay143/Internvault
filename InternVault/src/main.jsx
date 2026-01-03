@@ -30,10 +30,14 @@ const checkEnvVars = () => {
   }
 };
 
+import { HelmetProvider } from 'react-helmet-async';
+
 checkEnvVars();
 
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <HelmetProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </HelmetProvider>
 );
