@@ -1,22 +1,43 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { BsPersonCircle, BsBriefcase, BsLink45Deg, BsImage, BsPencil, BsCheck, BsX, BsTrash } from "react-icons/bs";
+import { BsPersonCircle, BsBriefcase, BsLink45Deg, BsImage, BsPencil, BsCheck, BsX, BsTrash, BsShieldCheck, BsExclamationTriangle } from "react-icons/bs";
 import toast from "react-hot-toast";
 import { ConfirmModal } from "../components/ConfirmModal";
 
 const API_URL = "http://localhost:5000/api";
 
 const avatars = [
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Callie",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Dante",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Eliza",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Flo",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Granny",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Happy",
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack"
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Eliza&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Mira&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Ivy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Nova&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Dante&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Theo&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Max&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Orion&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Smiley&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Cheer&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Giggles&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jolly&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Sparkle&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Chuckle&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Glow&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=SmileMore&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Happiness&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Laughs&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Radiant&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Cheeky&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Playful&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Peppy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=BrightEyes&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=GlowUp&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Chirpy&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Radiance&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Spark&mouth=smile",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Beaming&mouth=smile",
 ];
 
 export function Dashboard({ user, setUser }) {
@@ -29,6 +50,10 @@ export function Dashboard({ user, setUser }) {
     const [imageFile, setImageFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+
+    // Verification state
+    const [verificationStatus, setVerificationStatus] = useState(null);
+    const [isVerifying, setIsVerifying] = useState(false);
 
     // Profile editing state
     const [isEditMode, setIsEditMode] = useState(false);
@@ -68,10 +93,52 @@ export function Dashboard({ user, setUser }) {
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        // Reset verification when user changes input
+        setVerificationStatus(null);
     };
+
+    // Debounced verification function
+    const verifyLegitimacy = useCallback(async (companyName, link) => {
+        if (!companyName || !link) return;
+
+        setIsVerifying(true);
+        try {
+            const response = await axios.post(`${API_URL}/ads/verify-legitimacy`, {
+                companyName,
+                link
+            });
+            setVerificationStatus(response.data);
+        } catch (error) {
+            console.error("Verification error:", error);
+            setVerificationStatus({
+                status: "Flagged",
+                reason: "Unable to verify"
+            });
+        } finally {
+            setIsVerifying(false);
+        }
+    }, []);
+
+    // Trigger verification when both fields are filled
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (formData.companyName && formData.link) {
+                verifyLegitimacy(formData.companyName, formData.link);
+            }
+        }, 500); // 500ms debounce
+
+        return () => clearTimeout(timer);
+    }, [formData.companyName, formData.link, verifyLegitimacy]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // STRICT SECURITY: Block submission if flagged
+        if (verificationStatus?.status === "Flagged") {
+            toast.error(`Security Alert: ${verificationStatus.reason}. You cannot post this internship.`);
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -90,7 +157,9 @@ export function Dashboard({ user, setUser }) {
             });
             toast.success("Internship posted successfully!");
             setFormData({ companyName: "", link: "", imageUrl: "" });
+            setFormData({ companyName: "", link: "", imageUrl: "" });
             setImageFile(null);
+            setVerificationStatus(null);
             fetchUserAds();
         } catch (error) {
             console.error("Error posting ad:", error);
@@ -99,6 +168,8 @@ export function Dashboard({ user, setUser }) {
             setLoading(false);
         }
     };
+
+
 
     const confirmDelete = async () => {
         if (!deleteId) return;
@@ -390,6 +461,40 @@ export function Dashboard({ user, setUser }) {
                                     />
                                     <BsLink45Deg className="absolute left-3.5 top-3.5 text-gray-400 text-lg" />
                                 </div>
+
+                                {/* Verification Status */}
+                                {isVerifying && (
+                                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
+                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-blue-600"></div>
+                                        <span>Verifying legitimacy...</span>
+                                    </div>
+                                )}
+
+                                {verificationStatus && !isVerifying && (
+                                    <div className={`mt-3 p-3 rounded-lg flex items-start gap-2 ${verificationStatus.status === "Verified"
+                                        ? "bg-green-50 border border-green-200"
+                                        : "bg-yellow-50 border border-yellow-200"
+                                        }`}>
+                                        {verificationStatus.status === "Verified" ? (
+                                            <>
+                                                <BsShieldCheck className="text-green-600 text-lg mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <p className="font-semibold text-green-800 text-sm">Verified</p>
+                                                    <p className="text-green-700 text-xs">{verificationStatus.reason}</p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <BsExclamationTriangle className="text-red-600 text-lg mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <p className="font-semibold text-red-800 text-sm">Security Alert: Flagged</p>
+                                                    <p className="text-red-700 text-xs">{verificationStatus.reason}</p>
+                                                    <p className="text-red-600 text-xs mt-1 font-semibold">Posting is disabled for this link.</p>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             <div>
@@ -447,7 +552,10 @@ export function Dashboard({ user, setUser }) {
 
                 </div>
             </div>
-            {/* Confirmation Modal */}
+
+
+
+            {/* Delete Confirmation Modal */}
             <ConfirmModal
                 isOpen={!!deleteId}
                 onClose={() => setDeleteId(null)}

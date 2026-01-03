@@ -2,6 +2,7 @@ import express from "express";
 import Ad from "../models/Ad.js";
 import User from "../models/User.js";
 import { sendBulkInternshipNotification } from "../services/whatsappService.js";
+import { validateLegitimacy } from "../utils/legitimacyValidator.js";
 import multer from "multer";
 import path from "path";
 
@@ -38,6 +39,22 @@ router.get("/active", async (req, res) => {
         const now = new Date();
         const ads = await Ad.find({ expiresAt: { $gt: now } }).sort({ createdAt: -1 });
         res.json(ads);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Verify legitimacy of internship posting
+router.post("/verify-legitimacy", async (req, res) => {
+    try {
+        const { companyName, link } = req.body;
+
+        if (!companyName || !link) {
+            return res.status(400).json({ error: "Company name and link are required" });
+        }
+
+        const result = validateLegitimacy(companyName, link);
+        res.json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

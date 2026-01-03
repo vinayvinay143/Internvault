@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,9 +51,9 @@ html {
 .slider-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  border-radius: 50px;
-  padding: 16px;
+  object-fit: contain;
+  border-radius: 25px;
+  padding: 8px;
   background: white;
   border: 3px solid #e5e7eb;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -59,9 +61,9 @@ html {
 
 /* Hosting Section Image */
 .hosting-image {
-  padding: 16px;
+  padding: 8px;
   border: 3px solid #e5e7eb;
   background: white;
-  border-radius: 50px;
+  border-radius: 25px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }

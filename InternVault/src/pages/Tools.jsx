@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from "recharts";
-import { BsBullseye, BsPlusCircle, BsCloudArrowUp, BsCupHot, BsCheckCircle, BsExclamationTriangle, BsSearch, BsTools } from "react-icons/bs";
+import { BsBullseye, BsPlusCircle, BsCloudArrowUp, BsCupHot, BsCheckCircle, BsExclamationTriangle, BsSearch, BsTools, BsHeart, BsX, BsArrowLeft, BsArrowRight, BsStar, BsBuilding, BsGeoAlt, BsCurrencyDollar, BsCalendar, BsNewspaper, BsTrophy } from "react-icons/bs";
 
 const ROLES_LIST = [
     "Frontend Intern", "Backend Intern", "Software Developer Intern", "Web Development Intern",
@@ -136,14 +137,29 @@ export function SkillRadar() {
     };
 
     const getGapAnalysis = () => {
-        // Find skill with max gap (Market - You)
-        const improvementNeeded = [...data].sort((a, b) => (b.A - b.B) - (a.A - a.B))[0];
-        // Find skill with highest user score
-        const strongestSkill = [...data].sort((a, b) => b.B - a.B)[0];
+        // Calculate gaps for each skill
+        const skillsWithGaps = data.map(item => ({
+            subject: item.subject,
+            yourScore: item.B,
+            marketScore: item.A,
+            gap: item.A - item.B  // Positive gap means you need improvement
+        }));
+
+        // Find skill with the largest gap (most improvement needed)
+        const weakestSkill = skillsWithGaps.reduce((max, current) =>
+            current.gap > max.gap ? current : max
+        );
+
+        // Find skill with the highest user score (your strength)
+        const strongestSkill = skillsWithGaps.reduce((max, current) =>
+            current.yourScore > max.yourScore ? current : max
+        );
 
         return {
-            strong: strongestSkill ? strongestSkill.subject : "N/A",
-            weak: improvementNeeded ? improvementNeeded.subject : "N/A"
+            strong: strongestSkill.subject,
+            weak: weakestSkill.subject,
+            strongScore: strongestSkill.yourScore,
+            weakGap: weakestSkill.gap
         };
     };
 
@@ -215,7 +231,7 @@ export function SkillRadar() {
                             Gap Analysis
                         </h4>
                         <p className="text-sm text-indigo-700 leading-relaxed">
-                            You are strong in <strong>{analysis.strong}</strong> but need to improve in <strong>{analysis.weak}</strong> to match the {role} profile.
+                            You are strong in <strong>{analysis.strong}</strong> ({analysis.strongScore}%) but need to improve in <strong>{analysis.weak}</strong> (gap: {analysis.weakGap}%) to match the {role} profile.
                         </p>
                     </div>
 
@@ -259,6 +275,324 @@ export function SkillRadar() {
 
             </div>
         </div>
+    );
+}
+
+// Dummy internship data
+const DUMMY_INTERNSHIPS = [
+    {
+        id: 1,
+        company: "Google",
+        logo: "https://logo.clearbit.com/google.com",
+        role: "Software Engineering Intern",
+        location: "Mountain View, CA",
+        salary: "$8,000/month",
+        type: "Remote",
+        skills: ["React", "Node.js", "Python"],
+        description: "Work on cutting-edge projects with world-class engineers"
+    },
+    {
+        id: 2,
+        company: "Meta",
+        logo: "https://logo.clearbit.com/meta.com",
+        role: "Frontend Developer Intern",
+        location: "Menlo Park, CA",
+        salary: "$7,500/month",
+        type: "Hybrid",
+        skills: ["React", "TypeScript", "GraphQL"],
+        description: "Build features used by billions of people worldwide"
+    },
+    {
+        id: 3,
+        company: "Microsoft",
+        logo: "https://logo.clearbit.com/microsoft.com",
+        role: "Cloud Engineering Intern",
+        location: "Redmond, WA",
+        salary: "$7,000/month",
+        type: "Onsite",
+        skills: ["Azure", "Docker", "Kubernetes"],
+        description: "Shape the future of cloud computing with Azure"
+    },
+    {
+        id: 4,
+        company: "Amazon",
+        logo: "https://logo.clearbit.com/amazon.com",
+        role: "Full Stack Developer Intern",
+        location: "Seattle, WA",
+        salary: "$7,200/month",
+        type: "Hybrid",
+        skills: ["Java", "AWS", "React"],
+        description: "Innovate and deliver for millions of customers"
+    },
+    {
+        id: 5,
+        company: "Apple",
+        logo: "https://logo.clearbit.com/apple.com",
+        role: "iOS Developer Intern",
+        location: "Cupertino, CA",
+        salary: "$8,500/month",
+        type: "Onsite",
+        skills: ["Swift", "SwiftUI", "Xcode"],
+        description: "Create the next generation of iOS experiences"
+    }
+];
+
+export function InternshipSwiper() {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [liked, setLiked] = useState([]);
+    const [passed, setPassed] = useState([]);
+    const [showMatch, setShowMatch] = useState(false);
+    const [matchedCompany, setMatchedCompany] = useState(null);
+
+    const currentJob = DUMMY_INTERNSHIPS[currentIndex];
+    const hasMore = currentIndex < DUMMY_INTERNSHIPS.length;
+
+    const handleSwipe = (direction) => {
+        if (!hasMore) return;
+
+        if (direction === 'right') {
+            setLiked([...liked, currentJob.id]);
+
+            // Simulate match (20% chance)
+            if (Math.random() > 0.8) {
+                setMatchedCompany(currentJob.company);
+                setShowMatch(true);
+                setTimeout(() => setShowMatch(false), 3000);
+            }
+        } else {
+            setPassed([...passed, currentJob.id]);
+        }
+
+        setCurrentIndex(currentIndex + 1);
+    };
+
+    const handleUndo = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(currentIndex - 1);
+            setLiked(liked.slice(0, -1));
+            setPassed(passed.slice(0, -1));
+        }
+    };
+
+    if (!hasMore) {
+        return (
+            <div className="bg-slate-50 rounded-3xl p-6 md:p-10 border border-slate-200">
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold text-slate-900 flex items-center justify-center gap-3 mb-4">
+                        <BsHeart className="text-pink-600" />
+                        Internship Swiper
+                    </h2>
+                    <div className="bg-white rounded-3xl p-12 border border-slate-200">
+                        <BsTrophy className="text-6xl text-amber-500 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold text-slate-900 mb-2">All Done!</h3>
+                        <p className="text-slate-600 mb-6">
+                            You've reviewed all available internships. Check back later for more!
+                        </p>
+                        <div className="flex gap-4 justify-center">
+                            <div className="text-center">
+                                <p className="text-3xl font-bold text-pink-600">{liked.length}</p>
+                                <p className="text-sm text-slate-500">Liked</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-3xl font-bold text-slate-400">{passed.length}</p>
+                                <p className="text-sm text-slate-500">Passed</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setCurrentIndex(0);
+                                setLiked([]);
+                                setPassed([]);
+                            }}
+                            className="mt-6 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors"
+                        >
+                            Start Over
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-slate-50 rounded-3xl p-6 md:p-10 mb-12 border border-slate-200">
+            <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-slate-900 flex items-center justify-center gap-3">
+                    <BsHeart className="text-pink-600" />
+                    Internship Swiper
+                </h2>
+                <p className="text-slate-500 mt-2">
+                    Swipe right to like, left to pass. Find your perfect match!
+                </p>
+            </div>
+
+            {/* Match Notification */}
+            <AnimatePresence>
+                {showMatch && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                    >
+                        <div className="bg-white rounded-3xl p-12 text-center max-w-md mx-4">
+                            <div className="text-6xl mb-4">🎉</div>
+                            <h3 className="text-3xl font-bold text-slate-900 mb-2">It's a Match!</h3>
+                            <p className="text-lg text-slate-600 mb-6">
+                                {matchedCompany} is interested in your profile!
+                            </p>
+                            <button
+                                onClick={() => setShowMatch(false)}
+                                className="px-8 py-3 bg-pink-600 text-white rounded-xl font-bold hover:bg-pink-700 transition-colors"
+                            >
+                                Awesome!
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <div className="max-w-2xl mx-auto">
+                {/* Progress */}
+                <div className="flex items-center justify-between mb-6">
+                    <p className="text-sm text-slate-500">
+                        {currentIndex + 1} / {DUMMY_INTERNSHIPS.length}
+                    </p>
+                    <div className="flex gap-4">
+                        <div className="flex items-center gap-2">
+                            <BsHeart className="text-pink-600" />
+                            <span className="text-sm font-bold text-slate-700">{liked.length}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <BsX className="text-slate-400" />
+                            <span className="text-sm font-bold text-slate-700">{passed.length}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Swipeable Card */}
+                <SwipeCard job={currentJob} onSwipe={handleSwipe} />
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-center gap-6 mt-8">
+                    <button
+                        onClick={() => handleSwipe('left')}
+                        className="w-16 h-16 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center hover:border-red-400 hover:bg-red-50 transition-all group shadow-lg"
+                    >
+                        <BsX className="text-3xl text-slate-400 group-hover:text-red-600 transition-colors" />
+                    </button>
+
+                    <button
+                        onClick={handleUndo}
+                        disabled={currentIndex === 0}
+                        className="w-12 h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center hover:border-amber-400 hover:bg-amber-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-md"
+                    >
+                        <BsArrowLeft className="text-xl text-slate-400 hover:text-amber-600" />
+                    </button>
+
+                    <button
+                        onClick={() => handleSwipe('right')}
+                        className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center hover:scale-110 transition-transform shadow-xl"
+                    >
+                        <BsHeart className="text-3xl text-white" />
+                    </button>
+
+                    <button
+                        className="w-12 h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-all shadow-md"
+                    >
+                        <BsStar className="text-xl text-slate-400 hover:text-blue-600" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Swipeable Card Component
+function SwipeCard({ job, onSwipe }) {
+    const x = useMotionValue(0);
+    const rotate = useTransform(x, [-200, 200], [-25, 25]);
+    const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
+
+    const handleDragEnd = (event, info) => {
+        if (Math.abs(info.offset.x) > 100) {
+            onSwipe(info.offset.x > 0 ? 'right' : 'left');
+        }
+    };
+
+    return (
+        <motion.div
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            style={{ x, rotate, opacity }}
+            onDragEnd={handleDragEnd}
+            className="relative cursor-grab active:cursor-grabbing"
+        >
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+                {/* Company Logo */}
+                <div className="h-48 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center relative">
+                    <img
+                        src={job.logo}
+                        alt={job.company}
+                        className="w-24 h-24 rounded-2xl bg-white p-4 shadow-lg"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                        }}
+                    />
+                    <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center shadow-lg hidden">
+                        <BsBuilding className="text-4xl text-slate-400" />
+                    </div>
+                    <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-bold text-slate-700">
+                        {job.type}
+                    </div>
+                </div>
+
+                {/* Job Details */}
+                <div className="p-8">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-2">{job.role}</h3>
+                    <p className="text-lg text-slate-600 mb-6">{job.company}</p>
+
+                    <div className="space-y-3 mb-6">
+                        <div className="flex items-center gap-3 text-slate-600">
+                            <BsGeoAlt className="text-blue-600" />
+                            <span>{job.location}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-slate-600">
+                            <BsCurrencyDollar className="text-green-600" />
+                            <span className="font-bold text-slate-900">{job.salary}</span>
+                        </div>
+                    </div>
+
+                    <p className="text-slate-600 mb-6">{job.description}</p>
+
+                    <div className="flex flex-wrap gap-2">
+                        {job.skills.map((skill, index) => (
+                            <span
+                                key={index}
+                                className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                            >
+                                {skill}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Swipe Indicators */}
+            <motion.div
+                style={{ opacity: useTransform(x, [0, 100], [0, 1]) }}
+                className="absolute top-8 right-8 px-6 py-3 bg-green-500 text-white font-bold text-2xl rounded-xl rotate-12 pointer-events-none"
+            >
+                LIKE
+            </motion.div>
+            <motion.div
+                style={{ opacity: useTransform(x, [-100, 0], [1, 0]) }}
+                className="absolute top-8 left-8 px-6 py-3 bg-red-500 text-white font-bold text-2xl rounded-xl -rotate-12 pointer-events-none"
+            >
+                PASS
+            </motion.div>
+        </motion.div>
     );
 }
 
@@ -426,6 +760,7 @@ export function Tools() {
                 <p className="text-gray-600">Advanced tools to help you land your dream job.</p>
             </div>
 
+            <InternshipSwiper />
             <SkillRadar />
             <CoffeeDetector />
         </div>

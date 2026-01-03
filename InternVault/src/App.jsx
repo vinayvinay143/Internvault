@@ -17,7 +17,8 @@ import { Course } from "./pages/courses";
 import { SkillPrompt } from "./pages/skillprompt";
 import { Project } from "./pages/project";
 import { Favorites } from "./pages/favourites";
-import { SkillRadar, CoffeeDetector } from "./pages/Tools";
+import { SkillRadar, CoffeeDetector, InternshipSwiper } from "./pages/Tools";
+import { ComparisonTool, NewsFeed, CompanyIntelligence, AICareerCoach, PodcastPlayer, AIInterviewBuddy, MatchingAlgorithm, InternshipHeatmap } from "./pages/AdditionalTools";
 
 import { Login } from "./pages/login";
 import { Signup } from "./pages/signup";
@@ -69,8 +70,19 @@ function App() {
           <Route path="/tools/interview-dojo" element={<ProtectedRoute user={user}><InterviewDojo /></ProtectedRoute>} />
           <Route path="/tools/cold-email" element={<ProtectedRoute user={user}><ColdEmail /></ProtectedRoute>} />
           <Route path="/tools/resume-analyzer" element={<ProtectedRoute user={user}><ResumeAnalyzer /></ProtectedRoute>} />
+          <Route path="/tools/internship-swiper" element={<ProtectedRoute user={user}><div className="pt-24"><InternshipSwiper /></div></ProtectedRoute>} />
           <Route path="/tools/skill-radar" element={<ProtectedRoute user={user}><div className="pt-24"><SkillRadar /></div></ProtectedRoute>} />
           <Route path="/tools/coffee-detector" element={<ProtectedRoute user={user}><div className="pt-24"><CoffeeDetector /></div></ProtectedRoute>} />
+
+          {/* New Tools */}
+          <Route path="/tools/comparison" element={<ProtectedRoute user={user}><div className="pt-24"><ComparisonTool /></div></ProtectedRoute>} />
+          <Route path="/tools/news-feed" element={<ProtectedRoute user={user}><div className="pt-24"><NewsFeed /></div></ProtectedRoute>} />
+          <Route path="/tools/company-intelligence" element={<ProtectedRoute user={user}><div className="pt-24"><CompanyIntelligence /></div></ProtectedRoute>} />
+          <Route path="/tools/career-coach" element={<ProtectedRoute user={user}><div className="pt-24"><AICareerCoach /></div></ProtectedRoute>} />
+          <Route path="/tools/podcast" element={<ProtectedRoute user={user}><div className="pt-24"><PodcastPlayer /></div></ProtectedRoute>} />
+          <Route path="/tools/interview-buddy" element={<ProtectedRoute user={user}><div className="pt-24"><AIInterviewBuddy /></div></ProtectedRoute>} />
+          <Route path="/tools/matching" element={<ProtectedRoute user={user}><div className="pt-24"><MatchingAlgorithm /></div></ProtectedRoute>} />
+          <Route path="/tools/heatmap" element={<ProtectedRoute user={user}><div className="pt-24"><InternshipHeatmap /></div></ProtectedRoute>} />
 
           {/* Protected Individual Routes */}
           <Route path="/dashboard" element={<ProtectedRoute user={user}><Dashboard user={user} setUser={setUser} /></ProtectedRoute>} />

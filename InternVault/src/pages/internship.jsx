@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { BsArrowUpRight, BsBriefcase, BsBuilding, BsLock, BsExclamationTriangle, BsGlobe } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import axios from "axios";
+
+const API_URL = "http://localhost:5000/api";
 
 export function Internship({ isLoggedIn }) {
   const [joobleJobs, setJoobleJobs] = useState([]);
@@ -39,20 +42,22 @@ export function Internship({ isLoggedIn }) {
     }
   };
 
-  // Mock Data for Premium Jobs
-  const MOCK_PREMIUM_JOBS = [
-    { id: "pj1", title: "Software Engineer Intern", company: "Google", location: "Mountain View, CA", link: "https://careers.google.com/students/" },
-    { id: "pj2", title: "Frontend Developer Intern", company: "Netflix", location: "Los Gatos, CA", link: "https://jobs.netflix.com/" },
-    { id: "pj3", title: "Cloud Infrastructure Intern", company: "AWS", location: "Seattle, WA", link: "https://www.amazon.jobs/en/teams/internships-for-students" },
-    { id: "pj4", title: "Product Design Intern", company: "Airbnb", location: "San Francisco, CA", link: "https://careers.airbnb.com/university/" },
-  ];
+  // Function to fetch Premium Jobs (User Posted)
+  const fetchPremiumJobs = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/ads/active`);
+      setInternsignalJobs(response.data);
+    } catch (error) {
+      console.error("Error fetching premium jobs:", error);
+      setInternsignalJobs([]);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       if (isLoggedIn) {
-        await fetchJoobleJobs();
-        setInternsignalJobs(MOCK_PREMIUM_JOBS);
+        await Promise.all([fetchJoobleJobs(), fetchPremiumJobs()]);
       }
       setLoading(false);
     };
@@ -61,15 +66,22 @@ export function Internship({ isLoggedIn }) {
 
   // Render Job Card
   const renderJobCard = (job, isPremium = false) => {
-    const isFake = job.type === "Unverified";
-    let title = job.title;
-    let company = job.company || job.company_name || "Unknown Company";
-    let link = job.link || job.url || "#";
-    let location = job.location || "Remote";
+    const isFake = false; // Real user posts are now verified by default or user managed
+    let title = job.companyName || "Internship Opportunity"; // Backend uses companyName as primary, waiting for title update or treating company as title for now?
+    // Wait, backend Ad model has: companyName, link, imageUrl. NO TITLE?
+    // Let's check backend/models/Ad.js. 
+    // If no title, we might have to use "Internship at {companyName}" or generic.
+    // For now, let's map correctly.
+
+    let displayTitle = job.title || `Internship at ${job.companyName}`;
+    let displayCompany = job.companyName || "Unknown Company";
+    let displayLink = job.link || "#";
+    let displayLocation = job.location || "Remote";
+    let displayImage = job.imageUrl;
 
     return (
       <div
-        key={job.id || link}
+        key={job.id || displayLink}
         className={`group relative bg-white rounded-3xl p-6 transition-all duration-300 flex flex-col justify-between h-full border border-gray-100
           ${isPremium
             ? "shadow-[0_4px_20px_rgba(250,204,21,0.15)] hover:shadow-[0_8px_30px_rgba(250,204,21,0.25)] hover:-translate-y-1"
@@ -88,30 +100,34 @@ export function Internship({ isLoggedIn }) {
 
         <div>
           {/* Icon / Logo Area */}
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-2xl transition-transform group-hover:scale-110
-              ${isPremium ? "bg-yellow-50 text-yellow-600" : isFake ? "bg-gray-100 text-gray-500" : "bg-blue-50 text-blue-600"}
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-2xl transition-transform group-hover:scale-110 overflow-hidden
+              ${isPremium ? "bg-white border border-gray-100" : isFake ? "bg-gray-100 text-gray-500" : "bg-blue-50 text-blue-600"}
            `}>
-            {isPremium ? <BsBuilding /> : isFake ? <BsExclamationTriangle /> : <BsBriefcase />}
+            {isPremium && displayImage ? (
+              <img src={displayImage} alt={displayCompany} className="w-full h-full object-cover" />
+            ) : (
+              isPremium ? <BsBuilding className="text-yellow-600" /> : isFake ? <BsExclamationTriangle /> : <BsBriefcase />
+            )}
           </div>
 
           {/* Content */}
           <h4 className="text-xl font-bold text-gray-900 mb-2 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
-            {title}
+            {displayTitle}
           </h4>
 
           <div className="space-y-2 mb-6">
             <p className="text-gray-600 font-medium flex items-center gap-2">
-              <BsBuilding className="text-xs opacity-50" /> {company}
+              <BsBuilding className="text-xs opacity-50" /> {displayCompany}
             </p>
             <p className="text-gray-500 text-sm flex items-center gap-2">
-              <BsGlobe className="text-xs opacity-50" /> {location}
+              <BsGlobe className="text-xs opacity-50" /> {displayLocation}
             </p>
           </div>
         </div>
 
         {/* Action Button */}
         <a
-          href={link}
+          href={displayLink}
           target="_blank"
           rel="noopener noreferrer"
           className={`w-full py-3.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all

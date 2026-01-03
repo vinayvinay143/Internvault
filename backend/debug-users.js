@@ -4,7 +4,7 @@ import User from "./models/User.js";
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/internvault";
+const MONGODB_URI = process.env.MONGODB_URI || " mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.10";
 
 console.log("=== DEBUGGING BULK NOTIFICATIONS ===\n");
 

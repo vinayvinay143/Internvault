@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BsList, BsX, BsSafe, BsTools, BsChevronDown, BsStars, BsEnvelopePaper, BsFileEarmarkPerson, BsMic, BsPersonCircle } from "react-icons/bs";
+import { BsList, BsX, BsSafe, BsTools, BsChevronDown, BsStars, BsEnvelopePaper, BsFileEarmarkPerson, BsMic, BsPersonCircle, BsHeart, BsCheck2, BsNewspaper, BsBuilding, BsRobot, BsHeadphones, BsGraphUp, BsMap } from "react-icons/bs";
 
 export function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
@@ -24,14 +24,13 @@ export function Navbar({ user, onLogout }) {
     { name: "Resume AI", path: "/tools/resume-analyzer", icon: <BsFileEarmarkPerson className="text-lg text-blue-500" /> },
     { name: "Interview Dojo", path: "/tools/interview-dojo", icon: <BsMic className="text-lg text-purple-500" /> },
     { name: "Skill Radar", path: "/tools/skill-radar", icon: <BsStars className="text-lg text-amber-500" /> },
-
   ];
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 flex justify-center ">
       <nav className="w-full max-w-10xl bg-white/70 backdrop-blur-md border border-white/40 transition-all duration-300">
         <div className="px-6 py-3 flex justify-between items-center ">
-          <Link to="/" className="text-3xl shiny-text">
+          <Link to="/" className="text-3xl shiny-text font-outfit">
             InternVault
           </Link>
 
