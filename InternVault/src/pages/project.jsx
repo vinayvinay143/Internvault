@@ -971,6 +971,237 @@ const projectData = [
     domain: "AI Ethics / Responsible AI",
     level: "Advanced",
     description: "Design compliance, auditability, and ethical AI governance systems."
+  },
+  {
+    id: 301,
+    title: "LLM-Based Q&A Chatbot",
+    domain: "Generative AI",
+    level: "Beginner",
+    description: "Build a basic chatbot using a pre-trained LLM and prompt engineering for structured Q&A."
+  },
+  {
+    id: 302,
+    title: "RAG-Powered Knowledge Assistant",
+    domain: "Generative AI",
+    level: "Intermediate",
+    description: "Implement a Retrieval-Augmented Generation system using vector databases to answer questions from private documents."
+  },
+  {
+    id: 303,
+    title: "Fine-Tuned Domain-Specific LLM",
+    domain: "Generative AI",
+    level: "Advanced",
+    description: "Fine-tune and deploy an LLM for a specialized domain with evaluation, guardrails, and monitoring."
+  },
+  {
+    id: 304,
+    title: "Log-Based Threat Detection",
+    domain: "Cybersecurity",
+    level: "Beginner",
+    description: "Analyze security logs using basic ML models to detect suspicious behavior."
+  },
+  {
+    id: 305,
+    title: "AI-Powered SOC Automation",
+    domain: "Cybersecurity",
+    level: "Intermediate",
+    description: "Build an automated alert triage and incident classification system using machine learning."
+  },
+  {
+    id: 306,
+    title: "Predictive Threat Intelligence Platform",
+    domain: "Cybersecurity",
+    level: "Advanced",
+    description: "Develop an AI system that predicts cyber threats using behavioral modeling and anomaly detection."
+  },
+  {
+    id: 307,
+    title: "Secure Cloud IAM Setup",
+    domain: "Cloud Security",
+    level: "Beginner",
+    description: "Implement IAM roles, policies, and least-privilege access in a cloud environment."
+  },
+  {
+    id: 308,
+    title: "Zero Trust Cloud Architecture",
+    domain: "Cloud Security",
+    level: "Intermediate",
+    description: "Design Zero Trust access controls with identity-aware proxies and network segmentation."
+  },
+  {
+    id: 309,
+    title: "Enterprise SASE Security Framework",
+    domain: "Cloud Security",
+    level: "Advanced",
+    description: "Build a scalable SASE-based security architecture with compliance and monitoring."
+  },
+  {
+    id: 310,
+    title: "ETL Data Pipeline",
+    domain: "Data Engineering",
+    level: "Beginner",
+    description: "Create batch ETL pipelines using SQL and Python."
+  },
+  {
+    id: 311,
+    title: "Streaming Data Platform",
+    domain: "Data Engineering",
+    level: "Intermediate",
+    description: "Process real-time data streams using Kafka and Spark."
+  },
+  {
+    id: 312,
+    title: "Enterprise Data Platform",
+    domain: "Data Engineering",
+    level: "Advanced",
+    description: "Design a fault-tolerant data platform with Airflow orchestration and data quality checks."
+  },
+  {
+    id: 313,
+    title: "Robot Simulation with ROS",
+    domain: "Robotics",
+    level: "Beginner",
+    description: "Simulate basic robot movement and sensing using ROS."
+  },
+  {
+    id: 314,
+    title: "Autonomous Navigation System",
+    domain: "Robotics",
+    level: "Intermediate",
+    description: "Implement SLAM and path planning for autonomous robots."
+  },
+  {
+    id: 315,
+    title: "Industrial Robotics Automation",
+    domain: "Robotics",
+    level: "Advanced",
+    description: "Design a robotics system integrating hardware, perception, and control for industrial tasks."
+  },
+  {
+    id: 316,
+    title: "Monolithic App to Cloud Deployment",
+    domain: "Cloud Architecture",
+    level: "Beginner",
+    description: "Deploy a traditional application to the cloud with basic scalability."
+  },
+  {
+    id: 317,
+    title: "Microservices-Based Architecture",
+    domain: "Cloud Architecture",
+    level: "Intermediate",
+    description: "Design microservices with APIs, containers, and service discovery."
+  },
+  {
+    id: 318,
+    title: "Serverless Enterprise Platform",
+    domain: "Cloud Architecture",
+    level: "Advanced",
+    description: "Build a fully serverless, event-driven cloud architecture."
+  },
+  {
+    id: 319,
+    title: "CI/CD Pipeline Setup",
+    domain: "DevOps",
+    level: "Beginner",
+    description: "Create automated build and deployment pipelines."
+  },
+  {
+    id: 320,
+    title: "Kubernetes Production Deployment",
+    domain: "DevOps",
+    level: "Intermediate",
+    description: "Deploy and manage applications in Kubernetes clusters."
+  },
+  {
+    id: 321,
+    title: "SRE Observability Platform",
+    domain: "DevOps / SRE",
+    level: "Advanced",
+    description: "Implement monitoring, alerting, and reliability engineering practices."
+  },
+  {
+    id: 322,
+    title: "CLI Tool Development",
+    domain: "Systems Programming",
+    level: "Beginner",
+    description: "Build command-line tools using Rust or Go."
+  },
+  {
+    id: 323,
+    title: "Concurrent Backend Service",
+    domain: "Systems Programming",
+    level: "Intermediate",
+    description: "Develop high-performance concurrent APIs."
+  },
+  {
+    id: 324,
+    title: "Distributed Systems Component",
+    domain: "Systems Programming",
+    level: "Advanced",
+    description: "Implement distributed system primitives like leader election or messaging."
+  },
+  {
+    id: 325,
+    title: "Cloud VM Deployment",
+    domain: "Cloud Computing",
+    level: "Beginner",
+    description: "Launch and manage virtual machines on a cloud provider."
+  },
+  {
+    id: 326,
+    title: "Managed Cloud Services App",
+    domain: "Cloud Computing",
+    level: "Intermediate",
+    description: "Build applications using managed databases and storage."
+  },
+  {
+    id: 327,
+    title: "Multi-Cloud Strategy",
+    domain: "Cloud Computing",
+    level: "Advanced",
+    description: "Design and deploy applications across multiple cloud providers."
+  },
+  {
+    id: 328,
+    title: "Containerized Microservices",
+    domain: "Cloud Computing",
+    level: "Beginner",
+    description: "Build and deploy microservices using containerization."
+  },
+  {
+    id: 329,
+    title: "Serverless Function App",
+    domain: "Cloud Computing",
+    level: "Intermediate",
+    description: "Develop serverless functions for event-driven architectures."
+  },
+  {
+    id: 330,
+    title: "Cloud Security Compliance",
+    domain: "Cloud Computing",
+    level: "Advanced",
+    description: "Implement security policies and compliance frameworks for cloud environments."
+  },
+  {
+    id: 331,
+    title: "Basic Smart Contracts",
+    domain: "Blockchain",
+    level: "Beginner",
+    description: "Write and deploy simple smart contracts."
+  },
+  {
+    id: 332,
+    title: "Decentralized Application",
+    domain: "Blockchain",
+    level: "Intermediate",
+    description: "Build a full-stack dApp with wallet integration."
+  },
+  {
+    id: 333,
+    title: "DeFi Protocol Design",
+    domain: "Blockchain",
+    level: "Advanced",
+    description: "Design and audit secure DeFi smart contracts."
   }
 
 ]
@@ -1040,46 +1271,8 @@ export function Project({ user }) {
     }
   };
 
-  const domains = [
-    "All",
-    "Java Full Stack",
-    "JavaScript Full Stack",
-    "Python Full Stack",
-    "PHP Full Stack",
-    "C# Full Stack",
-    "Go Full Stack",
-    "MEAN Stack",
-    "MERN Stack",
-    "LAMP Stack",
-    "Django Full Stack",
-    "Spring Full Stack",
-    "Cloud-Native Full Stack",
-    "Serverless Full Stack",
-    "Mobile Full Stack",
-    "AI/ML Full Stack",
-    "Blockchain Full Stack",
-    "Game Full Stack",
-    "Business Data Analyst",
-    "Financial Data Analyst",
-    "Marketing Data Analyst",
-    "Healthcare Data Analyst",
-    "Operations Data Analyst",
-    "Product Data Analyst",
-    "Data Scientist (Generalist)",
-    "Applied Data Scientist",
-    "AI/ML Data Scientist",
-    "Big Data Scientist",
-    "Research Data Scientist",
-    "Quantitative Analyst",
-    "Machine Learning Engineer",
-    "Deep Learning Engineer",
-    "Computer Vision Engineer",
-    "NLP Engineer",
-    "Generative AI Engineer",
-    "AI Solutions Architect",
-    "AI Research Engineer",
-    "AI Ethics / Responsible AI"
-  ];
+  // Get unique domains from projectData
+  const domains = ["All", ...new Set(projectData.map((project) => project.domain))];
   const levels = ["All", "Beginner", "Intermediate", "Advanced"];
 
   const filteredProjects = projectData.filter((project) => {

@@ -10,6 +10,7 @@ const checkEnvVars = () => {
   if (!import.meta.env.VITE_GROQ_API_KEY) missingKeys.push("VITE_GROQ_API_KEY");
 
   if (missingKeys.length > 0) {
+    /*
     console.warn(
       "%c⚠️ MISSING API KEYS:",
       "background: #ff0000; color: #ffffff; font-size: 14px; font-weight: bold; padding: 4px;"
@@ -19,6 +20,7 @@ const checkEnvVars = () => {
       "Functionality like the Chatbot will NOT work.\n" +
       "Please add them in your Vercel Project Settings -> Environment Variables."
     );
+    */
   } else {
     console.log(
       "%c✅ API KEYS FOUND",
@@ -31,7 +33,7 @@ const checkEnvVars = () => {
 checkEnvVars();
 
 createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
 );

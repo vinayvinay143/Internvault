@@ -15,10 +15,8 @@ router.get('/findwork', async (req, res) => {
         const apiKey = process.env.FINDWORK_API_KEY;
 
         if (!apiKey || apiKey === 'your_findwork_api_key_here') {
-            return res.status(400).json({
-                error: 'Findwork API key not configured',
-                message: 'Please set FINDWORK_API_KEY in backend .env file'
-            });
+            console.log('Findwork API key missing (returning empty list)');
+            return res.json({ success: true, jobs: [], count: 0 });
         }
 
         const params = new URLSearchParams({
@@ -82,10 +80,8 @@ router.get('/usajobs', async (req, res) => {
         const apiKey = process.env.USAJOBS_API_KEY;
 
         if (!apiKey || apiKey === 'your_usajobs_api_key_here') {
-            return res.status(400).json({
-                error: 'USA Jobs API key not configured',
-                message: 'Please set USAJOBS_API_KEY in backend .env file'
-            });
+            console.log('USAJobs API key missing (returning empty list)');
+            return res.json({ success: true, jobs: [], count: 0 });
         }
 
         const userEmail = process.env.USAJOBS_EMAIL && process.env.USAJOBS_EMAIL !== 'your_email@example.com'
@@ -159,10 +155,8 @@ router.post('/jooble', async (req, res) => {
         const apiKey = process.env.JOOBLE_API_KEY;
 
         if (!apiKey || apiKey === 'your_jooble_api_key_here') {
-            return res.status(400).json({
-                error: 'Jooble API key not configured',
-                message: 'Please set JOOBLE_API_KEY in backend .env file'
-            });
+            console.log('Jooble API key missing (returning empty list)');
+            return res.json({ success: true, jobs: [], count: 0 });
         }
 
         const response = await fetch(`https://jooble.org/api/${apiKey}`, {
@@ -215,10 +209,8 @@ router.get('/indianapi', async (req, res) => {
         const apiKey = process.env.INDIANAPI_API_KEY;
 
         if (!apiKey || apiKey === 'your_indianapi_api_key_here') {
-            return res.status(400).json({
-                error: 'IndianAPI key not configured',
-                message: 'Please set INDIANAPI_API_KEY in backend .env file'
-            });
+            console.log('IndianAPI key missing (returning empty list)');
+            return res.json({ success: true, jobs: [], count: 0 });
         }
 
         const params = new URLSearchParams({

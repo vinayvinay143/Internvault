@@ -44,9 +44,9 @@ export function Navbar({ user, onLogout }) {
                   <li key={link.name}>
                     <Link
                       to={link.path}
-                      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all duration-300 border-b-2 ${isActive
-                        ? 'text-blue-600 border-blue-600'
-                        : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-600'
+                      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all duration-300 border-b-2 border-transparent hover:border-blue-600 ${isActive
+                        ? 'text-blue-600'
+                        : 'text-gray-600 hover:text-blue-600'
                         }`}
                     >
                       {link.name}
@@ -60,9 +60,9 @@ export function Navbar({ user, onLogout }) {
                 <li>
                   <Link
                     to="/skillvault"
-                    className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all border-b-2 ${location.pathname === '/skillvault'
-                      ? 'text-blue-600 border-blue-600'
-                      : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-600'
+                    className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all border-b-2 border-transparent hover:border-blue-600 ${location.pathname === '/skillvault'
+                      ? 'text-blue-600'
+                      : 'text-gray-600 hover:text-blue-600'
                       }`}
                   >
                     <BsSafe /> SkillVault

@@ -15,9 +15,8 @@ export function Internship({ isLoggedIn }) {
   const [apiStatus, setApiStatus] = useState({});
   const API_URL = "http://localhost:5000/api";
 
-  // Static list of Internship Portals
   const internshipPortals = [
-    { id: 1, name: "InternGuru", image: "/i1.png", link: "https://internguru.com/" },
+  { id: 1, name: "InternGuru", image: "/i1.png", link: "https://internguru.com/" },
     { id: 2, name: "Internshala", image: "/i2.png", link: "https://internshala.com/" },
     { id: 3, name: "Unstop", image: "/i3.png", link: "https://unstop.com/internship-portal" },
     { id: 4, name: "National Internship Portal", image: "/i4.png", link: "https://internship.aicte-india.org/index.php" },
@@ -25,7 +24,27 @@ export function Internship({ isLoggedIn }) {
     { id: 6, name: "Glassdoor", image: "/i6.png", link: "https://www.glassdoor.co.in/index.htm/" },
     { id: 7, name: "Foundit", image: "/i7.png", link: "https://www.foundit.in/" },
     { id: 8, name: "Smart Internz", image: "/i8.png", link: "https://skillwallet.smartinternz.com/virtual-internship-programs/" },
-  ];
+  {"id":10,"name":"Naukri","image":"/i10.png","link":"https://www.naukri.com/internship-jobs?src=discovery_trendingWdgt_homepage_srch"},
+  {"id":12,"name":"Indeed","image":"/i12.png","link":"https://in.indeed.com/q-internship-jobs.html"},
+  {"id":15,"name":"Youth4Work","image":"/i15.png","link":"https://www.youth4work.com/"},
+  {"id":16,"name":"InternWala","image":"/i16.png","link":"https://www.internshipwala.com/"},
+  {"id":17,"name":"YuvaIntern","image":"/i17.png","link":"https://yuvaintern.com/"},
+  {"id":26,"name":"Virtual Internships","image":"/i26.png","link":"https://www.virtualinternships.com/"},
+  {"id":28,"name":"Skill India Digital","image":"/i28.png","link":"https://www.skillindiadigital.gov.in/internship"},
+  {"id":29,"name":"PM Internship MCA","image":"/i29.png","link":"https://pminternship.mca.gov.in/"},,
+  {"id":32,"name":"MOSPI Internship","image":"/i32.png","link":"https://internship.mospi.gov.in/"},
+  {"id":33,"name":"MEA Internship","image":"/i33.png","link":"https://internship.mea.gov.in/"},
+  {"id":39,"name":"Prosple","image":"/i39.png","link":"https://in.prosple.com/"},
+  {"id":43,"name":"Salarite","image":"/i43.png","link":"https://salarite.com/"},
+  {"id":44,"name":"EasyShiksha","image":"/i44.png","link":"https://easyshiksha.com/online_courses/internship"},
+  {"id":50,"name":"TalentD","image":"/i50.png","link":"https://www.talentd.in/"},
+  {"id":51,"name":"Hub","image":"/i51.png","link":"https://careers.hubinternational.com/us/en/c/internship-program-jobs"},
+  {"id":52,"name":"WellFound","image":"/i52.png","link":"https://wellfound.com/"},
+  {"id":53,"name":"Simplify","image":"/i53.png","link":"https://simplify.jobs/internships"},
+  {"id":54,"name":"Riipen","image":"/i54.png","link":"https://www.riipen.com/"},
+  {"id":55,"name":"outreachy","image":"/i55.png","link":"https://www.outreachy.org/"},
+];
+
 
   // Function to fetch jobs from all APIs
   const fetchAllJobs = async () => {

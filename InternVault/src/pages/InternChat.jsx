@@ -43,7 +43,7 @@ export function InternChat({ user }) {
                 },
                 body: JSON.stringify({
                     api_key: tavilyApiKey,
-                    query: query.includes('.') ? query : `${query} official website internship reviews authenticity check`,
+                    query: query.includes('.') ? query : `${query} reviews complaints scam fraud fake real or fake Quora reddit  glassdoor Internshala  LinkedIn Handshake  Indeed  Prospects`,
                     search_depth: "basic",
                     max_results: 5,
                     include_answer: true,
@@ -164,7 +164,7 @@ export function InternChat({ user }) {
             ...prev,
             {
                 role: "user",
-                text: userMessage || "[Uploaded screenshot for analysis]",
+                text: userMessage || "[Uploaded]",
                 image: imagePreviewUrl
             }
         ]);
@@ -187,13 +187,13 @@ export function InternChat({ user }) {
 
 ${userMessage ? `User's specific question: ${userMessage}\n` : ''}
 
-🚨 CRITICAL RULE #1: If you see ANY request for payment (training fee, security deposit, registration charges) → IMMEDIATE ❌ FAKE verdict.
+🚨 CRITICAL RULE #1: If you see ANY request for payment (training fee, security deposit, registration charges) → IMMEDIATE  FAKE verdict.
 🚨 CRITICAL RULE #2: If the image is an OFFER LETTER or JOINING LETTER, it **MUST** contain a CIN (Corporate Identification Number) or MCA Registration. If missing → VERDICT: ❌ FAKE.
 
 ANALYSIS GUIDELINES:
 
 1. **Check for SCAM indicators (Highest Priority):**
-   - Asking for money (Top Red Flag 🚩)
+   - Asking for money (Top Red Flag )
    - "Pay ₹X for training/certificate"
    - Unprofessional email (@gmail, @yahoo)
    - Unrealistic salary (e.g. ₹50k for fresher)
@@ -294,6 +294,7 @@ Be specific about what you see.`;
                     "Authorization": `Bearer ${apiKey}`,
                 },
                 body: JSON.stringify({
+                    // This part is inside the `body: JSON.stringify({...})` block of the fetch request
                     model: "llama-3.3-70b-versatile",
                     messages: [
                         {
@@ -302,59 +303,44 @@ Be specific about what you see.`;
 
  CRITICAL SCAM DETECTION RULES (HIGHEST PRIORITY):
 
-1. **IMMEDIATE FAKE if reviews on Trusted Platforms mention these TRAITS:**
-   - **Upfront Payment Requests:** Asking for fees for training, registration, security deposit, or placement.
-   - **No Official Presence:** No proper website, LinkedIn page, or verifiable contact details.
-   - **Generic/Vague Job Descriptions:** Listings without clear responsibilities or required skills.
-   - **Unprofessional Communication:** Poor grammar, informal emails, or personal email IDs (@gmail/@yahoo).
-   - **Too-Good-To-Be-True:** Extremely high stipends for freshers, guaranteed placements, or unrealistic perks.
-   - **No Interview/Screening:** Offers made without a proper interview or skill assessment.
-   - **Pressure Tactics:** Pushing for immediate acceptance/payment or threatening to withdraw the offer.
+1. **IMMEDIATE FAKE if ANY User Reviews mention:**
+   - **"Pay to work" / "Security Deposit":** Asking for money for training, registration, or hidden fees.
+   - **"Forced Reviews":** Users saying they were forced to give 5 stars for certificates.
+   - **"Stipend Scam":** Promised stipend but never paid.
+   - **"Marketing Scam":** Internship is just a cover to sell a course.
 
-2. **VERIFICATION CHECKLIST (Must Verify):**
-   - **Official Presence:** Does the company have an official website and active social media profiles?
+   **RULE: If ANY of the above exist, Verdict is FAKE. Do NOT mark as REAL just because they have a website or MCA registration.**
+   
+   **CRITICAL NUANCE - READ SNIPPETS CAREFULLY:**
+   - **Questions vs Facts:** If a result is "Is X a scam?", read the snippet. If it says "No", ignore the keyword.
+   - **Identity Check:** Be careful of companies sharing names. (e.g. "Inno-Versity" US is REAL, "Innoversity" India might be different).
+   - **Conflict Resolution:** If you see 5-star reviews (generic) AND 1-star reviews (complaining about money/scam), **TRUST THE 1-STAR REVIEWS**. Scams often buy fake positive reviews.
+
+   **KNOWN HIGH-RISK PATTERNS / WATCHLIST:**
+   - **NullClass / CodeVeda / SkillDzire / Kintsugi / Innoversity (India):** 
+     - These often appear "Legal" but use "Hidden Training Fees" or "Unpaid Internship + Certificate Fee".
+     - **VERDICT FOR THESE:** If *any* mention of "fee", "payment", or "unpaid" is found -> **FAKE**.
+
+2. **VERIFICATION CHECKLIST:**
+   - **Official Presence:** Does the company have an official website and active social media?
    - **Job Details:** Are role, duration, stipend, and location clearly explained?
    - **Contact Info:** Is the email address professional (e.g., hr@company.com)?
-   - **Reputation (TRUSTED SOURCES ONLY):** Check for reviews/experiences ONLY from these platforms:
-     * Reddit.com (r/internships, r/cscareerquestions)
-     * Quora.com
-     * Glassdoor.com
-     * Indeed.com
-     * FishbowlApp.com
-     * Handshake.com
-     * WayUp.com
-     * Internshala.com
-     * LinkedIn.com
-     * ElevateSkill
-     * InternsInAsia
-     * **RULE:** If negative reviews exist on these sites →  FAKE.
-   - **Legality:** Does the company have a verified registration (CIN, MCA, Zauba)?
-   - **Selection Process:** Is there a proper interview/task/screening process?
-   - **Too Good To Be True:** Are there unrealistic promises (high pay for little work)?
 
-3. **CONTEXT AWARENESS (Crucial):**
-   - **Dual Meanings:** If a user query sounds like a technical term (e.g., "Null Class", "Code Soft", "Byte"), CHECK if there is a company by that name in the search results.
-   - **Prioritize Company:** If even ONE search result mentions a "Company", "Services", "Solutions", or "LLP" matching the name, treat it as a COMPANY inquiry, NOT off-topic.
-   - **Do NOT** mark as "Off Topic" if the user asks about a specific name that turns out to be a company, even if it has a technical name.
+3. **DISTINGUISHING "BAD COMPANY" vs "SCAM":** 
+     * **Bad Reviews (REAL):** Complaints about "low stipend", "bad management", "toxic culture", "long hours". -> These are REAL companies. VERDICT: **REAL**.
+     * **Scam Reviews (FAKE):** Complaints about "asked for money", "fake offer letter", "ghosted after payment", " MLM scheme". -> These are SCAMS. VERDICT: **FAKE**.
+
+4. **CONTEXT AWARENESS (Crucial):**
    - **Course Selling:** If a company asks for money for training/internship → VERDICT: **FAKE** (Reason: "Pay-to-work scheme / Course selling disguised as internship").
-   - **Innoversity/NullClass cases:** Be careful to distinguish between "EdTech Company" (Real) and "Fake Internship" (Scam). If the company exists but the internship is "pay-to-work", verdict is FAKE (Internship is fake), but acknowledge the company exists.
-
-4. **TOPIC & ENTITY CHECK (STRICT):**
-   - **Scope:** I verify companies, startups, and internship offers.
-   - **Off-Topic:** Only if the query is clearly about *concepts* (e.g. "What is null in Java?", "How to write a for loop") with NO intent to verify a company.
-   - **Educational Institutions:** Colleges/Universities are OFF TOPIC unless checking a specific job offer.
-   - **Unknown Companies:** IF search results are empty or reveal NO information about the company:
-     - Verdict: **FAKE**
-     - Reason: "No verifiable digital footprint found. High risk of scam."
 
 5. **DECISION HIERARCHY** (Follow in order):
    
-   Step 1: Check for "Pay to work" / "Registration Fee" / "Security Deposit" →  FAKE
-   Step 2: Check for negative reviews confirming fraud/scam →  FAKE
-   Step 3: Check is it a "Course Selling" scheme? →  FAKE
-   Step 4: Check for official registration + professional presence →  REAL
-   Step 5: **No information found / Unknown company →  FAKE**
-   Step 6: Only positive reviews + official website →  REAL
+   Step 1: **CRITICAL**: usage of "pay money", "security deposit", "training fee", "unpaid task then ghosted" → **FAKE** (Override all other signals).
+   Step 2: usage of "forced reviews", "fake reviews", "marketing scam" → **FAKE**.
+   Step 3: If reviews say "they ask for money" but company is registered (**ESPECIALLY for NullClass/CodeVeda**) → **FAKE**.
+   Step 4: If reviews are purely about "toxic culture", "low pay", "bad management" (but NO money asked) → **REAL**.
+   Step 5: Check if official registration + professional presence exists → **REAL**.
+   Step 6: **No information found / Unknown company → FAKE**
 
 6. **OUTPUT FORMAT (STRICT - BINARY ONLY):**
 
@@ -372,19 +358,21 @@ Be specific about what you see.`;
 
  CRITICAL FORMATTING RULES:
 - **VERDICT MUST BE ONLY "REAL" OR "FAKE". NO "SUSPICIOUS".**
-- Provide exactly 2 reasons (not 3)
+- Provide exactly 2 reasons.
 - Write the source title as plain text, then add " - [Source](URL)"
-- ONLY the word "Source" should be hyperlinked, NOT the title
-- Extract actual URLs from the "Sources found" section below
-- Each proof must be on ONE line
-- Do NOT add "View Data Sources" - that's added by the UI
+- ONLY the word "Source" should be hyperlinked.
+- Extract actual URLs from the "Sources found" section.
+- **DESCRIPTIVE TITLES**: The Source Title must describe the content (e.g., "Reddit Thread on Fees", "Glassdoor Complaint about Scam"). Do not just write "Reddit" or "Glassdoor".
+- **SPECIFIC URLS**: Use the exact long URL from the search results.
+- **IF URL NOT FOUND**: Write "(Link Not Available)" instead of inventing a link or using a generic homepage.
+- **Example**: 1. Reddit Thread on Scams - (Link Not Available)
 
 ***
 
 EXAMPLES:
 
 Example 1 (SCAM):
-Search contains: "Kintsugi asked me to pay for training"
+Search contains: "Kintsugi asked me to pay for training... Source: Reddit (https://reddit.com/r/scams)"
 → Output:
 
 **1. VERDICT**
@@ -395,12 +383,11 @@ Search contains: "Kintsugi asked me to pay for training"
 - This is a common internship scam tactic
 
 **3. PROOFS**
-1. Reddit Discussion - Kintsugi Scam Alert - [Source](https://reddit.com/r/scams/kintsugi)
-2. Quora - Is Kintsugi Legitimate? - [Source](https://quora.com/kintsugi-reviews)
-3. Scam Adviser Report - [Source](https://scamadviser.com/kintsugi)
+1. Reddit Discussion - Kintsugi Scam Alert - [Source](https://reddit.com/r/scams)
+2. Quora - Is Kintsugi Legitimate? - [Source](https://qm.com)
 
-Example 2 (REAL):
-Search contains: "Google Inc, CIN: U12345MH2004PTC123456, official website google.com"
+Example 2 (REAL - Good Company):
+Search contains: "Google official website google.com"
 → Output:
 
 **1. VERDICT**
@@ -411,9 +398,23 @@ Search contains: "Google Inc, CIN: U12345MH2004PTC123456, official website googl
 - No scam reports found in search results
 
 **3. PROOFS**
-1. MCA Corporate Registration - [Source](https://mca.gov.in/mcafoportal/companyLLPMasterData.do)
+1. MCA Corporate Registration - [Source](https://mca.gov.in)
 2. Google Official Website - [Source](https://www.google.com)
-3. Glassdoor Employee Reviews - [Source](https://glassdoor.com/Reviews/Google-Reviews)
+
+Example 3 (REAL - Bad Reviews but Legit):
+Search contains: "SkillDzire reviews... Source: AmbitionBox (https://ambitionbox.com)..."
+→ Output:
+
+**1. VERDICT**
+ REAL
+
+**2. REASONS**
+- Company has verifiable online presence and employee reviews
+- Reviews mention poor experience but do not indicate financial fraud or fake offers
+
+**3. PROOFS**
+1. AmbitionBox Reviews - [Source](https://ambitionbox.com)
+2. Official Website - [Source](https://skilldzire.com)
 
 ${searchContext}`
                         },
@@ -659,16 +660,8 @@ ${searchContext}`
     return (
         <div className="min-h-screen bg-gray-50 px-4 flex items-center justify-center py-10 pt-20">
 
-            <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row h-[85vh] md:h-[80vh]">
+            <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[85vh] md:h-[80vh] border border-gray-100">
 
-
-                {/* Desktop: Left Side Panel */}
-                <div className="hidden md:flex md:w-1/3 bg-blue-600 p-6 flex-col items-center justify-center text-white text-center relative">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-                    <img src={chatbotImg} alt="Bot" className="w-40 h-40 object-contain mb-4 drop-shadow-lg z-10" />
-                    <h2 className="text-2xl font-bold z-10">Verification Bot</h2>
-                    <p className="text-blue-100 text-sm mt-2 z-10">AI-powered analysis to keep your career safe.</p>
-                </div>
 
                 {/* Mobile Header (Visible only on small screens) */}
                 <div className="md:hidden bg-blue-600 p-4 flex items-center gap-3 text-white shadow-md z-20">
@@ -682,9 +675,9 @@ ${searchContext}`
                 </div>
 
                 {/* Chat Area */}
-                <div className="flex-1 flex flex-col bg-slate-50 relative min-h-0">
+                <div className="flex-1 flex flex-col bg-gray-50/50 relative min-h-0">
                     {/* Desktop Header */}
-                    <div className="hidden md:flex p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white justify-between items-center shadow-sm z-10 shrink-0">
+                    <div className="hidden md:flex p-6 border-b border-gray-100/50 bg-white/80 backdrop-blur-md justify-between items-center z-10 shrink-0 sticky top-0">
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white shadow-md">
                                 <BsShieldCheck size={22} />
@@ -713,7 +706,7 @@ ${searchContext}`
                         {messages.map((msg, index) => (
                             <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2`}>
                                 <div className={`max-w-[85%] md:max-w-[75%] rounded-2xl text-sm md:text-base shadow-sm ${msg.role === "user"
-                                    ? (msg.text === "[Uploaded screenshot for analysis]" ? "bg-transparent text-black" : "bg-blue-600 text-white rounded-br-none")
+                                    ? (msg.text === "[Uploaded]" ? "bg-transparent text-black" : "bg-blue-600 text-white rounded-br-none")
                                     : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
                                     } break-words overflow-hidden`}>
                                     {/* Display image if present */}
@@ -760,78 +753,81 @@ ${searchContext}`
                             </div>
                         ))}
                         {isLoading && (
-                            <div className="flex justify-start animate-in fade-in">
-                                <div className="bg-white p-4 rounded-2xl rounded-bl-none shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex gap-1">
-                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-75"></div>
-                                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-150"></div>
-                                        </div>
-                                        <span className="text-sm text-gray-600 font-medium">Analyzing...</span>
+                            <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2">
+                                <div className="bg-white px-5 py-4 rounded-2xl rounded-bl-sm shadow-md border border-gray-100 flex items-center gap-3">
+                                    <div className="flex gap-1.5">
+                                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-150"></div>
+                                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-300"></div>
                                     </div>
+                                    <span className="text-sm text-gray-500 font-medium">Analyzing results...</span>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Input */}
-                    <div className="p-3 md:p-4 bg-white border-t border-gray-100">
-                        {/* Image Preview */}
-                        {imagePreview && (
-                            <div className="mb-3 relative inline-block">
-                                <img
-                                    src={imagePreview}
-                                    alt="Preview"
-                                    className="rounded-lg max-h-32 border-2 border-blue-200"
+                    {/* Floating Input Area */}
+                    <div className="p-4 md:p-6 bg-transparent pointer-events-none sticky bottom-0">
+                        <div className="pointer-events-auto bg-white rounded-full shadow-2xl shadow-blue-900/10 border border-gray-100 p-2 flex gap-2 items-center relative transform transition-all hover:shadow-blue-900/20">
+
+                            {/* Image Preview Overlay */}
+                            {imagePreview && (
+                                <div className="absolute bottom-full left-4 mb-4 bg-white p-2 rounded-xl shadow-xl border border-gray-100 animate-in fade-in slide-in-from-bottom-5">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="rounded-lg max-h-32 border border-blue-100"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveImage}
+                                        className="absolute -top-2 -right-2 bg-white text-red-500 border border-red-100 rounded-full p-1 hover:bg-red-50 shadow-md transition-colors"
+                                    >
+                                        <BsX size={16} />
+                                    </button>
+                                </div>
+                            )}
+
+                            <form onSubmit={handleSend} className="flex gap-2 w-full items-center">
+                                {/* Hidden file input */}
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageSelect}
+                                    className="hidden"
                                 />
+
+                                {/* Image upload button */}
                                 <button
                                     type="button"
-                                    onClick={handleRemoveImage}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isLoading}
+                                    className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-50"
+                                    title="Upload screenshot"
                                 >
-                                    <BsX size={16} />
+                                    <BsCameraFill size={20} />
                                 </button>
-                            </div>
-                        )}
 
-                        <form onSubmit={handleSend} className="flex gap-2 relative">
-                            {/* Hidden file input */}
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageSelect}
-                                className="hidden"
-                            />
+                                <div className="h-6 w-px bg-gray-200 mx-1"></div>
 
-                            {/* Image upload button */}
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={isLoading}
-                                className="bg-gradient-to-br from-blue-300 to-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center hover:from-blue-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95 hover:shadow-lg"
-                                title="Upload screenshot"
-                            >
-                                <BsCameraFill size={20} />
-                            </button>
-
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                className="flex-1 bg-gray-100 text-gray-800 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-                                placeholder="Type a company name or upload screenshot..."
-                                disabled={isLoading}
-                            />
-                            <button
-                                type="submit"
-                                disabled={isLoading || (!input.trim() && !selectedImage)}
-                                className="bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
-                            >
-                                <BsSend size={18} />
-                            </button>
-                        </form>
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    className="flex-1 bg-transparent text-gray-800 placeholder-gray-400 text-sm focus:outline-none py-2 px-1"
+                                    placeholder="Type a company name or upload screenshot..."
+                                    disabled={isLoading}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || (!input.trim() && !selectedImage)}
+                                    className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-transform active:scale-95 shadow-md shadow-blue-600/20"
+                                >
+                                    <BsSend size={16} />
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

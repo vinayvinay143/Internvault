@@ -188,13 +188,14 @@ export const fetchAllInternships = async (options = {}) => {
         includeUSAJobs = true
     } = options;
 
-    const promises = [];
-
-    if (includeJooble) promises.push(fetchJoobleJobs(keywords, location));
-    if (includeFindwork) promises.push(fetchFindworkJobs(keywords, location));
-    if (includeIndianAPI) promises.push(fetchIndianAPIJobs(keywords, location));
-    if (includeArbeitnow) promises.push(fetchArbeitnowJobs(keywords, location));
-    if (includeUSAJobs) promises.push(fetchUSAJobsJobs(keywords, location));
+    // Use fixed array positions for promises to ensure correct destructuring
+    const promises = [
+        includeJooble ? fetchJoobleJobs(keywords, location) : Promise.resolve([]),
+        includeFindwork ? fetchFindworkJobs(keywords, location) : Promise.resolve([]),
+        includeIndianAPI ? fetchIndianAPIJobs(keywords, location) : Promise.resolve([]),
+        includeArbeitnow ? fetchArbeitnowJobs(keywords, location) : Promise.resolve([]),
+        includeUSAJobs ? fetchUSAJobsJobs(keywords, location) : Promise.resolve([])
+    ];
 
     try {
         const results = await Promise.allSettled(promises);
