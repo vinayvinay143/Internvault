@@ -3,7 +3,7 @@ import { GroqService } from "../services/groq";
 import { BsCloudUpload, BsX, BsLightningCharge, BsListCheck, BsImage, BsFileEarmarkPdf, BsCheckCircle, BsExclamationTriangle, BsPencilSquare, BsDownload, BsMagic } from "react-icons/bs";
 import * as pdfjsLib from 'pdfjs-dist';
 import toast from "react-hot-toast";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 // Configure PDF.js worker
