@@ -11,7 +11,7 @@ export const GroqService = {
         const apiKey = import.meta.env.VITE_GROQ_API_KEY;
 
         if (!apiKey) {
-            throw new Error("Missing VITE_GROQ_API_KEY in environment variables.");
+            throw new Error("Missing VITE_GROQ_API_KEY. Add it in Vercel Project Settings.");
         }
 
         try {
@@ -99,7 +99,7 @@ export const GroqService = {
      */
     async generateFromImage(prompt, base64Image) {
         const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-        if (!apiKey) throw new Error("Missing VITE_GROQ_API_KEY");
+        if (!apiKey) throw new Error("Missing VITE_GROQ_API_KEY. Add it in Vercel Project Settings.");
 
         try {
             const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {

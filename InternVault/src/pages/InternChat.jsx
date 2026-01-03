@@ -141,7 +141,10 @@ export function InternChat({ user }) {
 
         if (!apiKey) {
             console.error("API Key missing in environment variables");
-            setMessages((prev) => [...prev, { role: "assistant", text: "⚠️ Configuration Error: API Key is missing. Check VITE_GROQ_API_KEY in .env" }]);
+            setMessages((prev) => [...prev, {
+                role: "assistant",
+                text: "⚠️ **Configuration Error**: API Key is missing.\n\nIf you are running locally, check your `.env` file.\n\n**If you are on Vercel**, you MUST add `VITE_GROQ_API_KEY` in your Project Settings -> Environment Variables and **Redeploy**."
+            }]);
             return;
         }
 
