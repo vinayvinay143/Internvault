@@ -8,9 +8,9 @@ InternVault is a comprehensive platform designed to help students and job seeker
 - **Unified Search**: Fetches internship listings from multiple premium job boards simultaneously.
 - **Backend Proxy System**: A secure, custom-built backend proxy (`backend/routes/internships.js`) handles all API requests to bypass CORS restrictions and keep API keys secure.
 - **Supported Sources**:
-  - **Findwork**: specialized in tech and remote opportunities.
   - **Jooble**: Aggregates listings from thousands of job boards.
   - **Arbeitnow**: Focuses on jobs in Europe/Germany.
+  - **USA Jobs**: Federal government opportunities.
   - **Internal Database**: Internships hosted directly on InternVault.
 
 ### 2. **AI-Powered Career Tools**
@@ -71,7 +71,7 @@ InternVault is a comprehensive platform designed to help students and job seeker
 **File & Data Handling:**
 -   `multer`: ^2.0.2 (Middleware for handling `multipart/form-data` / file uploads)
 -   `dotenv`: ^16.3.1 (Loads environment variables from `.env` file)
--   `axios`: ^1.13.2 (For making requests to external APIs like Findwork)
+-   `axios`: ^1.13.2 (For making requests to external APIs)
 
 
 ---
@@ -79,10 +79,10 @@ InternVault is a comprehensive platform designed to help students and job seeker
 ## 🏗️ Architecture & Security
 
 ### **Backend Proxy Strategy**
-To resolve Cross-Origin Resource Sharing (CORS) issues common with third-party APIs (like Findwork), we implemented a **Backend Proxy Pattern**:
-1.  **Frontend** sends a request to our own backend (e.g., `/api/internships/findwork`).
-2.  **Backend** securely adds the necessary API keys (`Authorization: Token ...`) from server-side environment variables.
-3.  **Backend** forwards the request to the external API (Findwork, etc.).
+To resolve Cross-Origin Resource Sharing (CORS) issues common with third-party APIs, we implemented a **Backend Proxy Pattern**:
+1.  **Frontend** sends a request to our own backend (e.g., `/api/internships/jooble`).
+2.  **Backend** securely adds the necessary API keys from server-side environment variables.
+3.  **Backend** forwards the request to the external API.
 4.  **Backend** returns the clean data to the Frontend.
 
 This ensures **API keys are never exposed** in the browser and prevents CORS errors.
@@ -121,8 +121,7 @@ GREEN_API_TOKEN=your_token     # Optional
 
 # API Keys (Get these from respective providers)
 JOOBLE_API_KEY=your_jooble_key
-FINDWORK_API_KEY=your_findwork_key
-# USAJOBS_API_KEY=... (Currently disabled)
+USAJOBS_API_KEY=your_usajobs_key
 ```
 
 **Start the Backend Server:**

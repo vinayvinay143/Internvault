@@ -7,9 +7,6 @@ export default defineConfig(({ mode }) => {
   // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
   const env = loadEnv(mode, process.cwd(), '');
 
-  console.log('⚠️  [BUILD LOG] Checking API Keys...');
-  console.log(`⚠️  [BUILD LOG] VITE_GROQ_API_KEY exists: ${!!env.VITE_GROQ_API_KEY}`);
-  console.log(`⚠️  [BUILD LOG] VITE_GEMINI_API_KEY exists: ${!!env.VITE_GEMINI_API_KEY}`);
 
   return {
     plugins: [react()],

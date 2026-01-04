@@ -34,70 +34,6 @@ export const fetchJoobleJobs = async (keywords = "internship", location = "Remot
 };
 
 /**
- * Fetch jobs from Findwork API (via backend proxy)
- * @param {string} search - Search query (default: "internship")
- * @param {string} location - Location filter
- * @returns {Promise<Array>} Array of job listings
- */
-export const fetchFindworkJobs = async (search = "internship", location = "") => {
-    try {
-        const params = new URLSearchParams({
-            search,
-            ...(location && { location })
-        });
-
-        const response = await fetch(`${API_URL}/findwork?${params}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" }
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            console.warn("Findwork API:", error.message || "Failed to fetch");
-            return [];
-        }
-
-        const data = await response.json();
-        return data.jobs || [];
-    } catch (error) {
-        console.error("Findwork API Error:", error);
-        return [];
-    }
-};
-
-/**
- * Fetch jobs from IndianAPI (via backend proxy)
- * @param {string} query - Search query
- * @param {string} location - Location in India
- * @returns {Promise<Array>} Array of job listings
- */
-export const fetchIndianAPIJobs = async (query = "internship", location = "India") => {
-    try {
-        const params = new URLSearchParams({
-            query,
-            location
-        });
-
-        const response = await fetch(`${API_URL}/indianapi?${params}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" }
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            console.warn("IndianAPI:", error.message || "Failed to fetch");
-            return [];
-        }
-
-        const data = await response.json();
-        return data.jobs || [];
-    } catch (error) {
-        console.error("IndianAPI Error:", error);
-        return [];
-    }
-};
-
-/**
  * Fetch jobs from Arbeitnow API (European/Remote Jobs)
  * @param {string} search - Search query
  * @param {string} location - Location filter
@@ -182,8 +118,6 @@ export const fetchAllInternships = async (options = {}) => {
         keywords = "internship",
         location = "Remote",
         includeJooble = true,
-        includeFindwork = true,
-        includeIndianAPI = false,
         includeArbeitnow = true,
         includeUSAJobs = true
     } = options;
@@ -191,8 +125,6 @@ export const fetchAllInternships = async (options = {}) => {
     // Use fixed array positions for promises to ensure correct destructuring
     const promises = [
         includeJooble ? fetchJoobleJobs(keywords, location) : Promise.resolve([]),
-        includeFindwork ? fetchFindworkJobs(keywords, location) : Promise.resolve([]),
-        includeIndianAPI ? fetchIndianAPIJobs(keywords, location) : Promise.resolve([]),
         includeArbeitnow ? fetchArbeitnowJobs(keywords, location) : Promise.resolve([]),
         includeUSAJobs ? fetchUSAJobsJobs(keywords, location) : Promise.resolve([])
     ];
@@ -200,20 +132,16 @@ export const fetchAllInternships = async (options = {}) => {
     try {
         const results = await Promise.allSettled(promises);
 
-        const [jooble, findwork, indianapi, arbeitnow, usajobs] = results.map(result =>
+        const [jooble, arbeitnow, usajobs] = results.map(result =>
             result.status === 'fulfilled' ? result.value : []
         );
 
         return {
             jooble: jooble || [],
-            findwork: findwork || [],
-            indianapi: indianapi || [],
             arbeitnow: arbeitnow || [],
             usajobs: usajobs || [],
             all: [
                 ...(jooble || []),
-                ...(findwork || []),
-                ...(indianapi || []),
                 ...(arbeitnow || []),
                 ...(usajobs || [])
             ]
@@ -222,14 +150,13 @@ export const fetchAllInternships = async (options = {}) => {
         console.error("Error fetching internships:", error);
         return {
             jooble: [],
-            findwork: [],
-            indianapi: [],
             arbeitnow: [],
             usajobs: [],
             all: []
         };
     }
 };
+
 
 /**
  * Get API status (which APIs are configured in backend)
@@ -240,8 +167,6 @@ export const getAPIStatus = () => {
     // The backend will handle missing API keys
     return {
         jooble: true,
-        findwork: true,
-        indianapi: true,
         arbeitnow: true,
         usajobs: true
     };

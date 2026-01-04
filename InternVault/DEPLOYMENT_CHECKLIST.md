@@ -11,8 +11,6 @@ You must add the following variables to your Vercel Project Settings:
 | `VITE_GEMINI_API_KEY` | Google Gemini API Key for Chatbot & Scam Detection | **YES** |
 | `VITE_GROQ_API_KEY` | Groq API Key for alternative AI/Llama models | **YES** |
 | `VITE_JOOBLE_API_KEY` | For internship search (if using Jooble) | Optional |
-| `VITE_FINDWORK_API_KEY` | For internship search (if using Findwork) | Optional |
-| `VITE_INDIANAPI_API_KEY` | For internship search (if using IndianAPI) | Optional |
 
 ## 2. How to Add in Vercel
 

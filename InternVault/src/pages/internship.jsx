@@ -6,8 +6,6 @@ import { fetchAllInternships, getAPIStatus } from "../services/internshipApis";
 
 export function Internship({ isLoggedIn }) {
   const [joobleJobs, setJoobleJobs] = useState([]);
-  const [findworkJobs, setFindworkJobs] = useState([]);
-  const [indianapiJobs, setIndianapiJobs] = useState([]);
   const [arbeitnowJobs, setArbeitnowJobs] = useState([]);
   const [internsignalJobs, setInternsignalJobs] = useState([]); // This will now hold real ads
   const [usajobsJobs, setUsajobsJobs] = useState([]);
@@ -16,7 +14,7 @@ export function Internship({ isLoggedIn }) {
   const API_URL = "http://localhost:5000/api";
 
   const internshipPortals = [
-  { id: 1, name: "InternGuru", image: "/i1.png", link: "https://internguru.com/" },
+    { id: 1, name: "InternGuru", image: "/i1.png", link: "https://internguru.com/" },
     { id: 2, name: "Internshala", image: "/i2.png", link: "https://internshala.com/" },
     { id: 3, name: "Unstop", image: "/i3.png", link: "https://unstop.com/internship-portal" },
     { id: 4, name: "National Internship Portal", image: "/i4.png", link: "https://internship.aicte-india.org/index.php" },
@@ -24,26 +22,26 @@ export function Internship({ isLoggedIn }) {
     { id: 6, name: "Glassdoor", image: "/i6.png", link: "https://www.glassdoor.co.in/index.htm/" },
     { id: 7, name: "Foundit", image: "/i7.png", link: "https://www.foundit.in/" },
     { id: 8, name: "Smart Internz", image: "/i8.png", link: "https://skillwallet.smartinternz.com/virtual-internship-programs/" },
-  {"id":10,"name":"Naukri","image":"/i10.png","link":"https://www.naukri.com/internship-jobs?src=discovery_trendingWdgt_homepage_srch"},
-  {"id":12,"name":"Indeed","image":"/i12.png","link":"https://in.indeed.com/q-internship-jobs.html"},
-  {"id":15,"name":"Youth4Work","image":"/i15.png","link":"https://www.youth4work.com/"},
-  {"id":16,"name":"InternWala","image":"/i16.png","link":"https://www.internshipwala.com/"},
-  {"id":17,"name":"YuvaIntern","image":"/i17.png","link":"https://yuvaintern.com/"},
-  {"id":26,"name":"Virtual Internships","image":"/i26.png","link":"https://www.virtualinternships.com/"},
-  {"id":28,"name":"Skill India Digital","image":"/i28.png","link":"https://www.skillindiadigital.gov.in/internship"},
-  {"id":29,"name":"PM Internship MCA","image":"/i29.png","link":"https://pminternship.mca.gov.in/"},,
-  {"id":32,"name":"MOSPI Internship","image":"/i32.png","link":"https://internship.mospi.gov.in/"},
-  {"id":33,"name":"MEA Internship","image":"/i33.png","link":"https://internship.mea.gov.in/"},
-  {"id":39,"name":"Prosple","image":"/i39.png","link":"https://in.prosple.com/"},
-  {"id":43,"name":"Salarite","image":"/i43.png","link":"https://salarite.com/"},
-  {"id":44,"name":"EasyShiksha","image":"/i44.png","link":"https://easyshiksha.com/online_courses/internship"},
-  {"id":50,"name":"TalentD","image":"/i50.png","link":"https://www.talentd.in/"},
-  {"id":51,"name":"Hub","image":"/i51.png","link":"https://careers.hubinternational.com/us/en/c/internship-program-jobs"},
-  {"id":52,"name":"WellFound","image":"/i52.png","link":"https://wellfound.com/"},
-  {"id":53,"name":"Simplify","image":"/i53.png","link":"https://simplify.jobs/internships"},
-  {"id":54,"name":"Riipen","image":"/i54.png","link":"https://www.riipen.com/"},
-  {"id":55,"name":"outreachy","image":"/i55.png","link":"https://www.outreachy.org/"},
-];
+    { "id": 10, "name": "Naukri", "image": "/i10.png", "link": "https://www.naukri.com/internship-jobs?src=discovery_trendingWdgt_homepage_srch" },
+    { "id": 12, "name": "Indeed", "image": "/i12.png", "link": "https://in.indeed.com/q-internship-jobs.html" },
+    { "id": 15, "name": "Youth4Work", "image": "/i15.png", "link": "https://www.youth4work.com/" },
+    { "id": 16, "name": "InternWala", "image": "/i16.png", "link": "https://www.internshipwala.com/" },
+    { "id": 17, "name": "YuvaIntern", "image": "/i17.png", "link": "https://yuvaintern.com/" },
+    { "id": 26, "name": "Virtual Internships", "image": "/i26.png", "link": "https://www.virtualinternships.com/" },
+    { "id": 28, "name": "Skill India Digital", "image": "/i28.png", "link": "https://www.skillindiadigital.gov.in/internship" },
+    { "id": 29, "name": "PM Internship MCA", "image": "/i29.png", "link": "https://pminternship.mca.gov.in/" }, ,
+    { "id": 32, "name": "MOSPI Internship", "image": "/i32.png", "link": "https://internship.mospi.gov.in/" },
+    { "id": 33, "name": "MEA Internship", "image": "/i33.png", "link": "https://internship.mea.gov.in/" },
+    { "id": 39, "name": "Prosple", "image": "/i39.png", "link": "https://in.prosple.com/" },
+    { "id": 43, "name": "Salarite", "image": "/i43.png", "link": "https://salarite.com/" },
+    { "id": 44, "name": "EasyShiksha", "image": "/i44.png", "link": "https://easyshiksha.com/online_courses/internship" },
+    { "id": 50, "name": "TalentD", "image": "/i50.png", "link": "https://www.talentd.in/" },
+    { "id": 51, "name": "Hub", "image": "/i51.png", "link": "https://careers.hubinternational.com/us/en/c/internship-program-jobs" },
+    { "id": 52, "name": "WellFound", "image": "/i52.png", "link": "https://wellfound.com/" },
+    { "id": 53, "name": "Simplify", "image": "/i53.png", "link": "https://simplify.jobs/internships" },
+    { "id": 54, "name": "Riipen", "image": "/i54.png", "link": "https://www.riipen.com/" },
+    { "id": 55, "name": "outreachy", "image": "/i55.png", "link": "https://www.outreachy.org/" },
+  ];
 
 
   // Function to fetch jobs from all APIs
@@ -56,22 +54,16 @@ export function Internship({ isLoggedIn }) {
       // Fetch from all APIs in parallel
       const results = await fetchAllInternships({
         keywords: "internship",
-        location: "Remote",
-        includeIndianAPI: false, // Explicitly disable
-        includeUSAJobs: false // Explicitly disable
+        location: "Remote"
       });
 
       // Update state with results from each API
       setJoobleJobs(results.jooble || []);
-      setFindworkJobs(results.findwork || []);
-      setIndianapiJobs(results.indianapi || []);
       setArbeitnowJobs(results.arbeitnow || []);
       setUsajobsJobs(results.usajobs || []);
     } catch (error) {
       console.error("Error fetching jobs:", error);
       setJoobleJobs([]);
-      setFindworkJobs([]);
-      setIndianapiJobs([]);
       setArbeitnowJobs([]);
       setUsajobsJobs([]);
     }
@@ -252,29 +244,6 @@ export function Internship({ isLoggedIn }) {
             </div>
           )}
 
-          {/* Findwork Jobs */}
-          {findworkJobs.length > 0 && (
-            <div>
-              <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center gap-3">
-                <span className="w-1.5 h-8 bg-purple-500 rounded-full"></span> Findwork - Tech Opportunities
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {findworkJobs.slice(0, 8).map((job) => renderJobCard(job))}
-              </div>
-            </div>
-          )}
-
-          {/* IndianAPI Jobs */}
-          {indianapiJobs.length > 0 && (
-            <div>
-              <h3 className="text-2xl font-bold mb-8 text-gray-800 flex items-center gap-3">
-                <span className="w-1.5 h-8 bg-orange-500 rounded-full"></span> IndianAPI - India Opportunities
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {indianapiJobs.slice(0, 8).map((job) => renderJobCard(job))}
-              </div>
-            </div>
-          )}
 
           {/* Arbeitnow Jobs */}
           {arbeitnowJobs.length > 0 && (

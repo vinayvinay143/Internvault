@@ -189,29 +189,66 @@ export function ResumeAnalyzer() {
             const prompt = `
             Act as an Expert ATS Resume Writer & Optimizer.
             
-            1. Analyze the provided resume image to understand the candidate's background.
-            2. Analyze this Job Description (JD) to identify REQUIRED SKILLS and KEYWORDS:
+            1. Analyze the provided resume image.
+            2. Analyze this Job Description (JD) for keywords:
             "${jobDescription.substring(0, 2000)}"
 
-            3. GOAL: Create a COMPLETED, REWRITTEN RESUME that achieves a high match score for this JD.
-            - Extract all "Required Skills" and "Qualifications" from the JD.
-            - REWRITE the candidate's Summary, Skills, and Experience sections.
-            - REPLACE generic words with the specific keywords found in the JD.
-            - Ensure the new resume is 100% ATS-friendly (Markdown format).
-            - Do NOT summarize; output the FULL resume content.
-
+            3. GOAL: Rewrite the resume to target this JD and achieve a 100% ATS Score.
+            - STRATEGY: Aggressively insert keywords from the JD into Summary, Skills, and Experience.
+            - METRICS: Rewrite every bullet point to be "Result-Oriented" (e.g., "Increased X by Y%").
+            - ACTION VERBS: Start every bullet with a strong power verb (e.g., Architected, Optimized, Spearheaded).
+            - CRITICAL: PRESERVE specific details (Companies, Dates, Degrees).
+            - CRITICAL: PRESERVE all other sections (Certifications, Languages, Awards, etc.) if they exist. Do not remove them.
+            
             4. Return the result strictly as valid JSON:
             {
-                "keywords_found_in_jd": ["list", "of", "extracted", "keywords"],
-                "keywords_added": ["list", "of", "keywords", "you", "integrated"],
-                "tailored_markdown": "# [Full Name]...\n## Summary\n[Rewritten Summary with Keywords]...",
-                "match_score_improvement": "e.g., 'From 40% to 95%'"
+                "match_score_improvement": "e.g., 'From 40% to 95%'",
+                "keywords_added": ["list", "of", "words"],
+                "structured_resume": {
+                    "personalInfo": {
+                        "fullName": "Name",
+                        "contact": "Email | Phone | Location",
+                        "links": "LinkedIn | Portfolio"
+                    },
+                    "summary": "Compelling professional summary...",
+                    "skills": ["Skill 1", "Skill 2", "Skill 3"],
+                    "experience": [
+                        {
+                            "role": "Job Title",
+                            "company": "Company Name",
+                            "duration": "Date Range",
+                            "points": ["Action verb + result...", "Achieved X..."]
+                        }
+                    ],
+                    "education": [
+                        {
+                            "degree": "Degree Name",
+                            "school": "Institution",
+                            "year": "Year"
+                        }
+                    ],
+                    "projects": [
+                        {
+                            "name": "Project Name",
+                            "description": "Brief description..."
+                        }
+                    ],
+                    "certifications": ["Cert 1", "Cert 2"],
+                    "languages": ["Lang 1", "Lang 2"],
+                    "awards": ["Award 1", "Award 2"],
+                    "customSections": [
+                        {
+                            "title": "Section Title (e.g. Volunteering)",
+                            "items": ["Item 1", "Item 2"]
+                        }
+                    ]
+                }
             }
 
             IMPORTANT:
+            - Capture ANY other section found in the resume (Volunteering, Publications, References, etc.) into "customSections".
             - Return RAW JSON only.
-            - Do NOT use Markdown code blocks (no \`\`\`json).
-            - Start the response with '{'.
+            - Start with '{'.
             `;
 
             const resultText = await GroqService.generateFromImage(prompt, resumeImage);
@@ -589,30 +626,173 @@ export function ResumeAnalyzer() {
                                     </div>
 
                                     {/* Markdown Preview */}
-                                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-                                        <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                                            <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                                <BsCheckCircle className="text-green-500" /> Tailored Resume
+                                    {/* Visual Resume Preview */}
+                                    <div className="bg-slate-200 p-4 rounded-2xl shadow-inner overflow-x-auto">
+
+                                        <div className="flex justify-between items-center mb-4 px-2">
+                                            <h3 className="font-bold text-slate-700 flex items-center gap-2">
+                                                <BsCheckCircle className="text-green-600" /> Tailored Preview
                                             </h3>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => navigator.clipboard.writeText(tailoredResult.tailored_markdown)}
-                                                    className="text-blue-600 text-xs font-bold hover:underline flex items-center gap-1"
-                                                >
-                                                    <BsDownload /> Copy Text
-                                                </button>
-                                                <button
-                                                    onClick={() => downloadPDF("tailored-resume-preview", "Tailored_Resume.pdf")}
-                                                    className="text-green-600 text-xs font-bold hover:underline flex items-center gap-1"
-                                                >
-                                                    <BsFileEarmarkPdf /> Download PDF
-                                                </button>
-                                            </div>
+                                            <button
+                                                onClick={() => downloadPDF("tailored-resume-preview", "Tailored_Resume.pdf")}
+                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 flex items-center gap-2 shadow-sm"
+                                            >
+                                                <BsDownload /> Download PDF
+                                            </button>
                                         </div>
-                                        <div id="tailored-resume-preview" className="p-12 overflow-y-auto max-h-[600px] prose prose-sm max-w-none bg-white">
-                                            <pre className="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed">
-                                                {tailoredResult.tailored_markdown}
-                                            </pre>
+
+                                        {/* A4 Paper Container */}
+                                        <div
+                                            id="tailored-resume-preview"
+                                            className="bg-white mx-auto shadow-2xl text-slate-900"
+                                            style={{
+                                                width: '210mm',
+                                                minHeight: '297mm',
+                                                padding: '20mm',
+                                                fontFamily: 'Arial, sans-serif', // Switch to standard Sans-Serif
+                                                fontSize: '10.5pt',
+                                                lineHeight: '1.4',
+                                                color: '#1a1a1a'
+                                            }}
+                                        >
+                                            {/* Header */}
+                                            <div className="text-center border-b-2 border-slate-800 pb-4 mb-6">
+                                                <h1 className="text-3xl font-bold uppercase tracking-wide mb-2">
+                                                    {tailoredResult.structured_resume?.personalInfo?.fullName || "Your Name"}
+                                                </h1>
+                                                <div className="text-sm text-slate-600 flex justify-center gap-3 flex-wrap">
+                                                    <span>{tailoredResult.structured_resume?.personalInfo?.contact}</span>
+                                                    {tailoredResult.structured_resume?.personalInfo?.links && (
+                                                        <>
+                                                            <span>•</span>
+                                                            <span>{tailoredResult.structured_resume.personalInfo.links}</span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Summary */}
+                                            {tailoredResult.structured_resume?.summary && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Professional Summary</h2>
+                                                    <p className="text-justify text-sm">
+                                                        {tailoredResult.structured_resume.summary}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Skills */}
+                                            {tailoredResult.structured_resume?.skills && tailoredResult.structured_resume.skills.length > 0 && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Skills</h2>
+                                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                                                        {tailoredResult.structured_resume.skills.map((skill, i) => (
+                                                            <span key={i} className="bg-slate-100 px-2 py-0.5 rounded text-slate-800">
+                                                                {skill}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Experience */}
+                                            {tailoredResult.structured_resume?.experience && tailoredResult.structured_resume.experience.length > 0 && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Experience</h2>
+                                                    <div className="space-y-4">
+                                                        {tailoredResult.structured_resume.experience.map((exp, i) => (
+                                                            <div key={i}>
+                                                                <div className="flex justify-between items-baseline mb-1">
+                                                                    <h3 className="font-bold text-slate-900">{exp.role}</h3>
+                                                                    <span className="text-sm text-slate-600 italic whitespace-nowrap ml-4">{exp.duration}</span>
+                                                                </div>
+                                                                <div className="text-sm font-semibold text-slate-700 mb-1">{exp.company}</div>
+                                                                <ul className="list-disc pl-5 space-y-1 text-sm">
+                                                                    {exp.points?.map((point, idx) => (
+                                                                        <li key={idx} className="pl-1">{point}</li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Education */}
+                                            {tailoredResult.structured_resume?.education && tailoredResult.structured_resume.education.length > 0 && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Education</h2>
+                                                    {tailoredResult.structured_resume.education.map((edu, i) => (
+                                                        <div key={i} className="mb-2">
+                                                            <div className="flex justify-between font-bold text-slate-900 text-sm">
+                                                                <span>{edu.school}</span>
+                                                                <span>{edu.year}</span>
+                                                            </div>
+                                                            <div className="text-sm text-slate-700">{edu.degree}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Projects (Optional) */}
+                                            {tailoredResult.structured_resume?.projects && tailoredResult.structured_resume.projects.length > 0 && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Key Projects</h2>
+                                                    {tailoredResult.structured_resume.projects.map((proj, i) => (
+                                                        <div key={i} className="mb-2">
+                                                            <div className="font-bold text-slate-900 text-sm">{proj.name}</div>
+                                                            <p className="text-sm text-slate-700">{proj.description}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Certifications (Optional) */}
+                                            {tailoredResult.structured_resume?.certifications && tailoredResult.structured_resume.certifications.length > 0 && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Certifications</h2>
+                                                    <ul className="list-disc pl-5 text-sm text-slate-700">
+                                                        {tailoredResult.structured_resume.certifications.map((cert, i) => (
+                                                            <li key={i}>{cert}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* Awards (Optional) */}
+                                            {tailoredResult.structured_resume?.awards && tailoredResult.structured_resume.awards.length > 0 && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Awards & Honors</h2>
+                                                    <ul className="list-disc pl-5 text-sm text-slate-700">
+                                                        {tailoredResult.structured_resume.awards.map((award, i) => (
+                                                            <li key={i}>{award}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* Languages (Optional) */}
+                                            {tailoredResult.structured_resume?.languages && tailoredResult.structured_resume.languages.length > 0 && (
+                                                <div className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">Languages</h2>
+                                                    <p className="text-sm text-slate-700">
+                                                        {tailoredResult.structured_resume.languages.join(" • ")}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Custom Sections (Dynamic) */}
+                                            {tailoredResult.structured_resume?.customSections && tailoredResult.structured_resume.customSections.map((section, i) => (
+                                                <div key={i} className="mb-6">
+                                                    <h2 className="text-sm font-bold uppercase tracking-wider border-b border-slate-300 mb-2 text-slate-800">{section.title}</h2>
+                                                    <ul className="list-disc pl-5 text-sm text-slate-700">
+                                                        {section.items.map((item, idx) => (
+                                                            <li key={idx}>{item}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
+
                                         </div>
                                     </div>
                                 </div>

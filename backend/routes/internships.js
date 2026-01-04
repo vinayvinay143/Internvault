@@ -6,71 +6,6 @@ dotenv.config();
 const router = express.Router();
 
 /**
- * Proxy route for Findwork API
- * Handles CORS issues by making requests from backend
- */
-router.get('/findwork', async (req, res) => {
-    try {
-        const { search = 'internship', location = '' } = req.query;
-        const apiKey = process.env.FINDWORK_API_KEY;
-
-        if (!apiKey || apiKey === 'your_findwork_api_key_here') {
-            console.log('Findwork API key missing (returning empty list)');
-            return res.json({ success: true, jobs: [], count: 0 });
-        }
-
-        const params = new URLSearchParams({
-            search,
-            ...(location && { location }),
-            sort_by: 'relevance'
-        });
-
-        const response = await fetch(`https://findwork.dev/api/jobs/?${params}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Token ${apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Findwork API Error: ${response.status}`, errorText);
-            return res.status(response.status).json({
-                error: 'Findwork API request failed',
-                status: response.status,
-                message: errorText
-            });
-        }
-
-        const data = await response.json();
-
-        // Transform data to match frontend format
-        const jobs = (data.results || []).map(job => ({
-            id: `findwork-${job.id}`,
-            title: job.role,
-            company: job.company_name,
-            location: job.location || 'Remote',
-            link: job.url,
-            snippet: job.text,
-            salary: job.salary_range,
-            type: job.employment_type,
-            logo: job.logo,
-            source: 'Findwork'
-        }));
-
-        res.json({ success: true, jobs, count: jobs.length });
-
-    } catch (error) {
-        console.error('Findwork proxy error:', error);
-        res.status(500).json({
-            error: 'Internal server error',
-            message: error.message
-        });
-    }
-});
-
-/**
  * Proxy route for USA Jobs API
  * Handles CORS issues by making requests from backend
  */
@@ -80,7 +15,6 @@ router.get('/usajobs', async (req, res) => {
         const apiKey = process.env.USAJOBS_API_KEY;
 
         if (!apiKey || apiKey === 'your_usajobs_api_key_here') {
-            console.log('USAJobs API key missing (returning empty list)');
             return res.json({ success: true, jobs: [], count: 0 });
         }
 
@@ -155,7 +89,6 @@ router.post('/jooble', async (req, res) => {
         const apiKey = process.env.JOOBLE_API_KEY;
 
         if (!apiKey || apiKey === 'your_jooble_api_key_here') {
-            console.log('Jooble API key missing (returning empty list)');
             return res.json({ success: true, jobs: [], count: 0 });
         }
 
@@ -193,68 +126,6 @@ router.post('/jooble', async (req, res) => {
 
     } catch (error) {
         console.error('Jooble proxy error:', error);
-        res.status(500).json({
-            error: 'Internal server error',
-            message: error.message
-        });
-    }
-});
-
-/**
- * Proxy route for IndianAPI
- */
-router.get('/indianapi', async (req, res) => {
-    try {
-        const { query = 'internship', location = 'India' } = req.query;
-        const apiKey = process.env.INDIANAPI_API_KEY;
-
-        if (!apiKey || apiKey === 'your_indianapi_api_key_here') {
-            console.log('IndianAPI key missing (returning empty list)');
-            return res.json({ success: true, jobs: [], count: 0 });
-        }
-
-        const params = new URLSearchParams({
-            query,
-            location,
-            limit: 20
-        });
-
-        const response = await fetch(`https://indianapi.in/api/jobs?${params}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`IndianAPI Error: ${response.status}`, errorText);
-            return res.status(response.status).json({
-                error: 'IndianAPI request failed',
-                status: response.status,
-                message: errorText
-            });
-        }
-
-        const data = await response.json();
-
-        const jobs = (data.data || []).map(job => ({
-            id: `indianapi-${job.id || Math.random()}`,
-            title: job.title || job.job_title,
-            company: job.company || job.company_name,
-            location: job.location || 'India',
-            link: job.url || job.apply_link,
-            snippet: job.description,
-            salary: job.salary,
-            type: job.job_type,
-            source: 'IndianAPI'
-        }));
-
-        res.json({ success: true, jobs, count: jobs.length });
-
-    } catch (error) {
-        console.error('IndianAPI proxy error:', error);
         res.status(500).json({
             error: 'Internal server error',
             message: error.message

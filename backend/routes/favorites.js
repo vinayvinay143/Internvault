@@ -6,7 +6,6 @@ const router = express.Router();
 // Add to favorites
 router.post("/add", async (req, res) => {
     try {
-        console.log("📥 [DEBUG] Received favorite/add request:", JSON.stringify(req.body, null, 2));
         const { userId, projectId, title, domain, level, description, image, sources } = req.body;
 
         // Check if already favorited

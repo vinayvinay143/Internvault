@@ -30,10 +30,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/internvault";
+const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI, clientOptions)
     .then(() => {
         console.log("✅ Connected to MongoDB successfully");
+        // Mask password in logs
+        const maskedURI = MONGODB_URI.replace(/:([^:@]+)@/, ":****@");
+        console.log(`🔗 Connected to: ${maskedURI}`);
         console.log(`📊 Database: ${mongoose.connection.name}`);
     })
     .catch((error) => {
