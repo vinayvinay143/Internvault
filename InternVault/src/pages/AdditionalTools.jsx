@@ -33,36 +33,6 @@ export function ComparisonTool() {
     );
 }
 
-// News Feed
-export function NewsFeed() {
-    const news = [
-        { id: 1, title: "Google Opens 500 New Internship Positions", type: "company_update", date: "2 hours ago" },
-        { id: 2, title: "5 Resume Mistakes That Cost You Interviews", type: "career_tip", date: "5 hours ago" },
-        { id: 3, title: "From Bootcamp to FAANG: Sarah's Journey", type: "success_story", date: "1 day ago" }
-    ];
-
-    return (
-        <div className="bg-slate-50 rounded-3xl p-6 md:p-10 mb-12 border border-slate-200">
-            <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold text-slate-900 flex items-center justify-center gap-3">
-                    <BsNewspaper className="text-blue-600" />
-                    Internship News Feed
-                </h2>
-                <p className="text-slate-500 mt-2">Stay updated with the latest opportunities</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {news.map(item => (
-                    <div key={item.id} className="bg-white rounded-2xl p-6 border border-slate-200">
-                        <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full">{item.type}</span>
-                        <h3 className="text-lg font-bold text-slate-900 mt-4 mb-2">{item.title}</h3>
-                        <p className="text-xs text-slate-400">{item.date}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
 // Company Intelligence
 export function CompanyIntelligence() {
     const [selectedCompany, setSelectedCompany] = useState("Google");

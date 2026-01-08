@@ -10,6 +10,7 @@ import adsRoutes from "./routes/ads.js";
 import notificationsRoutes from "./routes/notifications.js";
 import userRoutes from "./routes/user.js";
 import internshipsRoutes from "./routes/internships.js";
+import newsRoutes from "./routes/news.js";
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +53,7 @@ app.use("/api/ads", adsRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/internships", internshipsRoutes);
+app.use("/api/news", newsRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

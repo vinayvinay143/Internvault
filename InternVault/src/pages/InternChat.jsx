@@ -71,9 +71,16 @@ export function InternChat({ user }) {
         }
     };
 
-
     useEffect(() => {
-        scrollToBottom();
+        // Only auto-scroll if user is already near the bottom (within 100px)
+        if (messagesContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+            if (isNearBottom) {
+                scrollToBottom();
+            }
+        }
     }, [messages]);
 
     // Handle image file selection
@@ -207,21 +214,24 @@ ANALYSIS GUIDELINES:
    - Proper selection process mentioned (interview, task)
    - No hidden fees
 
-3. **OUTPUT FORMAT (STRICT):**
+3. **OUTPUT FORMAT (STRICT - MUST INCLUDE NUMBERS):**
 
-**1. VERDICT**
- REAL /  FAKE
+**You MUST output exactly in this format with numbers:**
 
-**2. REASONS**
+1. **VERDICT**
+✅ REAL / ❌ FAKE
+
+2. **REASONS**
 - [First specific reason from screenshot analysis]
 - [Second specific reason from screenshot analysis]
 
-**3. PROOFS**
+3. **PROOFS**
 1. Email domain is @gmail.com - [Source](Screenshot Analysis)
 2. Payment of ₹5000 requested - [Source](Screenshot Analysis)
 3. No company logo visible - [Source](Screenshot Analysis)
 
- FORMATTING: 
+⚠️ CRITICAL FORMATTING RULES:
+- MUST start each section with the number (1. VERDICT, 2. REASONS, 3. PROOFS)
 - Provide exactly 2 reasons
 - Each proof should describe what you observed as plain text
 - Add " - [Source](Screenshot Analysis)" after each observation
@@ -231,7 +241,35 @@ Be specific about what you see.`;
 
                 const analysis = await GroqService.generateFromImage(prompt, imageDataUrl);
 
-                setMessages((prev) => [...prev, { role: "assistant", text: analysis }]);
+                // Check if we need to add fraud warning
+                // Show warning whenever CIN is detected - companies may ask for money later
+                const hasCIN = analysis.toLowerCase().includes('cin') ||
+                    analysis.toLowerCase().includes('corporate identification') ||
+                    analysis.toLowerCase().includes('u74999') || // Common CIN pattern
+                    analysis.toLowerCase().includes('u80') || // Another CIN pattern
+                    analysis.toLowerCase().includes('mca registration');
+
+                const askingMoney = analysis.toLowerCase().includes('payment') ||
+                    analysis.toLowerCase().includes('fee') ||
+                    analysis.toLowerCase().includes('money') ||
+                    analysis.toLowerCase().includes('₹') ||
+                    analysis.toLowerCase().includes('deposit') ||
+                    analysis.toLowerCase().includes('pay');
+
+                let finalAnalysis = analysis;
+
+                // Always show warning when CIN is present
+                if (hasCIN) {
+                    if (askingMoney) {
+                        // Company has CIN AND is asking for money (immediate fraud)
+                        finalAnalysis += `\n\n---\n\n⚠️ **FRAUD ALERT**\n\nThis company has a verified CIN number but is asking for money. **Legitimate companies NEVER charge fees for internships.** This is a violation of labor laws and constitutes fraud.\n\n**Action Required:**\n- Report this company to the Ministry of Corporate Affairs (MCA) for misuse of registration\n- File a complaint for fraudulent internship practices\n- [Report Fraud Now](/report-fraud)`;
+                    } else {
+                        // Company has CIN but no payment mentioned (preventive warning)
+                        finalAnalysis += `\n\n---\n\n⚠️ **IMPORTANT WARNING**\n\nThis company has a verified CIN number. While the offer letter appears legitimate, **be cautious if they ask for ANY payment later** (training fees, security deposit, registration charges, etc.).\n\n**Remember:** Legitimate companies NEVER charge fees for internships.\n\n**If they ask for money:**\n- Do NOT pay\n- Report to the Ministry of Corporate Affairs (MCA) immediately\n- [Report Fraud Now](/report-fraud)`;
+                    }
+                }
+
+                setMessages((prev) => [...prev, { role: "assistant", text: finalAnalysis }]);
             } catch (error) {
                 console.error("Image analysis error:", error);
                 setMessages((prev) => [
@@ -344,14 +382,14 @@ Be specific about what you see.`;
 
 6. **OUTPUT FORMAT (STRICT - BINARY ONLY):**
 
-**1. VERDICT**
+1. **VERDICT**
  REAL / FAKE
 
-**2. REASONS**
+2. **REASONS**
 - [First specific reason based on search evidence]
 - [Second specific reason based on search evidence]
 
-**3. PROOFS**
+3. **PROOFS**
 1. Source Title - [Source](actual_url)
 2. Source Title - [Source](actual_url)
 3. Source Title - [Source](actual_url)
@@ -375,14 +413,14 @@ Example 1 (SCAM):
 Search contains: "Kintsugi asked me to pay for training... Source: Reddit (https://reddit.com/r/scams)"
 → Output:
 
-**1. VERDICT**
+1. **VERDICT**
  FAKE
 
-**2. REASONS**
+2. **REASONS**
 - Multiple sources report they ask students to pay for training courses
 - This is a common internship scam tactic
 
-**3. PROOFS**
+3. **PROOFS**
 1. Reddit Discussion - Kintsugi Scam Alert - [Source](https://reddit.com/r/scams)
 2. Quora - Is Kintsugi Legitimate? - [Source](https://qm.com)
 
@@ -390,14 +428,14 @@ Example 2 (REAL - Good Company):
 Search contains: "Google official website google.com"
 → Output:
 
-**1. VERDICT**
+1. **VERDICT**
  REAL
 
-**2. REASONS**
+2. **REASONS**
 - Officially registered company with verified CIN
 - No scam reports found in search results
 
-**3. PROOFS**
+3. **PROOFS**
 1. MCA Corporate Registration - [Source](https://mca.gov.in)
 2. Google Official Website - [Source](https://www.google.com)
 
@@ -405,14 +443,14 @@ Example 3 (REAL - Bad Reviews but Legit):
 Search contains: "SkillDzire reviews... Source: AmbitionBox (https://ambitionbox.com)..."
 → Output:
 
-**1. VERDICT**
+1. **VERDICT**
  REAL
 
-**2. REASONS**
+2. **REASONS**
 - Company has verifiable online presence and employee reviews
 - Reviews mention poor experience but do not indicate financial fraud or fake offers
 
-**3. PROOFS**
+3. **PROOFS**
 1. AmbitionBox Reviews - [Source](https://ambitionbox.com)
 2. Official Website - [Source](https://skilldzire.com)
 
@@ -481,6 +519,22 @@ ${searchContext}`
 
         const renderPart = (part, key) => {
             if (part.type === 'link') {
+                // Special styling for "Report Fraud" links
+                if (part.text.toLowerCase().includes('report fraud')) {
+                    return (
+                        <a
+                            key={key}
+                            href={part.url}
+                            className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all shadow-md hover:shadow-lg mt-2 mb-2"
+                        >
+                            <BsExclamationTriangleFill />
+                            {part.text}
+                            <BsArrowUpRight size={12} />
+                        </a>
+                    );
+                }
+
+                // Regular link styling
                 return (
                     <a
                         key={key}
@@ -587,8 +641,26 @@ ${searchContext}`
                 );
             }
 
-            // Regex for headers: ### Text
-            const headerRegex = /^###\s+(.+)$/;
+            // Check for FRAUD ALERT with special formatting
+            const fraudAlertRegex = /^⚠️\s+\*\*FRAUD ALERT\*\*$/;
+            const fraudAlertMatch = line.match(fraudAlertRegex);
+
+            if (fraudAlertMatch) {
+                return (
+                    <div key={i} className="bg-red-50 border-2 border-red-300 rounded-lg p-4 my-4 shadow-md">
+                        <div className="flex items-center gap-3 mb-3">
+                            <BsExclamationTriangleFill className="text-red-600 text-3xl" />
+                            <div>
+                                <div className="text-xs font-semibold uppercase tracking-wide text-red-600">Warning</div>
+                                <div className="text-lg font-bold text-red-800">FRAUD ALERT</div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Regex for headers: ## Text or ### Text
+            const headerRegex = /^#{2,3}\s+(.+)$/;
             const headerMatch = line.match(headerRegex);
 
             if (headerMatch) {

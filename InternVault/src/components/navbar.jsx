@@ -32,7 +32,7 @@ export function Navbar({ user, onLogout }) {
     <div className="fixed top-0 left-0 right-0 z-50 flex justify-center ">
       <nav className="w-full max-w-10xl bg-white/70 backdrop-blur-md border border-white/40 transition-all duration-300">
         <div className="px-6 py-3 flex justify-between items-center ">
-          <Link to="/" className="text-3xl shiny-text font-outfit">
+          <Link to="/" className="text-3xl shiny-text font-outfit flex items-center gap-2">
             InternVault
           </Link>
 

@@ -19,6 +19,7 @@ import { GoOrganization } from "react-icons/go";
 import ImageSlider from "../components/ImageSlider";
 import SkillVaultSlider from "../components/SkillVaultSlider";
 import ToolsSlider from "../components/ToolsSlider";
+import { NewsTicker } from "../components/NewsTicker";
 import s16 from "../images/s16.png";
 
 const API_URL = "http://localhost:5000/api";
@@ -647,6 +648,9 @@ export function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* News Ticker */}
+      <NewsTicker />
 
     </div>
   );

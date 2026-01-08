@@ -88,13 +88,16 @@ router.post("/add", upload.single('image'), async (req, res) => {
         });
 
         try {
+            // Fetch all users who opted in for WhatsApp notifications
+            // EXCLUDE the user who posted the internship (they don't need to be notified about their own post)
             const users = await User.find({
+                _id: { $ne: userId }, // Exclude the host
                 whatsappNotifications: true,
                 phone: { $exists: true, $ne: "" }
             }).select("phone whatsappNotifications");
 
             sendBulkInternshipNotification(newAd, users).catch(err => {
-                console.error("Background notification error:", err);
+                console.error("Notification error:", err);
             });
         } catch (notifError) {
             console.error("Error fetching users for notifications:", notifError);

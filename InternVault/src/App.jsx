@@ -18,7 +18,8 @@ import { SkillPrompt } from "./pages/skillprompt";
 import { Project } from "./pages/project";
 import { Favorites } from "./pages/favourites";
 import { SkillRadar, CoffeeDetector, InternshipSwiper, Tools } from "./pages/Tools";
-import { ComparisonTool, NewsFeed, CompanyIntelligence, AICareerCoach, PodcastPlayer, AIInterviewBuddy, MatchingAlgorithm, InternshipHeatmap } from "./pages/AdditionalTools";
+import { ComparisonTool, CompanyIntelligence, AICareerCoach, PodcastPlayer, AIInterviewBuddy, MatchingAlgorithm, InternshipHeatmap } from "./pages/AdditionalTools";
+import { NewsFeed } from "./pages/NewsFeed";
 
 import { Login } from "./pages/login";
 import { Signup } from "./pages/signup";
