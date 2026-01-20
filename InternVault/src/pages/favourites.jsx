@@ -7,7 +7,7 @@ import { SiUdemy, SiCoursera } from "react-icons/si";
 import { Link } from "react-router-dom";
 
 // Consider moving this to a config file
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export function Favorites({ user }) {
   const [favs, setFavs] = useState([]);

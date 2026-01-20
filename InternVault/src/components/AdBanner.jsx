@@ -3,7 +3,7 @@ import axios from "axios";
 import { BsX } from "react-icons/bs";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export function AdBanner() {
     const [ads, setAds] = useState([]);
@@ -36,7 +36,7 @@ export function AdBanner() {
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 100, opacity: 0 }}
-                className="fixed bottom-4 right-4 md:right-8 z-50 max-w-sm w-full"
+                className="fixed bottom-16 right-4 md:right-8 z-50 max-w-sm w-full"
             >
                 <div className="bg-white rounded-2xl shadow-2xl border border-blue-100 overflow-hidden relative">
 

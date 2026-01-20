@@ -11,7 +11,7 @@ export function Internship({ isLoggedIn }) {
   const [usajobsJobs, setUsajobsJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apiStatus, setApiStatus] = useState({});
-  const API_URL = "http://localhost:5000/api";
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const internshipPortals = [
     { id: 1, name: "InternGuru", image: "/i1.png", link: "https://internguru.com/" },

@@ -65,10 +65,18 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Invalid email or password" });
         }
 
+        // Validate JWT_SECRET exists
+        if (!process.env.JWT_SECRET) {
+            console.error("❌ JWT_SECRET is not set in environment variables!");
+            return res.status(500).json({
+                error: "Server configuration error. Please contact administrator."
+            });
+        }
+
         // Create JWT Token
         const token = jwt.sign(
             { id: user._id, email: user.email },
-            process.env.JWT_SECRET || "fallback_secret_key_123", // Use env var in production
+            process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 

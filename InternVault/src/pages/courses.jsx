@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom"; // Assuming user might be passed via context if not strict props, but we'll try to get it from props or localstorage if needed. 
 
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export function Course() {
   const [user, setUser] = useState(null);

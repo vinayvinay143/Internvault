@@ -140,7 +140,7 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { BsFilter, BsFolder } from "react-icons/bs";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const projectData = [
   {

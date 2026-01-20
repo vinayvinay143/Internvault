@@ -22,7 +22,7 @@ import ToolsSlider from "../components/ToolsSlider";
 import { NewsTicker } from "../components/NewsTicker";
 import s16 from "../images/s16.png";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export function Home() {
   const [activeAds, setActiveAds] = useState([]);
@@ -575,7 +575,7 @@ export function Home() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-6 right-6 z-50 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden"
+            className="fixed bottom-16 right-6 z-50 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden"
           >
             {/* Close button */}
             <button

@@ -3,7 +3,7 @@
  * Now uses backend proxy to avoid CORS issues
  */
 
-const API_URL = "http://localhost:5000/api/internships";
+const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/internships`;
 
 /**
  * Fetch jobs from Jooble API (via backend proxy)

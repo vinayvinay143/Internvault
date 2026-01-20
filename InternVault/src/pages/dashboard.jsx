@@ -7,7 +7,7 @@ import { GroqService } from "../services/groq";
 
 const tavilyApiKey = import.meta.env.VITE_TAVILY_API_KEY;
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const avatars = [
     "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&mouth=smile",
@@ -345,7 +345,7 @@ export function Dashboard({ user, setUser }) {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 md:px-8">
+        <div className="min-h-screen bg-gray-50 pt-24 pb-20 px-4 md:px-8">
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                 {/* Left Column: User Profile */}
@@ -555,7 +555,7 @@ export function Dashboard({ user, setUser }) {
 
                             {/* Verification Section - Status Display Only */}
                             {verificationResult && (
-                                <div className={`bg-blue-50 p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 ${verificationResult.status === 'Verified'
+                                <div className={`relative z-50 bg-blue-50 p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 ${verificationResult.status === 'Verified'
                                     ? 'bg-green-50 border-green-200 text-green-800'
                                     : 'bg-red-50 border-red-200 text-red-800'
                                     }`}>
@@ -593,7 +593,7 @@ export function Dashboard({ user, setUser }) {
                                 )}
 
                                 {verificationStatus && !isVerifying && (
-                                    <div className={`mt-3 p-3 rounded-lg flex items-start gap-2 ${verificationStatus.status === "Verified"
+                                    <div className={`relative z-50 mt-3 p-3 rounded-lg flex items-start gap-2 ${verificationStatus.status === "Verified"
                                         ? "bg-green-50 border border-green-200"
                                         : "bg-yellow-50 border border-yellow-200"
                                         }`}>
