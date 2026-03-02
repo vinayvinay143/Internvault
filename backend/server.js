@@ -103,12 +103,16 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`\n🚀 Server is running on http://localhost:${PORT}`);
-    console.log(`📡 API endpoints:`);
-    console.log(`   - POST http://localhost:${PORT}/api/auth/register`);
-    console.log(`   - POST http://localhost:${PORT}/api/auth/login`);
-    console.log(`   - GET  http://localhost:${PORT}/api/favorites/:userId`);
-    console.log(`   - POST http://localhost:${PORT}/api/favorites/add`);
-    console.log(`   - DELETE http://localhost:${PORT}/api/favorites/remove/:id\n`);
-});
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`\n🚀 Server is running on http://localhost:${PORT}`);
+        console.log(`📡 API endpoints:`);
+        console.log(`   - POST http://localhost:${PORT}/api/auth/register`);
+        console.log(`   - POST http://localhost:${PORT}/api/auth/login`);
+        console.log(`   - GET  http://localhost:${PORT}/api/favorites/:userId`);
+        console.log(`   - POST http://localhost:${PORT}/api/favorites/add`);
+        console.log(`   - DELETE http://localhost:${PORT}/api/favorites/remove/:id\n`);
+    });
+}
+
+export default app;
