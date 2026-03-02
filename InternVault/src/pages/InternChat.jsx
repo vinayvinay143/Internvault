@@ -18,7 +18,6 @@ export function InternChat({ user }) {
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
     const tavilyApiKey = import.meta.env.VITE_TAVILY_API_KEY;
 
     // Check if query is internship/company related
@@ -146,14 +145,6 @@ export function InternChat({ user }) {
         e.preventDefault();
         if (!input.trim() && !selectedImage) return;
 
-        if (!apiKey) {
-            console.error("API Key missing in environment variables");
-            setMessages((prev) => [...prev, {
-                role: "assistant",
-                text: "⚠️ **Configuration Error**: API Key is missing.\n\nIf you are running locally, check your `.env` file.\n\n**If you are on Vercel**, you MUST add `VITE_GROQ_API_KEY` in your Project Settings -> Environment Variables and **Redeploy**."
-            }]);
-            return;
-        }
 
         const userMessage = input;
         const imageToAnalyze = selectedImage;
