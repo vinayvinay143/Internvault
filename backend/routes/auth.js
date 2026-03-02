@@ -1,12 +1,55 @@
 import express from "express";
 import User from "../models/User.js";
+import multer from "multer";
+import path from "path";
 
 const router = express.Router();
 
+// Multer Config
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, `resume-${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const filetypes = /pdf|doc|docx/;
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error("Error: Resume must be a PDF or DOCX file!"));
+        }
+    }
+});
+
 // Register new user
-router.post("/register", async (req, res) => {
+router.post("/register", upload.single("resume"), async (req, res) => {
     try {
-        const { username, email, password, avatar, phone, organization, yearOfStudy } = req.body;
+        const { username, email, password, avatar, phone, organization, yearOfStudy, role, companyName, companyWebsite, industry, companySize, linkedin, github, website } = req.body;
+
+        // Correctly handle file path if uploaded
+        let resumePath = "";
+        if (req.file) {
+            resumePath = `/uploads/${req.file.filename}`;
+        } else if (req.body.resume) {
+            // Fallback if they sent a link (though frontend will now send file)
+            resumePath = req.body.resume;
+        }
+
+        // Validate role if provided
+        if (role && !["student", "tpo", "recruiter"].includes(role)) {
+            return res.status(400).json({
+                error: "Invalid role. Must be 'student', 'tpo', or 'recruiter'"
+            });
+        }
 
         // Check if user already exists
         const existingUser = await User.findOne({
@@ -27,7 +70,16 @@ router.post("/register", async (req, res) => {
             avatar,
             phone,
             organization,
-            yearOfStudy
+            yearOfStudy,
+            role: role || "student",
+            companyName,
+            companyWebsite,
+            industry,
+            companySize,
+            resume: resumePath,
+            linkedin,
+            github,
+            website
         });
 
         // Return user without password
@@ -90,6 +142,15 @@ router.post("/login", async (req, res) => {
             yearOfStudy: user.yearOfStudy,
             avatar: user.avatar,
             whatsappNotifications: user.whatsappNotifications,
+            role: user.role,
+            companyName: user.companyName,
+            companyWebsite: user.companyWebsite,
+            industry: user.industry,
+            companySize: user.companySize,
+            resume: user.resume,
+            linkedin: user.linkedin,
+            github: user.github,
+            website: user.website,
             token: token,
             message: "Login successful"
         });
@@ -108,6 +169,35 @@ router.get("/user/:id", async (req, res) => {
         }
 
         res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update user profile
+router.put("/user/:id", async (req, res) => {
+    try {
+        const { companyName, companyWebsite, industry, companySize, username, phone } = req.body;
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Update fields if provided
+        if (companyName) user.companyName = companyName;
+        if (companyWebsite) user.companyWebsite = companyWebsite;
+        if (industry) user.industry = industry;
+        if (companySize) user.companySize = companySize;
+        if (username) user.username = username;
+        if (phone) user.phone = phone;
+
+        const updatedUser = await user.save();
+
+        res.json({
+            ...updatedUser._doc,
+            message: "Profile updated successfully"
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

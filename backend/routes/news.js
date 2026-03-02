@@ -65,13 +65,23 @@ router.get("/", async (req, res) => {
         // Fetch from NewsAPI
         const response = await axios.get("https://newsapi.org/v2/everything", {
             params: {
-                q: 'internship OR "job market" OR "hiring trends" OR "career opportunities"',
+                // Strict search: only check title/description, avoid body matches
+                q: 'internship OR "summer intern" OR "hiring interns"',
+                searchIn: 'title,description',
                 sortBy: "publishedAt",
                 language: "en",
                 pageSize: 20,
                 apiKey: apiKey
             }
         });
+
+        // Debug: Log titles to verify relevance
+        if (response.data.articles) {
+            console.log("--------------------------------------------------");
+            console.log("📰 NEWS DEBUG: Fetched " + response.data.articles.length + " articles:");
+            response.data.articles.forEach((a, i) => console.log(`${i + 1}. ${a.title}`));
+            console.log("--------------------------------------------------");
+        }
 
         res.json(response.data);
     } catch (error) {

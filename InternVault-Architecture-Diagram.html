@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InternVault — Complete Project Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #1a1a40, #24243e);
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  /* ─── TITLE ─── */
+  .title {
+    text-align: center;
+    margin-bottom: 50px;
+    animation: fadeDown 0.8s ease-out;
+  }
+  .title h1 {
+    font-size: 2.6rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #00d2ff, #7b2ff7, #ff6fd8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .title p { color: #8892b0; font-size: 1.05rem; }
+
+  /* ─── USERS ROW ─── */
+  .users-row {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-bottom: 30px;
+  }
+  .user-card {
+    text-align: center;
+    animation: fadeDown 0.8s ease-out both;
+  }
+  .user-card:nth-child(1) { animation-delay: 0.2s; }
+  .user-card:nth-child(2) { animation-delay: 0.4s; }
+  .user-card:nth-child(3) { animation-delay: 0.6s; }
+  .user-icon {
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 10px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .user-card:nth-child(1) .user-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .user-card:nth-child(2) .user-icon { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+  .user-card:nth-child(3) .user-icon { background: linear-gradient(135deg, #fa709a, #fee140); }
+  .user-card span { font-weight: 700; font-size: 0.95rem; }
+
+  /* ─── ARROWS ─── */
+  .arrow-down {
+    text-align: center;
+    margin: 10px 0 20px;
+    font-size: 1.6rem;
+    color: #4facfe;
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+
+  /* ─── LAYER ─── */
+  .layer {
+    border-radius: 18px;
+    padding: 28px 30px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .layer-frontend {
+    --accent1: #4facfe; --accent2: #00f2fe;
+    background: rgba(79, 172, 254, 0.06);
+    animation: slideInLeft 0.8s ease-out 0.8s both;
+  }
+  .layer-backend {
+    --accent1: #43e97b; --accent2: #38f9d7;
+    background: rgba(67, 233, 123, 0.06);
+    animation: slideInRight 0.8s ease-out 1.2s both;
+  }
+  .layer-data {
+    --accent1: #fa709a; --accent2: #fee140;
+    background: rgba(250, 112, 154, 0.06);
+    animation: slideInLeft 0.8s ease-out 1.6s both;
+  }
+  .layer-apis {
+    --accent1: #a18cd1; --accent2: #fbc2eb;
+    background: rgba(161, 140, 209, 0.06);
+    animation: slideInRight 0.8s ease-out 2.0s both;
+  }
+
+  .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .layer-header .icon {
+    font-size: 1.5rem;
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .layer-frontend .layer-header .icon { background: rgba(79,172,254,0.2); }
+  .layer-backend .layer-header .icon { background: rgba(67,233,123,0.2); }
+  .layer-data .layer-header .icon { background: rgba(250,112,154,0.2); }
+  .layer-apis .layer-header .icon { background: rgba(161,140,209,0.2); }
+
+  .layer-header h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+  .layer-header .tech {
+    font-size: 0.8rem;
+    color: #8892b0;
+    font-weight: 500;
+  }
+
+  /* ─── CHIPS ─── */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .chip-group { margin-bottom: 10px; width: 100%; }
+  .chip-group-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #8892b0;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .chip-group .chips { margin-bottom: 0; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: default;
+    animation: chipPop 0.4s ease-out both;
+  }
+  .chip:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+
+  .layer-frontend .chip { background: rgba(79,172,254,0.12); color: #4facfe; border: 1px solid rgba(79,172,254,0.2); }
+  .layer-backend .chip { background: rgba(67,233,123,0.12); color: #43e97b; border: 1px solid rgba(67,233,123,0.2); }
+  .layer-data .chip { background: rgba(250,112,154,0.12); color: #fa709a; border: 1px solid rgba(250,112,154,0.2); }
+  .layer-apis .chip { background: rgba(161,140,209,0.12); color: #c4b5fd; border: 1px solid rgba(161,140,209,0.2); }
+
+  /* ─── BOTTOM ROW ─── */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ─── FLOW SECTION ─── */
+  .flow-section {
+    margin-top: 50px;
+    animation: fadeUp 0.8s ease-out 2.4s both;
+  }
+  .flow-section h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+    background: linear-gradient(90deg, #43e97b, #38f9d7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .flow-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .flow-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 24px;
+    animation: fadeUp 0.5s ease-out both;
+    transition: all 0.3s ease;
+  }
+  .flow-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .flow-card:nth-child(1) { animation-delay: 2.6s; }
+  .flow-card:nth-child(2) { animation-delay: 2.8s; }
+  .flow-card:nth-child(3) { animation-delay: 3.0s; }
+
+  .flow-card h3 {
+    font-size: 1rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 0.82rem;
+    color: #ccd6f6;
+  }
+  .flow-step .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .flow-card:nth-child(1) .dot { background: #4facfe; }
+  .flow-card:nth-child(2) .dot { background: #43e97b; }
+  .flow-card:nth-child(3) .dot { background: #fa709a; }
+
+  .flow-arrow {
+    color: #555;
+    font-size: 0.7rem;
+    margin: 2px 0 2px 18px;
+  }
+
+  /* ─── STATS ─── */
+  .stats-section {
+    margin-top: 50px;
+    animation: fadeUp 0.8s ease-out 3.2s both;
+  }
+  .stats-section h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 30px;
+    background: linear-gradient(90deg, #fa709a, #fee140);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+  .stat-card {
+    text-align: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 22px 14px;
+    animation: scaleIn 0.5s ease-out both;
+    transition: all 0.3s ease;
+  }
+  .stat-card:hover {
+    transform: scale(1.05);
+    border-color: rgba(255,255,255,0.2);
+  }
+  .stat-card:nth-child(1) { animation-delay: 3.4s; }
+  .stat-card:nth-child(2) { animation-delay: 3.5s; }
+  .stat-card:nth-child(3) { animation-delay: 3.6s; }
+  .stat-card:nth-child(4) { animation-delay: 3.7s; }
+  .stat-card:nth-child(5) { animation-delay: 3.8s; }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #4facfe, #7b2ff7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: #8892b0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(60px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes chipPop {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79,172,254,0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 20px 5px rgba(79,172,254,0.15); }
+  }
+  @keyframes arrowBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50% { transform: translateY(8px); opacity: 1; }
+  }
+  @keyframes flowPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .connecting-arrow {
+    text-align: center;
+    margin: 6px 0;
+    font-size: 1.1rem;
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+  .layer-frontend ~ .connecting-arrow { color: #4facfe; }
+
+  .arrow-green { color: #43e97b !important; }
+  .arrow-pink { color: #fa709a !important; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .bottom-row { grid-template-columns: 1fr; }
+    .flow-cards { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    .users-row { gap: 30px; }
+    .title h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- TITLE -->
+  <div class="title">
+    <h1>🚀 InternVault — Complete Project Architecture</h1>
+    <p>Full-Stack Internship Aggregator & Career Assistant Platform</p>
+  </div>
+
+  <!-- USERS -->
+  <div class="users-row">
+    <div class="user-card">
+      <div class="user-icon">🎓</div>
+      <span>Student</span>
+    </div>
+    <div class="user-card">
+      <div class="user-icon">🏫</div>
+      <span>TPO</span>
+    </div>
+    <div class="user-card">
+      <div class="user-icon">💼</div>
+      <span>Recruiter</span>
+    </div>
+  </div>
+
+  <div class="arrow-down">▼ ▼ ▼</div>
+
+  <!-- FRONTEND LAYER -->
+  <div class="layer layer-frontend">
+    <div class="layer-header">
+      <div class="icon">⚛️</div>
+      <div>
+        <h2>Frontend — Presentation Layer</h2>
+        <div class="tech">React 19 · Vite 7 · Tailwind CSS · Framer Motion</div>
+      </div>
+    </div>
+    <div class="chip-group">
+      <div class="chip-group-title">📄 Pages (34 Components)</div>
+      <div class="chips">
+        <span class="chip">🏠 Home</span>
+        <span class="chip">🔍 Internships</span>
+        <span class="chip">📊 Dashboard</span>
+        <span class="chip">🤖 AI Chatbot</span>
+        <span class="chip">📄 Resume Analyzer</span>
+        <span class="chip">🎯 Interview Dojo</span>
+        <span class="chip">✉️ Cold Email</span>
+        <span class="chip">🎓 SkillVault</span>
+        <span class="chip">🏫 TPO Portal</span>
+        <span class="chip">💼 Recruiter Dashboard</span>
+        <span class="chip">💻 Code Challenges</span>
+        <span class="chip">📰 News Feed</span>
+        <span class="chip">⭐ Favorites</span>
+        <span class="chip">🔐 Login/Signup</span>
+      </div>
+    </div>
+    <div class="chip-group">
+      <div class="chip-group-title">🧩 Reusable Components (18)</div>
+      <div class="chips">
+        <span class="chip">Navbar</span>
+        <span class="chip">Footer</span>
+        <span class="chip">ProtectedRoute</span>
+        <span class="chip">Chatbot</span>
+        <span class="chip">OfferLetterModal</span>
+        <span class="chip">AdBanner</span>
+        <span class="chip">Analytics Charts</span>
+        <span class="chip">ImageSlider</span>
+        <span class="chip">NewsTicker</span>
+        <span class="chip">SEO</span>
+        <span class="chip">PageTransition</span>
+        <span class="chip">WelcomeAnimation</span>
+      </div>
+    </div>
+    <div class="chip-group">
+      <div class="chip-group-title">📦 Libraries</div>
+      <div class="chips">
+        <span class="chip">Axios</span>
+        <span class="chip">Recharts</span>
+        <span class="chip">jsPDF</span>
+        <span class="chip">html2canvas</span>
+        <span class="chip">JSZip</span>
+        <span class="chip">pdfjs-dist</span>
+        <span class="chip">react-hot-toast</span>
+        <span class="chip">react-speech-recognition</span>
+        <span class="chip">react-helmet-async</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="connecting-arrow">▼ &nbsp; HTTP / REST (Axios) &nbsp; ▼</div>
+
+  <!-- BACKEND LAYER -->
+  <div class="layer layer-backend">
+    <div class="layer-header">
+      <div class="icon">🖥️</div>
+      <div>
+        <h2>Backend — Application Layer</h2>
+        <div class="tech">Node.js · Express.js · Port 5000</div>
+      </div>
+    </div>
+    <div class="chip-group">
+      <div class="chip-group-title">🛣️ Route Modules (12)</div>
+      <div class="chips">
+        <span class="chip">🔐 Auth</span>
+        <span class="chip">👤 User</span>
+        <span class="chip">🔍 Internships</span>
+        <span class="chip">🏫 TPO</span>
+        <span class="chip">📋 Applications</span>
+        <span class="chip">💼 Recruiter</span>
+        <span class="chip">💻 Student Code</span>
+        <span class="chip">⭐ Favorites</span>
+        <span class="chip">📢 Ads</span>
+        <span class="chip">🔔 Notifications</span>
+        <span class="chip">📰 News</span>
+        <span class="chip">📱 Communications</span>
+      </div>
+    </div>
+    <div class="chip-group">
+      <div class="chip-group-title">⚙️ Services (3)</div>
+      <div class="chips">
+        <span class="chip">🤖 AI Analysis (Groq SDK)</span>
+        <span class="chip">🔎 Code Detection</span>
+        <span class="chip">📱 WhatsApp (Green API)</span>
+      </div>
+    </div>
+    <div class="chip-group">
+      <div class="chip-group-title">🛡️ Middleware</div>
+      <div class="chips">
+        <span class="chip">🔑 JWT Verification</span>
+        <span class="chip">📁 Multer Upload</span>
+        <span class="chip">🌐 CORS</span>
+        <span class="chip">📝 JSON Parser</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="connecting-arrow arrow-green">▼ &nbsp; Mongoose ODM / API Proxy &nbsp; ▼</div>
+
+  <!-- BOTTOM ROW: DATABASE + EXTERNAL APIS -->
+  <div class="bottom-row">
+    <div class="layer layer-data">
+      <div class="layer-header">
+        <div class="icon">🗄️</div>
+        <div>
+          <h2>Database</h2>
+          <div class="tech">MongoDB Atlas · Mongoose 8</div>
+        </div>
+      </div>
+      <div class="chip-group">
+        <div class="chip-group-title">📦 Collections (8 Schemas)</div>
+        <div class="chips">
+          <span class="chip">👤 Users</span>
+          <span class="chip">🏫 TPOInternships</span>
+          <span class="chip">💼 RecruiterInternships</span>
+          <span class="chip">📋 Applications</span>
+          <span class="chip">💻 CodeChallenges</span>
+          <span class="chip">📝 CodeSubmissions</span>
+          <span class="chip">📢 Ads</span>
+          <span class="chip">⭐ Favorites</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer layer-apis">
+      <div class="layer-header">
+        <div class="icon">🌐</div>
+        <div>
+          <h2>External APIs</h2>
+          <div class="tech">Backend Proxy Pattern</div>
+        </div>
+      </div>
+      <div class="chip-group">
+        <div class="chip-group-title">🔗 Integrated Services (7)</div>
+        <div class="chips">
+          <span class="chip">🌍 Jooble API</span>
+          <span class="chip">🇪🇺 Arbeitnow API</span>
+          <span class="chip">🇺🇸 USA Jobs API</span>
+          <span class="chip">📰 News API</span>
+          <span class="chip">🧠 Google Gemini AI</span>
+          <span class="chip">⚡ Groq LLaMA 3</span>
+          <span class="chip">📱 Green API (WhatsApp)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER WORKFLOWS -->
+  <div class="flow-section">
+    <h2>🔄 User Workflows</h2>
+    <div class="flow-cards">
+      <div class="flow-card">
+        <h3>🎓 Student Flow</h3>
+        <div class="flow-step"><span class="dot"></span> Sign Up & Choose Avatar</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Browse Internships (4 Sources)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Search, Filter & Apply</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Track Applications</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Attempt Code Challenges</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Use AI Tools (5 Tools)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Explore SkillVault</div>
+      </div>
+      <div class="flow-card">
+        <h3>🏫 TPO Flow</h3>
+        <div class="flow-step"><span class="dot"></span> Sign Up as TPO</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Post Internship + Banner</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> View Applicant List</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Shortlist / Select / Reject</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Schedule Interviews</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Generate Offer Letters (PDF)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Send WhatsApp Notifications</div>
+      </div>
+      <div class="flow-card">
+        <h3>💼 Recruiter Flow</h3>
+        <div class="flow-step"><span class="dot"></span> Sign Up as Recruiter</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> View Analytics Dashboard</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Post Internships</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Create Code Challenges</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Review Submissions</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> AI Code Detection</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step"><span class="dot"></span> Manage Applicants</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-section">
+    <h2>📊 Project Metrics</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">30+</span>
+        <span class="stat-label">API Endpoints</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">34</span>
+        <span class="stat-label">Frontend Pages</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">8</span>
+        <span class="stat-label">DB Models</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">5+</span>
+        <span class="stat-label">AI Tools</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">4</span>
+        <span class="stat-label">Job Sources</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating particles background -->
+<script>
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+  document.body.prepend(canvas);
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  const particles = [];
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 2 + 0.5,
+      dx: (Math.random() - 0.5) * 0.4,
+      dy: (Math.random() - 0.5) * 0.4,
+      alpha: Math.random() * 0.3 + 0.1,
+    });
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(79, 172, 254, ${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // Stagger chip animations
+  document.querySelectorAll('.chip').forEach((chip, i) => {
+    chip.style.animationDelay = `${1.0 + i * 0.05}s`;
+  });
+</script>
+</body>
+</html>

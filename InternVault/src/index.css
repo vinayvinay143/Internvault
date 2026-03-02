@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -37,9 +38,13 @@ html {
   text-fill-color: transparent;
   -webkit-text-fill-color: transparent;
   animation: shine 3s linear infinite;
-  font-weight: 500;
-  font-family: 'Roboto Slab', serif;
-  letter-spacing: 1px;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.font-brand {
+  font-family: 'Syne', sans-serif;
 }
 
 /* Image Slider Styles */

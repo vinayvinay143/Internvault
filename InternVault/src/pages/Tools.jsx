@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from "recharts";
-import { BsBullseye, BsPlusCircle, BsCloudArrowUp, BsCupHot, BsCheckCircle, BsExclamationTriangle, BsSearch, BsTools, BsHeart, BsX, BsArrowLeft, BsArrowRight, BsStar, BsBuilding, BsGeoAlt, BsCurrencyDollar, BsCalendar, BsNewspaper, BsTrophy } from "react-icons/bs";
+
+import { BsCupHot, BsCheckCircle, BsExclamationTriangle, BsSearch, BsTools, BsHeart, BsX, BsArrowLeft, BsArrowRight, BsStar, BsBuilding, BsGeoAlt, BsCurrencyDollar, BsTrophy } from "react-icons/bs";
+
+
+// Import requested tools
+import { ColdEmail } from "./ColdEmail";
 
 const ROLES_LIST = [
     "Frontend Intern", "Backend Intern", "Software Developer Intern", "Web Development Intern",
@@ -239,7 +243,7 @@ export function SkillRadar() {
 
                 {/* Chart */}
                 <div className="w-full lg:w-2/3 bg-white p-4 md:p-10 rounded-3xl border border-slate-200 shadow-xl min-h-[500px] flex flex-col items-center justify-center relative">
-                    <ResponsiveContainer width="100%" height={450}>
+                    <ResponsiveContainer width="100%" height={450} minWidth={0}>
                         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
                             <PolarGrid stroke="#e2e8f0" />
                             <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 14 }} />
@@ -761,8 +765,10 @@ export function Tools() {
             </div>
 
             <InternshipSwiper />
-            <SkillRadar />
             <CoffeeDetector />
+
+            {/* Additional Tools */}
+            <ColdEmail />
         </div>
     );
 }

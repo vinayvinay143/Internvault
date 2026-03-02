@@ -47,7 +47,7 @@ export function CompanyIntelligence() {
             <div className="text-center mb-10">
                 <h2 className="text-3xl font-bold text-slate-900 flex items-center justify-center gap-3">
                     <BsBuilding className="text-indigo-600" />
-                    Company Intelligence
+                    Company Reviews & Intelligence
                 </h2>
                 <p className="text-slate-500 mt-2">Deep insights into company culture</p>
             </div>

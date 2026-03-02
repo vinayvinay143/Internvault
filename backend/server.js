@@ -11,6 +11,12 @@ import notificationsRoutes from "./routes/notifications.js";
 import userRoutes from "./routes/user.js";
 import internshipsRoutes from "./routes/internships.js";
 import newsRoutes from "./routes/news.js";
+import tpoInternshipsRoutes from "./routes/tpoInternships.js";
+import applicationsRoutes from "./routes/applications.js";
+import communicationsRoutes from "./routes/communications.js";
+import recruiterRoutes from "./routes/recruiterRoutes.js";
+import studentCodeRoutes from "./routes/studentCodeRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -37,7 +43,7 @@ app.use(cors({
     },
     credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,9 +51,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/internvault";
-const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
 
-mongoose.connect(MONGODB_URI, clientOptions)
+mongoose.connect(MONGODB_URI)
     .then(() => {
         console.log("✅ Connected to MongoDB successfully");
         // Mask password in logs
@@ -58,6 +63,10 @@ mongoose.connect(MONGODB_URI, clientOptions)
     .catch((error) => {
         console.error("❌ MongoDB connection error:", error.message);
         console.log("\n⚠️  Make sure MongoDB is running or update MONGODB_URI in .env file");
+        console.log("💡 If using MongoDB Atlas, check:");
+        console.log("   1. Your IP address is whitelisted (0.0.0.0/0 for all IPs)");
+        console.log("   2. Database user credentials are correct");
+        console.log("   3. Network connection is stable");
     });
 
 // Routes
@@ -68,6 +77,12 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/internships", internshipsRoutes);
 app.use("/api/news", newsRoutes);
+app.use("/api/tpo", tpoInternshipsRoutes);
+app.use("/api/recruiter", recruiterRoutes);
+app.use("/api/student", studentCodeRoutes);
+app.use("/api", applicationsRoutes);
+app.use("/api", communicationsRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

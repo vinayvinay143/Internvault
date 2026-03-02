@@ -1,169 +1,217 @@
-# 🚀 InternVault - The Ultimate Internship Aggregator & Career Assistant
-
-InternVault is a comprehensive platform designed to help students and job seekers find internships, manage their career preparation, and upskill effectively. It aggregates real-time internship listings from multiple global sources and provides AI-powered tools for resume analysis, interview preparation, and more.
-
-## 🌟 Key Features
-
-### 1. **Internship Aggregator**
-- **Unified Search**: Fetches internship listings from multiple premium job boards simultaneously.
-- **Backend Proxy System**: A secure, custom-built backend proxy (`backend/routes/internships.js`) handles all API requests to bypass CORS restrictions and keep API keys secure.
-- **Supported Sources**:
-  - **Jooble**: Aggregates listings from thousands of job boards.
-  - **Arbeitnow**: Focuses on jobs in Europe/Germany.
-  - **USA Jobs**: Federal government opportunities.
-  - **Internal Database**: Internships hosted directly on InternVault.
-
-### 2. **AI-Powered Career Tools**
-- **InternChatbot**: An intelligent assistant to answer career-related queries.
-- **Resume Analyzer**: Uses Google Gemini AI to analyze uploaded resumes (PDF/Image) and provide actionable feedback.
-- **Cold Email Generator**: Helps users craft professional cold outreach emails.
-- **Interview Dojo**: A dedicated space for interview preparation.
-
-### 3. **SkillVault & Learning**
-- **Courses & Skills**: curated paths for learning new technologies.
-- **Project Ideas**: Suggestions for portfolio projects.
-- **Favorites**: Save interesting internships and resources.
-
-### 4. **User Dashboard**
-- **Profile Management**: Manage user details and avatars.
-- **Host Internships**: Employers can post their own internship opportunities (Image upload supported).
+# InternVault — The Ultimate Internship Aggregator & Career Assistant
 
 ---
 
-## 🛠️ Technology Stack & Dependencies
+## 1. Abstract
 
-### **Frontend (InternVault directory)**
-**Core Framework:**
--   `react`: ^19.1.1 (The library for web and native user interfaces)
--   `vite`: ^7.3.0 (Next Generation Frontend Tooling)
-
-**Routing & Navigation:**
--   `react-router-dom`: ^7.9.5 (Declarative routing for React web apps)
-
-**Styling & UI:**
--   `tailwindcss`: ^3.4.19 (Utility-first CSS framework)
--   `framer-motion`: ^12.23.26 (Production-ready motion library for React)
--   `react-icons`: ^5.5.0 (Include popular icons in your React projects)
--   `recharts`: ^3.6.0 (Redefined chart library built with React and D3)
-
-**API & Data Handling:**
--   `axios`: ^1.13.2 (Promise based HTTP client for the browser and node.js)
--   `@google/generative-ai`: ^0.24.1 (Google Gemini AI SDK)
--   `pdfjs-dist`: ^5.4.530 (PDF Reader in JavaScript)
-
-**Utilities:**
--   `react-hot-toast`: ^2.6.0 (Smoking hot React notifications)
--   `react-speech-recognition`: ^4.0.1 (Speech recognition hook)
-
-### **Backend (backend directory)**
-**Core Server:**
--   `node.js`: Runtime environment
--   `express`: ^4.18.2 (Fast, unopinionated, minimalist web framework)
-
-**Database:**
--   `mongoose`: ^8.0.0 (MongoDB object modeling designed to work in an asynchronous environment)
-
-**Authentication & Security:**
--   `jsonwebtoken`: ^9.0.3 (JSON Web Token implementation)
--   `bcryptjs`: ^2.4.3 (Optimized bcrypt in JavaScript with zero dependencies)
--   `cors`: ^2.8.5 (Middleware to enable Cross-Origin Resource Sharing)
-
-**File & Data Handling:**
--   `multer`: ^2.0.2 (Middleware for handling `multipart/form-data` / file uploads)
--   `dotenv`: ^16.3.1 (Loads environment variables from `.env` file)
--   `axios`: ^1.13.2 (For making requests to external APIs)
-
+InternVault is a full-stack web platform that streamlines the internship lifecycle for students, TPOs, and recruiters. It aggregates listings from Jooble, Arbeitnow, USA Jobs, and an internal database into a single interface. AI-powered tools include InternChat (scam detector powered by Groq LLaMA 3 + Tavily), a Resume Analyzer (Google Gemini AI), a Cold Email Generator, and an AI Complaint Generator for fraud reporting. TPO and recruiter dashboards handle applicant management, offer letter PDFs, coding challenges, and AI code detection. Built with React 19, Vite, Node.js, Express, MongoDB, and integrated with Groq AI and Tavily Search.
 
 ---
 
-## 🏗️ Architecture & Security
+## 2. Introduction
 
-### **Backend Proxy Strategy**
-To resolve Cross-Origin Resource Sharing (CORS) issues common with third-party APIs, we implemented a **Backend Proxy Pattern**:
-1.  **Frontend** sends a request to our own backend (e.g., `/api/internships/jooble`).
-2.  **Backend** securely adds the necessary API keys from server-side environment variables.
-3.  **Backend** forwards the request to the external API.
-4.  **Backend** returns the clean data to the Frontend.
+### Problem Statement
 
-This ensures **API keys are never exposed** in the browser and prevents CORS errors.
+| Problem | Impact |
+|---|---|
+| Internships scattered across dozens of job boards | Students miss relevant opportunities |
+| No unified AI career preparation tools | Poor application & interview quality |
+| TPOs lack streamlined workflow | Inefficient, manual applicant management |
+| Fake internship scams are widespread | Students lose money and time |
 
----
+### Objectives
 
-## 🚀 Installation & Setup
-
-Follow these steps to run the project locally.
-
-### **Prerequisites**
-- Node.js (v18+ recommended)
-- MongoDB (Local instance or Atlas URI)
-
-### **1. Clone the Repository**
-```bash
-git clone https://github.com/SaiiPraveen/Internvault.git
-cd Internvault
-```
-
-### **2. Backend Setup**
-Navigate to the backend directory and install dependencies:
-```bash
-cd backend
-npm install
-```
-
-**Configure Environment Variables:**
-Create a `.env` file in the `backend` folder with the following keys:
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/internvault  # Or your MongoDB Atlas URI
-JWT_SECRET=your_super_secret_key
-GREEN_API_INSTANCE_ID=your_id  # Optional
-GREEN_API_TOKEN=your_token     # Optional
-
-# API Keys (Get these from respective providers)
-JOOBLE_API_KEY=your_jooble_key
-USAJOBS_API_KEY=your_usajobs_key
-```
-
-**Start the Backend Server:**
-```bash
-npm run dev
-# Server will run on http://localhost:5000
-```
-
-### **3. Frontend Setup**
-Open a new terminal, navigate to the frontend directory:
-```bash
-cd InternVault
-npm install
-```
-
-**Start the Frontend Development Server:**
-```bash
-npm run dev
-# Application will run on http://localhost:5173
-```
+1. Aggregate listings from Jooble, Arbeitnow, USA Jobs, and Internal DB.
+2. Provide AI tools — InternChat scam detector, resume analyzer, cold email generator.
+3. Build a Fraud Reporting system with an AI Complaint Generator.
+4. Dedicated TPO portal for posting internships, managing applicants, and generating offer letters.
+5. Recruiter portal for coding challenges, submission review, and AI code detection.
+6. JWT-based authentication with role-based access control.
+7. Responsive, premium UI with glassmorphism and Framer Motion animations.
 
 ---
 
-## 📖 Working of Key Pages
+## 3. Related Work — Comparative Analysis
 
-1.  **Home Page**: Features a dynamic hero section with "shiny text" effects, promotional sliders for SkillVault and Tools, and a testimonial carousel.
-2.  **Internship Page**: The core feature. It loads jobs in parallel from our backend proxy. You can filter by "Remote" or search by keywords. It merges results from external APIs and internal listings.
-3.  **Login/Signup**: Secure authentication forms with strict validation (e.g., email format checks). Upon login, a JWT is stored in local storage to persist the session.
-4.  **InternChat**: Accessible via the navbar. Uses specialized system prompts to answer internship-related questions and identify fake/scam offers.
-5.  **Resume Analyzer**: Upload a PDF/Image resume. The frontend extracts text or sends the image to the backend/AI service to get a detailed critique and score.
-6.  **Host Internship**: (Protected) Allows authorized users to upload job details and a banner image (handled via Multer) to post a new opening on the platform.
-
----
-
-## 🤝 Contributing
-
-1.  Fork the project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+| Feature | Internshala | LinkedIn | HackerRank | **InternVault** |
+|---|---|---|---|---|
+| Multi-source Aggregation | ✗ | ✗ | ✗ | ✓ |
+| AI Scam Detection Chatbot | ✗ | ✗ | ✗ | ✓ |
+| Offer Letter Image Verification | ✗ | ✗ | ✗ | ✓ |
+| Fraud Reporting + AI Complaint Draft | ✗ | ✗ | ✗ | ✓ |
+| Resume Analyzer | ✗ | ✗ | ✗ | ✓ |
+| TPO Portal | ✗ | ✗ | ✗ | ✓ |
+| Code Challenges + AI Detection | ✗ | ✗ | ✓ | ✓ |
+| Offer Letter PDF Generation | ✗ | ✗ | ✗ | ✓ |
 
 ---
 
-**Developed  by the InternVault Team.**
+## 4. System Overview
+
+### Architecture
+
+```
+┌─────────────────────────────────────────┐
+│         BROWSER (React SPA)             │
+│  React 19 + Vite 7 → localhost:5173     │
+│  Tailwind CSS + Framer Motion           │
+└────────────────┬────────────────────────┘
+                 │  HTTP/REST (Axios)
+                 ▼
+┌─────────────────────────────────────────┐
+│      BACKEND (Node.js + Express)        │
+│  12 route modules → localhost:5000      │
+│  JWT Auth · Multer · Nodemailer         │
+└───────────┬─────────────┬───────────────┘
+            │             │
+     ┌──────▼──────┐  ┌───▼──────────────┐
+     │  MongoDB     │  │  External APIs   │
+     │  (8 schemas) │  │  Jooble, USAJobs │
+     └─────────────┘  │  Arbeitnow, Groq │
+                       └──────────────────┘
+```
+
+### User Roles & Workflows
+
+| Role | Workflow |
+|---|---|
+| **Student** | Sign Up → Browse → Apply → Track → Code Challenges → AI Tools → Report Fraud |
+| **TPO** | Post Internship → Manage Applicants → Generate Offer Letters → Notify |
+| **Recruiter** | Dashboard Analytics → Post → Create Challenges → Review → AI Detection |
+
+---
+
+## 5. Technology Stack
+
+### Frontend
+| Category | Technology | Purpose |
+|---|---|---|
+| Core | React 19, Vite 7 | UI library & build tool |
+| Routing | React Router v7 | 34+ client-side routes |
+| Styling | Tailwind CSS, Framer Motion | Utility CSS & animations |
+| AI | Groq SDK (LLaMA 3, Vision) | Chatbot & image analysis |
+| PDF | jsPDF, html2canvas | Offer letter generation |
+| HTTP | Axios | API communication |
+
+### Backend
+| Category | Technology | Purpose |
+|---|---|---|
+| Server | Express.js | Web framework on port 5000 |
+| Database | MongoDB + Mongoose | 8 schemas, ODM |
+| Auth | JWT + bcryptjs | Token auth & password hashing |
+| Uploads | Multer | Image/file uploads |
+| Email | Nodemailer | Email notifications |
+| WhatsApp | Green API | WhatsApp messaging |
+
+---
+
+## 6. Database Design (8 Mongoose Schemas)
+
+| Model | Description |
+|---|---|
+| User | Profile with role: student / tpo / recruiter |
+| TPOInternship | Internships posted by TPOs |
+| RecruiterInternship | Internships with embedded coding challenges |
+| Application | Student applications (pending → shortlisted → selected / rejected) |
+| CodeChallenge | Problems with test cases and time limits |
+| CodeSubmission | Student solutions with AI detection results |
+| Ad | Advertisement banners for the home page |
+| Favorite | User-saved internship bookmarks |
+
+---
+
+## 7. API Design (30+ REST Endpoints)
+
+| Route Group | Prefix | Key Endpoints |
+|---|---|---|
+| Auth | `/api/auth` | `POST /register`, `POST /login` |
+| User | `/api/user` | `GET /:id`, `PUT /:id` |
+| Internships | `/api/internships` | `GET /jooble`, `/arbeitnow`, `/usajobs`, `/internal` |
+| TPO | `/api/tpo` | CRUD `/internships`, `GET /applicants/:id` |
+| Applications | `/api/applications` | `POST /`, `GET /my`, `PUT /:id/status` |
+| Recruiter | `/api/recruiter` | `/internships`, `/challenges`, `/submissions` |
+| Student Code | `/api/student` | `GET /challenges`, `POST /submit` |
+| Misc | `/api/` | `/favorites`, `/ads`, `/notifications`, `/communications` |
+
+---
+
+## 8. Security Implementation
+
+- **JWT Authentication** — Token-based auth with 7-day expiry.
+- **bcrypt Password Hashing** — 10 salt rounds.
+- **Backend Proxy Pattern** — All third-party API keys are server-side only; never exposed to the browser.
+- **Role-Based Access Control** — Routes protected based on user role.
+- **CORS** — Restricted to allowed frontend origins.
+- **Multer File Validation** — MIME type and file size restrictions.
+- **Git Security** — `.env` excluded from version control via `.gitignore`.
+
+---
+
+## 9. Testing
+
+### Test Cases & Results
+
+| TC | Description | Status |
+|---|---|---|
+| TC-01 | User Registration | ✓ Pass |
+| TC-02 | JWT Login | ✓ Pass |
+| TC-03 | Fetch from All 4 Internship Sources | ✓ Pass |
+| TC-04 | Apply to Internship | ✓ Pass |
+| TC-05 | Generate Offer Letter PDF | ✓ Pass |
+| TC-06 | InternChat Scam Detection (Text) | ✓ Pass |
+| TC-07 | InternChat Image Verification (Offer Letter) | ✓ Pass |
+| TC-08 | AI Complaint Generator | ✓ Pass |
+| TC-09 | Code Submission & Evaluation | ✓ Pass |
+| TC-10 | Resume Analysis | ✓ Pass |
+
+---
+
+## 10. Results & Performance
+
+| Metric | Value |
+|---|---|
+| Internship Sources Integrated | 4 (Jooble, Arbeitnow, USA Jobs, Internal DB) |
+| AI Tools | 3 (InternChat, Resume Analyzer, Cold Email Generator) |
+| User Roles | 3 (Student, TPO, Recruiter) |
+| API Endpoints | 30+ across 12 route modules |
+| Database Models | 8 Mongoose schemas |
+| Frontend Pages | 34 pages + 18 reusable components |
+| Notification Channels | In-app popup + WhatsApp + Email |
+| AI Integrations | Groq LLaMA 3 + Llama 4 Vision + Tavily Search |
+
+---
+
+## 11. Future Enhancements
+
+1. **Real-time Chat** — WebSocket messaging between students and TPOs/recruiters.
+2. **Mobile App** — React Native companion application.
+3. **Scam Database** — Community-reported registry of known fake companies.
+4. **Video Interviews** — WebRTC-based interviews within the platform.
+5. **Additional Job Boards** — LinkedIn API, Glassdoor, AngelList integration.
+6. **PWA Support** — Offline access and push notifications.
+
+---
+
+## 12. Conclusion
+
+InternVault addresses a clear gap in the market by unifying internship aggregation, AI-powered career tools, scam protection, and role-based management dashboards in a single production-grade platform. The InternChat scam detector (Groq LLaMA 3 + Tavily) and Fraud Reporting page with AI Complaint Generator are unique differentiators not found in any existing platform. Built with React 19, Vite, Node.js, MongoDB, and Groq AI, the system is secure, scalable, and ready for institutional deployment.
+
+---
+
+## 13. References
+
+| # | Source |
+|---|---|
+| 1 | [React.js Documentation](https://react.dev/) |
+| 2 | [Express.js Documentation](https://expressjs.com/) |
+| 3 | [MongoDB Reference Manual](https://www.mongodb.com/docs/manual/) |
+| 4 | [Vite Documentation](https://vitejs.dev/) |
+| 5 | [Mongoose ODM](https://mongoosejs.com/docs/) |
+| 6 | [Groq API Documentation](https://console.groq.com/docs) |
+| 7 | [Tavily Search API](https://tavily.com/) |
+| 8 | [JSON Web Tokens](https://jwt.io/introduction) |
+| 9 | Software Engineering – Pressman |
+
+---
+
+> **Developed by the InternVault Team** 🚀

@@ -1,12 +1,39 @@
 import express from "express";
 import User from "../models/User.js";
+import multer from "multer";
+import path from "path";
 
 const router = express.Router();
 
+// Multer Config
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, `resume-${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const filetypes = /pdf|doc|docx/;
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error("Error: Resume must be a PDF or DOCX file!"));
+        }
+    }
+});
+
 // Update user profile
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single("resume"), async (req, res) => {
     try {
-        const { username, phone, organization, yearOfStudy, avatar, whatsappNotifications } = req.body;
+        const { username, phone, organization, yearOfStudy, avatar, whatsappNotifications, linkedin, github, website } = req.body;
 
         // Find user
         const user = await User.findById(req.params.id);
@@ -30,6 +57,17 @@ router.put("/:id", async (req, res) => {
         if (yearOfStudy !== undefined) user.yearOfStudy = yearOfStudy;
         if (avatar !== undefined) user.avatar = avatar;
         if (whatsappNotifications !== undefined) user.whatsappNotifications = whatsappNotifications;
+        if (linkedin !== undefined) user.linkedin = linkedin;
+        if (github !== undefined) user.github = github;
+        if (website !== undefined) user.website = website;
+
+        // Handle Resume File Update
+        if (req.file) {
+            user.resume = `/uploads/${req.file.filename}`;
+        } else if (req.body.resume) {
+            // Optional: allow updating resume path string if needed, though usually file upload is preferred
+            user.resume = req.body.resume;
+        }
 
         await user.save();
 
@@ -42,7 +80,12 @@ router.put("/:id", async (req, res) => {
             organization: user.organization,
             yearOfStudy: user.yearOfStudy,
             avatar: user.avatar,
-            whatsappNotifications: user.whatsappNotifications
+            whatsappNotifications: user.whatsappNotifications,
+            linkedin: user.linkedin,
+            github: user.github,
+            website: user.website,
+            resume: user.resume,
+            role: user.role
         };
 
         res.json(updatedUser);

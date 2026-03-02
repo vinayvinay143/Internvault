@@ -1,6 +1,7 @@
 {
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.17"
+    "@tailwindcss/vite": "^4.1.17",
+    "docx": "^9.6.0"
   },
   "dependencies": {
     "axois": "^0.0.1-security",

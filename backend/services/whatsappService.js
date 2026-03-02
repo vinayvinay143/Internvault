@@ -164,9 +164,62 @@ _- InternVault Team_`;
     }
 };
 
+/**
+ * Send TPO internship posting confirmation
+ */
+export const sendTPOInternshipConfirmation = async (phone, internshipTitle) => {
+    try {
+        const message = `🎉 *Internship Posted Successfully!*
+
+━━━━━━━━━━━━━━━━━━━━
+*${internshipTitle}*
+━━━━━━━━━━━━━━━━━━━━
+
+✅ Your internship is now live to 500+ students!
+
+Students can now view and apply to your opportunity on InternVault.
+
+_- InternVault Team_`;
+
+        return await sendWhatsAppMessage(phone, message);
+    } catch (error) {
+        console.error("Error sending TPO confirmation:", error.message);
+        return { success: false, error: error.message };
+    }
+};
+
+/**
+ * Send selection notification to student
+ */
+export const sendSelectionNotification = async (phone, internshipTitle, studentName) => {
+    try {
+        const message = `🎊 *Congratulations ${studentName}!*
+
+━━━━━━━━━━━━━━━━━━━━
+You've been *SELECTED* for:
+*${internshipTitle}*
+━━━━━━━━━━━━━━━━━━━━
+
+🎯 The TPO will contact you soon with further details.
+
+📧 Check your email for official communication.
+
+Best of luck! 🚀
+
+_- InternVault Team_`;
+
+        return await sendWhatsAppMessage(phone, message);
+    } catch (error) {
+        console.error("Error sending selection notification:", error.message);
+        return { success: false, error: error.message };
+    }
+};
+
 export default {
     sendWhatsAppMessage,
     sendBulkInternshipNotification,
+    sendTPOInternshipConfirmation,
+    sendSelectionNotification,
     formatPhoneNumber,
     validatePhoneNumber
 };

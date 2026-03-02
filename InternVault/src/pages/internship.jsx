@@ -69,11 +69,55 @@ export function Internship({ isLoggedIn }) {
     }
   };
 
-  // Function to fetch Premium Jobs (User Posted)
+  // Function to fetch Premium Jobs (User Posted + TPO Hosted + Recruiter Posted)
   const fetchPremiumJobs = async () => {
     try {
-      const response = await axios.get(`${API_URL}/ads/active`);
-      setInternsignalJobs(response.data);
+      const [adsResponse, tpoResponse, recruiterResponse] = await Promise.allSettled([
+        axios.get(`${API_URL}/ads/active`),
+        axios.get(`${API_URL}/tpo/internships/all/active`),
+        axios.get(`${API_URL}/recruiter/internships/active`)
+      ]);
+
+      const ads = adsResponse.status === 'fulfilled' ? adsResponse.value.data : [];
+      let tpoJobs = [];
+      let recruiterJobs = [];
+
+      if (tpoResponse.status === 'fulfilled') {
+        tpoJobs = tpoResponse.value.data.map(job => ({
+          _id: job._id,
+          id: job._id, // Ensure ID is present
+          title: job.title,
+          company: job.tpoId?.organization || "TPO Hosted",
+          location: job.locationType || "On-Campus / Remote",
+          imageUrl: job.tpoId?.avatar || null,
+          link: `/internship/${job._id}`,
+          type: "Internship",
+          verificationStatus: "Verified",
+          isInternal: true,
+          source: "TPO",
+          programType: job.programType || "BTech",
+          researchTopics: job.researchTopics || []
+        }));
+      }
+
+      if (recruiterResponse.status === 'fulfilled') {
+        recruiterJobs = recruiterResponse.value.data.map(job => ({
+          _id: job._id,
+          id: job._id,
+          title: job.title,
+          company: job.companyName || "Company",
+          location: `${job.location} (${job.locationType})`,
+          imageUrl: null,
+          link: `/internship/${job._id}`,
+          type: "Internship",
+          verificationStatus: "Verified",
+          isInternal: true,
+          source: "Recruiter",
+          requiresCodeSubmission: job.requiresCodeSubmission
+        }));
+      }
+
+      setInternsignalJobs([...recruiterJobs, ...tpoJobs, ...ads]);
     } catch (error) {
       console.error("Error fetching premium jobs:", error);
       setInternsignalJobs([]);
@@ -85,17 +129,7 @@ export function Internship({ isLoggedIn }) {
       setLoading(true);
       if (isLoggedIn) {
         await fetchAllJobs();
-
-        // Fetch Real Active Ads from Backend
-        try {
-          const response = await axios.get(`${API_URL}/ads/active`);
-          setInternsignalJobs(response.data);
-        } catch (error) {
-          console.error("Failed to fetch verified ads", error);
-          // setInternsignalJobs(MOCK_PREMIUM_JOBS); // Fallback - Mock data not defined in this scope, so setting empty or handling gracefully
-          setInternsignalJobs([]);
-        }
-
+        await fetchPremiumJobs();
       }
       setLoading(false);
     };
@@ -104,9 +138,10 @@ export function Internship({ isLoggedIn }) {
 
   // Render Job Card
   const renderJobCard = (job, isPremium = false) => {
-    const isFake = job.type === "Unverified"; // Legacy check
+    const isFake = job.type === "Unverified";
     const isVerified = job.verificationStatus === 'Verified';
     const isFlagged = job.verificationStatus === 'Flagged';
+    const isInternal = job.isInternal;
 
     let displayTitle = job.title || "Internship Opportunity";
     let displayCompany = job.company || job.companyName || "Unknown Company";
@@ -125,29 +160,56 @@ export function Internship({ isLoggedIn }) {
           ${isFake && "opacity-75 grayscale hover:grayscale-0"}
         `}
       >
-        {isPremium && (
-          <div className="absolute top-0 right-0 p-3 flex gap-2">
-            {isVerified && (
-              <div className="bg-green-100/90 backdrop-blur-sm text-green-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-green-200 flex items-center gap-1">
-                <BsShieldCheck className="text-sm" /> Verified
-              </div>
-            )}
-            {isFlagged && (
-              <div className="bg-red-100/90 backdrop-blur-sm text-red-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-red-200 flex items-center gap-1">
-                <BsExclamationTriangle className="text-sm" /> Flagged
-              </div>
-            )}
-          </div>
-        )}
-
-        <div>
+        <div className="flex justify-between items-start mb-5">
           {/* Icon / Logo Area */}
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-2xl transition-transform group-hover:scale-110 border overflow-hidden
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-transform group-hover:scale-110 border overflow-hidden shrink-0
               ${isPremium ? "bg-white border-blue-100" : isFake ? "bg-gray-100 text-gray-500" : "bg-blue-50 text-blue-600"}
            `}>
             {displayImage ? <img src={displayImage} alt={displayCompany} className="w-full h-full object-cover" /> : (isPremium ? <BsBriefcase className="text-blue-600" /> : <BsBriefcase />)}
           </div>
 
+          {/* Badges Container */}
+          {isPremium && (
+            <div className="flex flex-wrap justify-end gap-1.5 max-w-[180px]">
+              {isVerified && (
+                <div className="bg-green-50/90 backdrop-blur-sm text-green-700 text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-lg border border-green-100 flex items-center gap-1">
+                  <BsShieldCheck className="text-xs" /> Verified
+                </div>
+              )}
+              {isFlagged && (
+                <div className="bg-red-50/90 backdrop-blur-sm text-red-700 text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-lg border border-red-100 flex items-center gap-1">
+                  <BsExclamationTriangle className="text-sm" /> Flagged
+                </div>
+              )}
+              {/* TPO Badge */}
+              {isInternal && job.source === "TPO" && (
+                <div className="bg-blue-50/90 backdrop-blur-sm text-blue-700 text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-lg border border-blue-100 flex items-center gap-1">
+                  <BsBuilding className="text-sm" /> TPO
+                </div>
+              )}
+              {/* Recruiter Badge */}
+              {isInternal && job.source === "Recruiter" && (
+                <div className="bg-purple-50/90 backdrop-blur-sm text-purple-700 text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-lg border border-purple-100 flex items-center gap-1">
+                  💼 Recruiter
+                </div>
+              )}
+              {/* Code Required Badge */}
+              {job.requiresCodeSubmission && (
+                <div className="bg-orange-50/90 backdrop-blur-sm text-orange-700 text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-lg border border-orange-100 flex items-center gap-1">
+                  🤖 Code
+                </div>
+              )}
+              {/* Program Type Badge */}
+              {job.programType && (
+                <div className={`backdrop-blur-sm text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-lg border flex items-center gap-1 ${job.programType === "MTech" ? "bg-indigo-50/90 text-indigo-700 border-indigo-100" : "bg-blue-50/90 text-blue-700 border-blue-100"}`}>
+                  {job.programType}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex-grow">
           {/* Content */}
           <h4 className="text-xl font-bold text-gray-900 mb-2 leading-tight line-clamp-2 group-hover:text-blue-600 transition-colors">
             {displayTitle}
@@ -164,21 +226,30 @@ export function Internship({ isLoggedIn }) {
         </div>
 
         {/* Action Button */}
-        <a
-          href={displayLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`w-full py-3.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all
-            ${isPremium
-              ? "bg-gray-900 text-white hover:bg-black shadow-lg shadow-gray-200"
-              : isFake
-                ? "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200 shadow-lg"
-            }
-          `}
-        >
-          {isFake ? "View Details" : "Apply Now"} <BsArrowUpRight className="text-sm font-bold" />
-        </a>
+        {isInternal ? (
+          <Link
+            to={displayLink}
+            className={`w-full py-3.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all bg-gray-900 text-white hover:bg-black shadow-lg shadow-gray-200`}
+          >
+            Apply Now <BsArrowUpRight className="text-sm font-bold" />
+          </Link>
+        ) : (
+          <a
+            href={displayLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`w-full py-3.5 rounded-xl flex items-center justify-center gap-2 font-bold transition-all
+                ${isPremium
+                ? "bg-gray-900 text-white hover:bg-black shadow-lg shadow-gray-200"
+                : isFake
+                  ? "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                  : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200 shadow-lg"
+              }
+              `}
+          >
+            {isFake ? "View Details" : "Apply Now"} <BsArrowUpRight className="text-sm font-bold" />
+          </a>
+        )}
       </div>
     );
   };

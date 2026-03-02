@@ -98,43 +98,25 @@ export const GroqService = {
      * @returns {Promise<string>} - Analysis text
      */
     async generateFromImage(prompt, base64Image) {
-        const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-        if (!apiKey) throw new Error("Missing VITE_GROQ_API_KEY. Add it in Vercel Project Settings.");
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
         try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            // Route through backend proxy to avoid browser CORS restrictions
+            const response = await fetch(`${API_URL}/ai/vision-analyze`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`,
                 },
-                body: JSON.stringify({
-                    model: "meta-llama/llama-4-scout-17b-16e-instruct", // Currently active Llama 4 Scout model
-                    messages: [
-                        {
-                            role: "user",
-                            content: [
-                                { type: "text", text: prompt },
-                                {
-                                    type: "image_url",
-                                    image_url: {
-                                        url: base64Image
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    max_tokens: 1024,
-                }),
+                body: JSON.stringify({ prompt, base64Image }),
             });
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error?.message || `API Error: ${response.statusText}`);
+                throw new Error(error.error || `API Error: ${response.statusText}`);
             }
 
             const data = await response.json();
-            return data.choices[0].message.content;
+            return data.content;
         } catch (error) {
             console.error("Groq Vision Error:", error);
             throw new Error(`Vision Analysis Failed: ${error.message}`);

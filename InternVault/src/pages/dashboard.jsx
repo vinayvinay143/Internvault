@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { BsPersonCircle, BsBriefcase, BsLink45Deg, BsImage, BsPencil, BsCheck, BsX, BsTrash, BsShieldCheck, BsExclamationTriangle, BsExclamationTriangleFill, BsCheckCircleFill } from "react-icons/bs";
+import { BsPersonCircle, BsBriefcase, BsLink45Deg, BsImage, BsPencil, BsCheck, BsX, BsTrash, BsShieldCheck, BsExclamationTriangle, BsExclamationTriangleFill, BsCheckCircleFill, BsGithub, BsLinkedin, BsGlobe, BsCalendarEvent } from "react-icons/bs";
 import toast from "react-hot-toast";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { GroqService } from "../services/groq";
+import { jsPDF } from "jspdf";
+import { BsDownload } from "react-icons/bs";
 
 const tavilyApiKey = import.meta.env.VITE_TAVILY_API_KEY;
 
@@ -83,13 +85,25 @@ export function Dashboard({ user, setUser }) {
         organization: "",
         yearOfStudy: "",
         avatar: "",
-        whatsappNotifications: true
+        whatsappNotifications: true,
+        resume: "",
+        linkedin: "",
+        github: "",
+        website: ""
     });
     const [editLoading, setEditLoading] = useState(false);
+    const [resumeFile, setResumeFile] = useState(null);
+
+    // Applications Tracking State
+    const [activeTab, setActiveTab] = useState("applications"); // Default to applications
+    const [myApplications, setMyApplications] = useState([]);
+    const [fetchingApps, setFetchingApps] = useState(false);
 
     useEffect(() => {
         if (user?._id) {
             fetchUserAds();
+            fetchMyApplications(); // Fetch applications on mount
+
             // Initialize edit data with current user data
             setEditData({
                 username: user.username || "",
@@ -97,8 +111,17 @@ export function Dashboard({ user, setUser }) {
                 organization: user.organization || "",
                 yearOfStudy: user.yearOfStudy || "",
                 avatar: user.avatar || avatars[0],
-                whatsappNotifications: user.whatsappNotifications !== undefined ? user.whatsappNotifications : true
+                whatsappNotifications: user.whatsappNotifications !== undefined ? user.whatsappNotifications : true,
+                resume: user.resume || "",
+                linkedin: user.linkedin || "",
+                github: user.github || "",
+                website: user.website || ""
             });
+
+            // Set default tab based on role
+            if (user.role === 'tpo') {
+                setActiveTab('host');
+            }
         }
     }, [user]);
 
@@ -107,7 +130,22 @@ export function Dashboard({ user, setUser }) {
             const response = await axios.get(`${API_URL}/ads/user/${user._id}`);
             setActiveAds(response.data);
         } catch (error) {
-            console.error("Error fetching user ads:", error);
+            console.error("Error fetching ads:", error);
+        }
+    };
+
+    const fetchMyApplications = async () => {
+        try {
+            setFetchingApps(true);
+            const response = await axios.get(`${API_URL}/applications/my`, {
+                params: { studentId: user._id }
+            });
+            setMyApplications(response.data);
+        } catch (error) {
+            console.error("Error fetching applications:", error);
+            toast.error("Failed to load applications");
+        } finally {
+            setFetchingApps(false);
         }
     };
 
@@ -260,7 +298,6 @@ export function Dashboard({ user, setUser }) {
             });
             toast.success("Verified & Posted Successfully!");
             setFormData({ companyName: "", link: "", imageUrl: "" });
-            setFormData({ companyName: "", link: "", imageUrl: "" });
             setImageFile(null);
             setVerificationStatus(null);
             setVerificationResult(null);
@@ -316,7 +353,25 @@ export function Dashboard({ user, setUser }) {
         setEditLoading(true);
 
         try {
-            const response = await axios.put(`${API_URL}/user/${user._id}`, editData);
+            const formData = new FormData();
+            formData.append("username", editData.username);
+            formData.append("phone", editData.phone);
+            formData.append("organization", editData.organization);
+            formData.append("yearOfStudy", editData.yearOfStudy);
+            formData.append("avatar", editData.avatar);
+            formData.append("whatsappNotifications", editData.whatsappNotifications);
+            formData.append("linkedin", editData.linkedin);
+            formData.append("github", editData.github);
+            formData.append("website", editData.website);
+
+            // Append Resume File if selected
+            if (resumeFile) {
+                formData.append("resume", resumeFile);
+            }
+
+            const response = await axios.put(`${API_URL}/user/${user._id}`, formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
 
             // Update user in state and localStorage
             const updatedUser = { ...user, ...response.data };
@@ -325,6 +380,7 @@ export function Dashboard({ user, setUser }) {
 
             toast.success("Profile updated successfully!");
             setIsEditMode(false);
+            setResumeFile(null); // Reset file input
         } catch (error) {
             console.error("Error updating profile:", error);
             toast.error(error.response?.data?.error || "Failed to update profile. Please try again.");
@@ -425,22 +481,24 @@ export function Dashboard({ user, setUser }) {
                                         placeholder="University Name"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-gray-600 mb-1">Year of Study</label>
-                                    <select
-                                        name="yearOfStudy"
-                                        value={editData.yearOfStudy}
-                                        onChange={handleEditChange}
-                                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
-                                    >
-                                        <option value="">Select Year</option>
-                                        <option value="1">1st Year</option>
-                                        <option value="2">2nd Year</option>
-                                        <option value="3">3rd Year</option>
-                                        <option value="4">4th Year</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
+                                {user.role !== 'tpo' && (
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Year of Study</label>
+                                        <select
+                                            name="yearOfStudy"
+                                            value={editData.yearOfStudy}
+                                            onChange={handleEditChange}
+                                            className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+                                        >
+                                            <option value="">Select Year</option>
+                                            <option value="1">1st Year</option>
+                                            <option value="2">2nd Year</option>
+                                            <option value="3">3rd Year</option>
+                                            <option value="4">4th Year</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2 pt-2">
                                     <input
                                         type="checkbox"
@@ -454,6 +512,59 @@ export function Dashboard({ user, setUser }) {
                                         WhatsApp Notifications
                                     </label>
                                 </div>
+
+                                {user.role === 'student' && (
+                                    <>
+                                        <div className="pt-2 border-t border-gray-100 mt-2">
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Update Resume (PDF/DOCX)</label>
+                                            <input
+                                                type="file"
+                                                accept=".pdf,.doc,.docx"
+                                                onChange={(e) => setResumeFile(e.target.files[0])}
+                                                className="w-full text-sm text-gray-500
+                                                file:mr-4 file:py-2 file:px-4
+                                                file:rounded-full file:border-0
+                                                file:text-xs file:font-semibold
+                                                file:bg-blue-50 file:text-blue-700
+                                                hover:file:bg-blue-100
+                                                cursor-pointer"
+                                            />
+                                        </div>
+                                        <div className="pt-2">
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">LinkedIn</label>
+                                            <input
+                                                type="url"
+                                                name="linkedin"
+                                                value={editData.linkedin}
+                                                onChange={handleEditChange}
+                                                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                placeholder="https://linkedin.com/..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">GitHub</label>
+                                            <input
+                                                type="url"
+                                                name="github"
+                                                value={editData.github}
+                                                onChange={handleEditChange}
+                                                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                placeholder="https://github.com/..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Portfolio</label>
+                                            <input
+                                                type="url"
+                                                name="website"
+                                                value={editData.website}
+                                                onChange={handleEditChange}
+                                                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                                placeholder="https://myportfolio.com"
+                                            />
+                                        </div>
+                                    </>
+                                )}
 
 
 
@@ -479,6 +590,16 @@ export function Dashboard({ user, setUser }) {
                                 <h2 className="text-2xl font-bold text-gray-800 mb-1">{user.username || "User"}</h2>
                                 <p className="text-gray-500 mb-2 text-sm">{user.email}</p>
 
+                                {/* Role Badge */}
+                                <div className="mb-4">
+                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${user.role === "tpo"
+                                        ? "bg-purple-100 text-purple-700"
+                                        : "bg-blue-100 text-blue-700"
+                                        }`}>
+                                        {user.role === "tpo" ? "👔 TPO" : "🎓 Student"}
+                                    </span>
+                                </div>
+
 
 
                                 <div className="border-t border-gray-100 pt-6 text-left space-y-3">
@@ -494,7 +615,44 @@ export function Dashboard({ user, setUser }) {
                                             <p className="font-medium text-gray-800">{user.organization}</p>
                                         </div>
                                     )}
-                                    {user.yearOfStudy && (
+
+                                    {/* Student Specific Details */}
+                                    {user.role === 'student' && (
+                                        <>
+                                            {user.resume && (
+                                                <div className="pt-2">
+                                                    <a
+                                                        href={`${API_URL.replace('/api', '')}${user.resume}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        download
+                                                        className="flex items-center justify-center gap-2 w-full py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-semibold hover:bg-blue-100 transition"
+                                                    >
+                                                        <BsDownload /> Download Resume
+                                                    </a>
+                                                </div>
+                                            )}
+
+                                            <div className="flex gap-3 justify-center pt-2">
+                                                {user.linkedin && (
+                                                    <a href={user.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#0077b5] transition text-xl">
+                                                        <BsLinkedin />
+                                                    </a>
+                                                )}
+                                                {user.github && (
+                                                    <a href={user.github} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-black transition text-xl">
+                                                        <BsGithub />
+                                                    </a>
+                                                )}
+                                                {user.website && (
+                                                    <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition text-xl">
+                                                        <BsGlobe />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                    {user.yearOfStudy && user.role !== 'tpo' && (
                                         <div className="text-sm">
                                             <span className="text-gray-500">Year of Study:</span>
                                             <p className="font-medium text-gray-800">
@@ -523,170 +681,305 @@ export function Dashboard({ user, setUser }) {
                     </div>
                 </div>
 
-                {/* Right Column: Post Ad & History */}
+                {/* Right Column: Applications & Hosting */}
                 <div className="lg:col-span-2 space-y-8">
 
-                    {/* Host Internship Form */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                            <BsBriefcase className="text-blue-600" />
-                            Host an Internship
-                        </h2>
-                        <p className="text-gray-600 mb-6">Share your opportunity with thousands of students. Your post will appear on the home page for 24 hours.</p>
+                    {/* Tabs */}
+                    <div className="bg-white p-2 rounded-xl border border-gray-100 flex gap-2 w-fit">
+                        {user.role !== 'tpo' && (
+                            <button
+                                onClick={() => setActiveTab('applications')}
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${activeTab === 'applications' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
+                            >
+                                My Applications
+                            </button>
+                        )}
+                        <button
+                            onClick={() => setActiveTab('host')}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${activeTab === 'host' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}`}
+                        >
+                            {user.role === 'tpo' ? 'Manage Internships' : 'Host Internship'}
+                        </button>
+                    </div>
 
+                    {activeTab === 'applications' ? (
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                <BsCheckCircleFill className="text-blue-600" /> My Applications
+                            </h2>
 
-
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Company Name</label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        name="companyName"
-                                        required
-                                        value={formData.companyName}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
-                                        placeholder="e.g. Acme Corp"
-                                    />
-                                    <BsBriefcase className="absolute left-3.5 top-3.5 text-gray-400" />
+                            {fetchingApps ? (
+                                <div className="text-center py-8 text-gray-500">Loading applications...</div>
+                            ) : myApplications.length === 0 ? (
+                                <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                    <BsBriefcase className="mx-auto text-4xl text-gray-300 mb-3" />
+                                    <p className="text-gray-500 font-medium">You haven't applied to any internships yet.</p>
+                                    <a href="/internships" className="text-blue-600 font-bold hover:underline mt-2 inline-block">Browse Internships</a>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {myApplications.map(app => (
+                                        <div key={app._id} className="border border-gray-200 rounded-xl p-5 hover:border-blue-300 transition group bg-white">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-gray-900">{app.internshipId?.title || app.internshipTitle || "Internship Offer"}</h3>
+                                                    <p className="text-gray-500 text-sm mb-1">{app.internshipId?.tpoId?.organization || app.companyName || "Organization"}</p>
+                                                    <div className="flex items-center gap-3 text-sm">
+                                                        <span className="text-gray-400">Applied: {new Date(app.appliedAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                </div>
 
-                            {/* Verification Section - Status Display Only */}
-                            {verificationResult && (
-                                <div className={`relative z-50 bg-blue-50 p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 ${verificationResult.status === 'Verified'
-                                    ? 'bg-green-50 border-green-200 text-green-800'
-                                    : 'bg-red-50 border-red-200 text-red-800'
-                                    }`}>
-                                    <div className="flex items-center gap-2 font-bold mb-1">
-                                        {verificationResult.status === 'Verified'
-                                            ? <><BsCheckCircleFill className="text-green-600" /> Detected: Legitimate Opportunity</>
-                                            : <><BsExclamationTriangleFill className="text-red-500" /> Detected: Suspicious / Unverified</>
-                                        }
-                                    </div>
-                                    <p className="opacity-90 text-sm">{verificationResult.reason}</p>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <div className={`px-4 py-2 rounded-full text-sm font-bold capitalize flex items-center gap-2 ${(app.status === 'offer_sent' || app.status === 'accepted') ? 'bg-green-100 text-green-700' :
+                                                        (app.status === 'selected' || app.status === 'pending') ? 'bg-yellow-100 text-yellow-700' :
+                                                            app.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                                                'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                        {(app.status === 'offer_sent' || app.status === 'accepted') && <BsCheckCircleFill />}
+                                                        {(app.status === 'pending' || app.status === 'selected') && <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>}
+                                                        {app.status === 'offer_sent' ? 'Offer Received' : (app.status === 'selected' ? 'Pending' : app.status)}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Progress Bar Visual */}
+                                            <div className="mt-4 pt-4 border-t border-gray-100">
+                                                <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                                                    <span className={app.status !== 'rejected' ? 'text-blue-600 font-bold' : ''}>Applied</span>
+                                                    <span className={(app.status === 'selected' || app.status === 'offer_sent' || app.status === 'accepted') ? 'text-green-600 font-bold' : ''}>Under Review</span>
+                                                    <span className={(app.status === 'offer_sent' || app.status === 'accepted') ? 'text-green-600 font-bold' : (app.status === 'rejected' ? 'text-red-500 font-bold' : '')}>
+                                                        {(app.status === 'offer_sent' || app.status === 'accepted') ? 'Selected' : (app.status === 'rejected' ? 'Rejected' : 'Decision Pending')}
+                                                    </span>
+                                                </div>
+                                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-3">
+                                                    <div className={`h-full rounded-full transition-all duration-1000 ${(app.status === 'offer_sent' || app.status === 'accepted') ? 'w-full bg-green-500' :
+                                                        app.status === 'rejected' ? 'w-full bg-red-400' :
+                                                            'w-1/2 bg-yellow-400'
+                                                        }`}></div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                    {/* Interview Section */}
+                                                    {app.interview?.scheduled && (
+                                                        <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 text-sm">
+                                                            <h4 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
+                                                                <BsCalendarEvent className="text-purple-600" /> Interview Details
+                                                            </h4>
+                                                            <div className="space-y-1.5 text-purple-800">
+                                                                <p className="flex justify-between"><span>Type:</span> <span className="font-semibold">{app.interview.type || 'Interview'}</span></p>
+                                                                <p className="flex justify-between"><span>Date:</span> <span className="font-semibold">{new Date(app.interview.date).toLocaleDateString()}</span></p>
+                                                                <p className="flex justify-between"><span>Time:</span> <span className="font-semibold">{new Date(app.interview.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></p>
+                                                                {app.interview.link && (
+                                                                    <a
+                                                                        href={app.interview.link}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="w-full mt-2 inline-flex items-center justify-center gap-2 bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-purple-700 transition"
+                                                                    >
+                                                                        <BsLink45Deg className="text-sm" /> Join Now
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Offer Letter Section */}
+                                                    {app.offerLetterUrl && (
+                                                        <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-sm">
+                                                            <h4 className="font-bold text-green-900 mb-2 flex items-center gap-1.5">
+                                                                <BsCheckCircleFill className="text-green-600 text-xs" /> Offer Letter
+                                                            </h4>
+                                                            <div className="space-y-2 text-green-800">
+                                                                <p className="text-xs">Congratulations! Your official offer letter is ready.</p>
+                                                                <a
+                                                                    href={`${API_URL.replace('/api', '')}${app.offerLetterUrl}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-green-700 transition shadow-sm"
+                                                                    download
+                                                                >
+                                                                    <BsDownload className="text-sm" /> Download Offer
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Rejection Reason Display */}
+                                                {app.status === 'rejected' && app.rejectionReason && (
+                                                    <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-sm text-red-800 flex items-start gap-2 mt-4">
+                                                        <BsExclamationTriangleFill className="mt-0.5 shrink-0" />
+                                                        <div>
+                                                            <span className="font-bold block text-xs uppercase tracking-wide opacity-70 mb-0.5">Application Update</span>
+                                                            <p>{app.rejectionReason}</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
+                        </div>
+                    ) : (
+                        /* Host Internship Section */
+                        <div className="space-y-8">
+                            {/* Host Internship Form */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                    <BsBriefcase className="text-blue-600" />
+                                    {user.role === "tpo" ? "Post Internship Opportunity" : "Host an Internship"}
+                                </h2>
+                                <p className="text-gray-600 mb-6">
+                                    {user.role === "tpo"
+                                        ? "Share internship opportunities from your institution with thousands of students. Your post will appear on the home page for 24 hours."
+                                        : "Share your opportunity with thousands of students. Your post will appear on the home page for 24 hours."
+                                    }
+                                </p>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Application Link</label>
-                                <div className="relative">
-                                    <input
-                                        type="url"
-                                        name="link"
-                                        required
-                                        value={formData.link}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
-                                        placeholder="https://..."
-                                    />
-                                    <BsLink45Deg className="absolute left-3.5 top-3.5 text-gray-400 text-lg" />
-                                </div>
-
-                                {/* Verification Status */}
-                                {isVerifying && (
-                                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-blue-600"></div>
-                                        <span>Verifying legitimacy...</span>
+                                <form onSubmit={handleSubmit} className="space-y-5">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Company Name</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                name="companyName"
+                                                required
+                                                value={formData.companyName}
+                                                onChange={handleInputChange}
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+                                                placeholder="e.g. Acme Corp"
+                                            />
+                                            <BsBriefcase className="absolute left-3.5 top-3.5 text-gray-400" />
+                                        </div>
                                     </div>
-                                )}
 
-                                {verificationStatus && !isVerifying && (
-                                    <div className={`relative z-50 mt-3 p-3 rounded-lg flex items-start gap-2 ${verificationStatus.status === "Verified"
-                                        ? "bg-green-50 border border-green-200"
-                                        : "bg-yellow-50 border border-yellow-200"
-                                        }`}>
-                                        {verificationStatus.status === "Verified" ? (
-                                            <>
-                                                <BsShieldCheck className="text-green-600 text-lg mt-0.5 flex-shrink-0" />
-                                                <div>
-                                                    <p className="font-semibold text-green-800 text-sm">Verified</p>
-                                                    <p className="text-green-700 text-xs">{verificationStatus.reason}</p>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <BsExclamationTriangle className="text-red-600 text-lg mt-0.5 flex-shrink-0" />
-                                                <div>
-                                                    <p className="font-semibold text-red-800 text-sm">Security Alert: Flagged</p>
-                                                    <p className="text-red-700 text-xs">{verificationStatus.reason}</p>
-                                                    <p className="text-red-600 text-xs mt-1 font-semibold">Posting is disabled for this link.</p>
-                                                </div>
-                                            </>
+                                    {/* Verification Section - Status Display Only */}
+                                    {verificationResult && (
+                                        <div className={`relative z-50 bg-blue-50 p-4 rounded-xl border animate-in fade-in slide-in-from-top-2 ${verificationResult.status === 'Verified'
+                                            ? 'bg-green-50 border-green-200 text-green-800'
+                                            : 'bg-red-50 border-red-200 text-red-800'
+                                            }`}>
+                                            <div className="flex items-center gap-2 font-bold mb-1">
+                                                {verificationResult.status === 'Verified'
+                                                    ? <><BsCheckCircleFill className="text-green-600" /> Detected: Legitimate Opportunity</>
+                                                    : <><BsExclamationTriangleFill className="text-red-500" /> Detected: Suspicious / Unverified</>
+                                                }
+                                            </div>
+                                            <p className="opacity-90 text-sm">{verificationResult.reason}</p>
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Application Link</label>
+                                        <div className="relative">
+                                            <input
+                                                type="url"
+                                                name="link"
+                                                required
+                                                value={formData.link}
+                                                onChange={handleInputChange}
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition"
+                                                placeholder="https://..."
+                                            />
+                                            <BsLink45Deg className="absolute left-3.5 top-3.5 text-gray-400 text-lg" />
+                                        </div>
+
+                                        {/* Verification Status */}
+                                        {isVerifying && (
+                                            <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-blue-600"></div>
+                                                <span>Verifying legitimacy...</span>
+                                            </div>
+                                        )}
+
+                                        {verificationStatus && !isVerifying && (
+                                            <div className={`relative z-50 mt-3 p-3 rounded-lg flex items-start gap-2 ${verificationStatus.status === "Verified"
+                                                ? "bg-green-50 border border-green-200"
+                                                : "bg-yellow-50 border border-yellow-200"
+                                                }`}>
+                                                {verificationStatus.status === "Verified" ? (
+                                                    <>
+                                                        <BsShieldCheck className="text-green-600 text-lg mt-0.5 flex-shrink-0" />
+                                                        <div>
+                                                            <p className="font-semibold text-green-800 text-sm">Verified</p>
+                                                            <p className="text-green-700 text-xs">{verificationStatus.reason}</p>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <BsExclamationTriangle className="text-red-600 text-lg mt-0.5 flex-shrink-0" />
+                                                        <div>
+                                                            <p className="font-semibold text-red-800 text-sm">Security Alert: Flagged</p>
+                                                            <p className="text-red-700 text-xs">{verificationStatus.reason}</p>
+                                                            <p className="text-red-600 text-xs mt-1 font-semibold">Posting is disabled for this link.</p>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Company Logo</label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept="image/png, image/jpeg, image/jpg"
+                                                onChange={(e) => setImageFile(e.target.files[0])}
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                            />
+                                            <BsImage className="absolute left-3.5 top-3.5 text-gray-400" />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading || verifying}
+                                        className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition disabled:opacity-70 flex items-center justify-center gap-2"
+                                    >
+                                        {loading ? "Posting..." : "Post Internship"}
+                                    </button>
+                                </form>
+                            </div>
+
+                            {/* Active Ads List */}
+                            <div className="space-y-4">
+                                <h3 className="text-xl font-bold text-gray-800">Your Active Posts</h3>
+                                {activeAds.length === 0 ? (
+                                    <p className="text-gray-500">No active posts yet.</p>
+                                ) : (
+                                    activeAds.map(ad => (
+                                        <div key={ad._id} className="bg-white border border-gray-100 p-4 rounded-xl flex items-center justify-between shadow-sm">
+                                            <div className="flex items-center gap-3">
+                                                <img src={ad.imageUrl} alt={ad.companyName} className="w-10 h-10 rounded-lg object-cover" />
+                                                <div>
+                                                    <h4 className="font-bold text-gray-900">{ad.companyName}</h4>
+                                                    <p className="text-xs text-gray-500">Posted: {new Date(ad.createdAt).toLocaleDateString()}</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => { setDeleteId(ad._id); }}
+                                                className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"
+                                            >
+                                                <BsTrash />
+                                            </button>
+                                        </div>
+                                    ))
                                 )}
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Company Logo</label>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept="image/png, image/jpeg, image/jpg"
-                                        onChange={(e) => setImageFile(e.target.files[0])}
-                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                    />
-                                    <BsImage className="absolute left-3.5 top-3.5 text-gray-400" />
-                                </div>
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-blue-200"
-                            >
-                                {loading ? "Posting..." : "Post Internship"}
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* Active Ads List */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4">Your Active Posts</h3>
-                        {activeAds.length === 0 ? (
-                            <p className="text-gray-500 text-center py-8">No active posts yet.</p>
-                        ) : (
-                            <div className="space-y-4">
-                                {activeAds.map(ad => (
-                                    <div key={ad._id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200 group hover:border-gray-300 transition">
-                                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
-                                            {ad.imageUrl ? <img src={ad.imageUrl} alt="logo" className="w-full h-full object-cover" /> : <BsBriefcase className="text-gray-400" />}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="font-bold text-gray-800">{ad.companyName}</h4>
-                                            <p className="text-xs text-gray-500">Expires: {new Date(ad.expiresAt).toLocaleString()}</p>
-                                        </div>
-                                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full flex-shrink-0">Active</span>
-                                        <button
-                                            onClick={() => setDeleteId(ad._id)}
-                                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition opacity-0 group-hover:opacity-100"
-                                            title="Delete internship"
-                                        >
-                                            <BsTrash size={18} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
+                        </div>
+                    )}
                 </div>
             </div>
 
-
-
-            {/* Delete Confirmation Modal */}
             <ConfirmModal
                 isOpen={!!deleteId}
                 onClose={() => setDeleteId(null)}
                 onConfirm={confirmDelete}
                 title="Delete Internship"
                 message="Are you sure you want to delete this internship post? This action cannot be undone."
-                confirmText="Delete"
-                isDangerous={true}
             />
-        </div>
+        </div >
     );
 }

@@ -7,7 +7,7 @@ export function Footer() {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     <div className="space-y-4">
-                        <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        <Link to="/" className="text-2xl font-bold font-brand bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                             InternVault
                         </Link>
                         <p className="text-gray-500 text-sm leading-relaxed">

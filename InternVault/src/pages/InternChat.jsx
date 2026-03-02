@@ -180,101 +180,138 @@ export function InternChat({ user }) {
         // If image is uploaded, use Groq Llama 4 Vision (Scout)
         if (imageToAnalyze) {
             try {
-
-
-                // Convert image to data URL format for Groq
-                const reader = new FileReader();
+                // Compress image using canvas before sending to keep payload small
                 const imageDataUrl = await new Promise((resolve, reject) => {
-                    reader.onloadend = () => resolve(reader.result);
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const MAX_DIM = 800;
+                            let { width, height } = img;
+                            if (width > MAX_DIM || height > MAX_DIM) {
+                                if (width > height) {
+                                    height = Math.round((height * MAX_DIM) / width);
+                                    width = MAX_DIM;
+                                } else {
+                                    width = Math.round((width * MAX_DIM) / height);
+                                    height = MAX_DIM;
+                                }
+                            }
+                            const canvas = document.createElement("canvas");
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext("2d");
+                            ctx.drawImage(img, 0, 0, width, height);
+                            resolve(canvas.toDataURL("image/jpeg", 0.7));
+                        };
+                        img.onerror = reject;
+                        img.src = reader.result;
+                    };
                     reader.onerror = reject;
                     reader.readAsDataURL(imageToAnalyze);
                 });
 
-                const prompt = `You are an expert Internship Verification AI Assistant analyzing a screenshot of an internship/job offer.
+                // PHASE 1: Vision Extraction
+                const visionPrompt = `Analyze this internship offer screenshot and extract key details.
+                
+                OUTPUT FORMAT (STRICT):
+                [COMPANY]: (Name of the company)
+                [CIN]: (CIN number if found, otherwise "None")
+                [PAYMENT]: (Yes/No - is money asked?)
+                [SUMMARY]: (1-2 sentence summary of what you see)
+                
+                Analyze carefully.`;
 
-${userMessage ? `User's specific question: ${userMessage}\n` : ''}
+                const visionOutput = await GroqService.generateFromImage(visionPrompt, imageDataUrl);
 
-🚨 CRITICAL RULE #1: If you see ANY request for payment (training fee, security deposit, registration charges) → IMMEDIATE  FAKE verdict.
-🚨 CRITICAL RULE #2: If the image is an OFFER LETTER or JOINING LETTER, it **MUST** contain a CIN (Corporate Identification Number) or MCA Registration. If missing → VERDICT: ❌ FAKE.
+                // Parse Vision Output
+                const companyNameMatch = visionOutput.match(/\[COMPANY\]:\s*(.+)/i);
+                const cinMatch = visionOutput.match(/\[CIN\]:\s*(.+)/i);
+                const paymentMatch = visionOutput.match(/\[PAYMENT\]:\s*(.+)/i);
+                const visionSummaryMatch = visionOutput.match(/\[SUMMARY\]:\s*(.+)/i);
 
-ANALYSIS GUIDELINES:
+                const companyName = companyNameMatch ? companyNameMatch[1].trim() : "";
+                const detectedCIN = cinMatch ? cinMatch[1].trim() : "None";
+                const visionAskingMoney = paymentMatch ? paymentMatch[1].toLowerCase().includes('yes') : false;
+                const visionSummary = visionSummaryMatch ? visionSummaryMatch[1].trim() : "";
 
-1. **Check for SCAM indicators (Highest Priority):**
-   - Asking for money (Top Red Flag )
-   - "Pay ₹X for training/certificate"
-   - Unprofessional email (@gmail, @yahoo)
-   - Unrealistic salary (e.g. ₹50k for fresher)
-   - "Limited seats", "Pay now" urgency
-   - Course selling in disguise
+                let searchContext = "";
+                let rawSources = [];
 
-2. **Check for LEGITIMATE indicators:**
-   - Professional email (hr@company.com)
-   - Clear company branding/logo
-   - Detailed job description (role, duration, stipend)
-   - Proper selection process mentioned (interview, task)
-   - No hidden fees
+                // PHASE 2: Web Search (Only if company name is found)
+                if (companyName && companyName !== "Unknown") {
+                    const searchResults = await searchCompanyInfo(companyName);
+                    if (searchResults && searchResults.results && searchResults.results.length > 0) {
+                        rawSources = searchResults.results;
+                        searchContext = "\n\nWEB SEARCH RESULTS FOR " + companyName + ":\n";
+                        searchResults.results.forEach((res, i) => {
+                            searchContext += `${i + 1}. ${res.title}: ${res.content.substring(0, 300)}...\nURL: ${res.url}\n\n`;
+                        });
+                    }
+                }
 
-3. **OUTPUT FORMAT (STRICT - MUST INCLUDE NUMBERS):**
-
-**You MUST output exactly in this format with numbers:**
-
+                // PHASE 3: Final Consolidation & Verdict
+                const finalPrompt = `Synthesize this information to provide a final verification verdict.
+                
+                IMAGE ANALYSIS SUMMARY:
+                ${visionSummary}
+                Company: ${companyName}
+                Detected CIN: ${detectedCIN}
+                Asking for money in image: ${visionAskingMoney ? "YES" : "NO"}
+                
+                ${searchContext}
+                
+                VERDICT RULES:
+                1. If image asks for money -> FAKE.
+                2. If search results mention "asked for money", "training fee", "scam", or "fake certificate" -> FAKE (even if CIN is valid).
+                3. If CIN is missing in an official-looking letter -> FAKE.
+                4. (Verified CIN + Scam Reviews) -> VERDICT: ❌ FAKE (Reason: Corporate registration misuse/Scam operations).
+                
+                OUTPUT FORMAT:
 1. **VERDICT**
 ✅ REAL / ❌ FAKE
 
 2. **REASONS**
-- [First specific reason from screenshot analysis]
-- [Second specific reason from screenshot analysis]
+- [Reason 1]
+- [Reason 2]
 
 3. **PROOFS**
-1. Email domain is @gmail.com - [Source](Screenshot Analysis)
-2. Payment of ₹5000 requested - [Source](Screenshot Analysis)
-3. No company logo visible - [Source](Screenshot Analysis)
+1. [Proof 1] - [Source](Screenshot Analysis or Search URL)
+2. [Proof 2] - [Source](Screenshot Analysis or Search URL)
+3. [Proof 3] - [Source](Screenshot Analysis or Search URL)
+                
+                Be strict. If reviews call it a scam, it IS a scam.`;
 
-⚠️ CRITICAL FORMATTING RULES:
-- MUST start each section with the number (1. VERDICT, 2. REASONS, 3. PROOFS)
-- Provide exactly 2 reasons
-- Each proof should describe what you observed as plain text
-- Add " - [Source](Screenshot Analysis)" after each observation
-- Keep each proof on ONE line
+                const finalVerdict = await GroqService.generateText(finalPrompt);
 
-Be specific about what you see.`;
+                // Add fraud alerts based on consolidated logic
+                let finalAnalysis = finalVerdict;
+                const isFake = finalVerdict.toLowerCase().includes('fake');
+                const hasCIN = detectedCIN !== "None" && detectedCIN.length > 5;
+                const searchMentionsScam = searchContext.toLowerCase().includes('scam') ||
+                    searchContext.toLowerCase().includes('fraud') ||
+                    searchContext.toLowerCase().includes('fake');
 
-                const analysis = await GroqService.generateFromImage(prompt, imageDataUrl);
-
-                // Check if we need to add fraud warning
-                // Show warning whenever CIN is detected - companies may ask for money later
-                const hasCIN = analysis.toLowerCase().includes('cin') ||
-                    analysis.toLowerCase().includes('corporate identification') ||
-                    analysis.toLowerCase().includes('u74999') || // Common CIN pattern
-                    analysis.toLowerCase().includes('u80') || // Another CIN pattern
-                    analysis.toLowerCase().includes('mca registration');
-
-                const askingMoney = analysis.toLowerCase().includes('payment') ||
-                    analysis.toLowerCase().includes('fee') ||
-                    analysis.toLowerCase().includes('money') ||
-                    analysis.toLowerCase().includes('₹') ||
-                    analysis.toLowerCase().includes('deposit') ||
-                    analysis.toLowerCase().includes('pay');
-
-                let finalAnalysis = analysis;
-
-                // Always show warning when CIN is present
-                if (hasCIN) {
-                    if (askingMoney) {
-                        // Company has CIN AND is asking for money (immediate fraud)
-                        finalAnalysis += `\n\n---\n\n⚠️ **FRAUD ALERT**\n\nThis company has a verified CIN number but is asking for money. **Legitimate companies NEVER charge fees for internships.** This is a violation of labor laws and constitutes fraud.\n\n**Action Required:**\n- Report this company to the Ministry of Corporate Affairs (MCA) for misuse of registration\n- File a complaint for fraudulent internship practices\n- [Report Fraud Now](/report-fraud)`;
-                    } else {
-                        // Company has CIN but no payment mentioned (preventive warning)
-                        finalAnalysis += `\n\n---\n\n⚠️ **IMPORTANT WARNING**\n\nThis company has a verified CIN number. While the offer letter appears legitimate, **be cautious if they ask for ANY payment later** (training fees, security deposit, registration charges, etc.).\n\n**Remember:** Legitimate companies NEVER charge fees for internships.\n\n**If they ask for money:**\n- Do NOT pay\n- Report to the Ministry of Corporate Affairs (MCA) immediately\n- [Report Fraud Now](/report-fraud)`;
+                if (isFake && (hasCIN || searchMentionsScam || visionAskingMoney)) {
+                    finalAnalysis += `\n\n---\n\n⚠️ **FRAUD RED ALERT**\n\n`;
+                    if (hasCIN && searchMentionsScam) {
+                        finalAnalysis += `**Corporate Registration Misuse Detected:** This company has a valid-looking CIN (${detectedCIN}) but widespread reports from students indicate it is a pay-to-work scam or course-selling scheme. **Do not be fooled by the legal registration.**\n\n`;
+                    } else if (visionAskingMoney) {
+                        finalAnalysis += `**Immediate Fraud Pattern:** Legitimate companies NEVER charge interns for training, certificates, or registration. This is a clear violation.\n\n`;
                     }
+                    finalAnalysis += `**Action Required:**\n- [Report to MCA (Ministry of Corporate Affairs)](https://www.mca.gov.in/content/mca/global/en/contact-us/grievance-cell.html)\n- [Report Fraud on InternVault](/report-fraud)`;
                 }
 
-                setMessages((prev) => [...prev, { role: "assistant", text: finalAnalysis }]);
+                setMessages((prev) => [...prev, {
+                    role: "assistant",
+                    text: finalAnalysis,
+                    sources: rawSources
+                }]);
             } catch (error) {
-                console.error("Image analysis error:", error);
+                console.error("Analysis error:", error);
                 setMessages((prev) => [
                     ...prev,
-                    { role: "assistant", text: `**Image Analysis Failed**\n\n${error.message}\n\nPlease try again or describe the internship offer in text.` },
+                    { role: "assistant", text: `**Analysis Failed**\n\n${error.message}\n\nPlease try again.` },
                 ]);
             } finally {
                 setIsLoading(false);
@@ -741,7 +778,7 @@ ${searchContext}`
                         <BsShieldCheck size={20} />
                     </div>
                     <div>
-                        <h2 className="font-bold text-lg">InternVault AI</h2>
+                        <h2 className="font-bold text-lg"><span className="font-brand">InternVault</span> AI</h2>
                         <p className="text-xs text-blue-100 flex items-center gap-1"><span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span> Online</p>
                     </div>
                 </div>
@@ -756,7 +793,7 @@ ${searchContext}`
                             </div>
                             <div>
                                 <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                    InternVault Assistant
+                                    <span className="font-brand">InternVault</span> Assistant
                                     <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-semibold">AI Powered</span>
                                 </h3>
                                 <p className="text-xs text-gray-500 flex items-center gap-1">

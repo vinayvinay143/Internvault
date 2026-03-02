@@ -37,7 +37,46 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    yearOfStudy: {
+    degree: {
+        type: String,
+        enum: ["BTech", "MTech", ""],
+        default: ""
+    },
+    role: {
+        type: String,
+        enum: ["student", "tpo", "recruiter"],
+        default: "student"
+    },
+    companyName: {
+        type: String,
+        default: ""
+    },
+    companyWebsite: {
+        type: String,
+        default: ""
+    },
+    industry: {
+        type: String,
+        default: ""
+    },
+    companySize: {
+        type: String,
+        default: ""
+    },
+    // New Student Profile Fields
+    resume: {
+        type: String,
+        default: ""
+    },
+    linkedin: {
+        type: String,
+        default: ""
+    },
+    github: {
+        type: String,
+        default: ""
+    },
+    website: {
         type: String,
         default: ""
     }

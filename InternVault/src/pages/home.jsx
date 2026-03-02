@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   BsArrowRight,
@@ -13,14 +13,24 @@ import {
   BsBriefcase,
   BsArrowUpRight,
   BsX,
-  BsStar
+  BsStar,
+  BsSearch,
+  BsGraphUp,
+  BsPersonPlus,
+  BsFileEarmarkText,
+  BsSend,
+  BsMic,
+  BsBullseye,
+  BsChatDots,
+  BsTwitter,
+  BsFacebook,
+  BsInstagram,
+  BsHeart
 } from "react-icons/bs";
 import { GoOrganization } from "react-icons/go";
 import ImageSlider from "../components/ImageSlider";
-import SkillVaultSlider from "../components/SkillVaultSlider";
-import ToolsSlider from "../components/ToolsSlider";
 import { NewsTicker } from "../components/NewsTicker";
-import s16 from "../images/s16.png";
+import { WelcomeAnimation } from "../components/WelcomeAnimation";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -30,14 +40,13 @@ export function Home() {
   const [dismissedAds, setDismissedAds] = useState([]);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if user is logged in
-    const storedUser = localStorage.getItem("user");
-    setIsLoggedIn(!!storedUser);
-
-    fetchActiveAds();
-  }, []);
+  /* New Internship Notification Logic */
+  const [notificationQueue, setNotificationQueue] = useState([]);
+  const [currentNotification, setCurrentNotification] = useState(null);
+  const [showNotification, setShowNotification] = useState(false);
 
   const fetchActiveAds = async () => {
     try {
@@ -51,10 +60,127 @@ export function Home() {
     }
   };
 
-  const dismissAd = (adId) => {
-    setDismissedAds([...dismissedAds, adId]);
-    setCurrentAdIndex(0);
+  /* Unified Notification Logic - Cycling (TPO + Ads + Recruiter) */
+  const fetchUnseenInternships = async () => {
+    try {
+      const [tpoResponse, adsResponse, recruiterResponse, codeResponse] = await Promise.allSettled([
+        axios.get(`${API_URL}/tpo/internships/all/active`),
+        axios.get(`${API_URL}/ads/active`),
+        axios.get(`${API_URL}/recruiter/internships/active`),
+        axios.get(`${API_URL}/student/code-challenges`)
+      ]);
+
+      let tpoInternships = [];
+      let adInternships = [];
+      let recruiterInternships = [];
+      let codeChallenges = [];
+
+      if (tpoResponse.status === 'fulfilled' && tpoResponse.value.data) {
+        tpoInternships = tpoResponse.value.data;
+      }
+
+      if (adsResponse.status === 'fulfilled' && adsResponse.value.data) {
+        adInternships = adsResponse.value.data;
+      }
+
+      if (recruiterResponse.status === 'fulfilled' && recruiterResponse.value.data) {
+        recruiterInternships = recruiterResponse.value.data.map(job => ({
+          ...job,
+          isRecruiter: true
+        }));
+      }
+
+      if (codeResponse.status === 'fulfilled' && codeResponse.value.data) {
+        codeChallenges = codeResponse.value.data.map(challenge => ({
+          ...challenge,
+          isCodeChallenge: true,
+          companyName: challenge.companyName || "Code Challenge"
+        }));
+      }
+
+      // Merge and sort by createdAt desc (newest first)
+      const allInternships = [...tpoInternships, ...adInternships, ...recruiterInternships, ...codeChallenges].sort((a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      // Get seen IDs from local storage
+      const storedSeenIds = localStorage.getItem("seenInternshipIds");
+      let seenIds = [];
+      try {
+        seenIds = storedSeenIds ? JSON.parse(storedSeenIds) : [];
+        if (!Array.isArray(seenIds)) seenIds = [];
+      } catch (e) {
+        console.error("Error parsing seen IDs", e);
+        seenIds = [];
+      }
+
+      const storedUser = localStorage.getItem("user");
+      let currentUserId = null;
+      if (storedUser) {
+        try {
+          const userObj = JSON.parse(storedUser);
+          currentUserId = userObj._id || userObj.id;
+        } catch (e) {
+          console.error("Error parsing user", e);
+        }
+      }
+
+      const unseen = allInternships.filter(item => {
+        // Filter out own posts
+        const tpoIdToCompare = item.tpoId?._id || item.tpoId;
+        const userIdToCompare = item.userId;
+        const recruiterIdToCompare = item.recruiterId;
+        const isHost = (tpoIdToCompare && String(tpoIdToCompare) === String(currentUserId)) ||
+          (userIdToCompare && String(userIdToCompare) === String(currentUserId)) ||
+          (recruiterIdToCompare && String(recruiterIdToCompare) === String(currentUserId));
+
+        if (isHost) return false;
+
+        // Filter out seen
+        return !seenIds.includes(item._id);
+      });
+
+      console.log(`Found ${unseen.length} unseen internships`);
+      setNotificationQueue(unseen);
+
+    } catch (error) {
+      console.error("Error fetching internships:", error);
+    }
   };
+
+  useEffect(() => {
+    if (notificationQueue.length > 0 && !currentNotification && !showNotification) {
+      setCurrentNotification(notificationQueue[0]);
+      setShowNotification(true);
+    }
+  }, [notificationQueue, currentNotification, showNotification]);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const storedUser = localStorage.getItem("user");
+    const loggedIn = !!storedUser;
+    setIsLoggedIn(loggedIn);
+
+    // Get user details
+    let userObj = null;
+    if (storedUser) {
+      try {
+        userObj = JSON.parse(storedUser);
+        setUser(userObj);
+      } catch (e) {
+        console.error("Error parsing user", e);
+      }
+    }
+
+    fetchActiveAds();
+    if (loggedIn && userObj) {
+      if (userObj.role === 'recruiter') {
+        navigate("/recruiter/dashboard");
+      } else {
+        fetchUnseenInternships();
+      }
+    }
+  }, []);
 
   const visibleAds = activeAds.filter(ad => !dismissedAds.includes(ad._id));
 
@@ -66,7 +192,468 @@ export function Home() {
     return () => clearInterval(interval);
   }, [visibleAds.length]);
 
-  const currentAd = visibleAds[currentAdIndex];
+  const dismissNotification = () => {
+    setShowNotification(false);
+    if (currentNotification) {
+      // Add to seen list in localStorage
+      const storedSeenIds = localStorage.getItem("seenInternshipIds");
+      let seenIds = [];
+      try {
+        seenIds = storedSeenIds ? JSON.parse(storedSeenIds) : [];
+        if (!Array.isArray(seenIds)) seenIds = [];
+      } catch (e) { seenIds = []; }
+
+      if (!seenIds.includes(currentNotification._id)) {
+        const newSeenIds = [...seenIds, currentNotification._id];
+        localStorage.setItem("seenInternshipIds", JSON.stringify(newSeenIds));
+      }
+
+      // Remove from queue after delay for animation
+      setTimeout(() => {
+        setNotificationQueue(prev => prev.slice(1));
+        setCurrentNotification(null);
+      }, 300);
+    }
+  };
+
+  // Render content based on user role
+  const renderContent = () => {
+    // 1. PUBLIC VIEW (Not Logged In)
+    if (!isLoggedIn || !user) {
+      return (
+        <>
+          {/* Hero Section - Vibrant Gradient Design */}
+          <section className="relative min-h-[90vh] flex items-center justify-center px-6 pt-32 overflow-hidden">
+            {/* Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-500">
+              {/* Decorative Circles */}
+              <div className="absolute top-20 left-10 w-64 h-64 bg-purple-500/30 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/20 rounded-full blur-3xl"></div>
+            </div>
+
+            {/* Wavy Bottom Border */}
+            <div className="absolute bottom-0 left-0 w-full">
+              <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+                <path d="M0,64 C360,20 720,20 1080,64 C1260,86 1350,96 1440,96 L1440,120 L0,120 Z" fill="#f8fafc" />
+              </svg>
+            </div>
+
+            <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
+              {/* Left Content */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-white"
+              >
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                  Discover Your Perfect <br />
+                  <span className="text-cyan-300">Internship Match</span>
+                </h1>
+
+                <p className="text-lg md:text-xl text-purple-100 mb-8 leading-relaxed max-w-xl">
+                  Connect with verified companies, build your skills, and launch your career with confidence. Everything you need in one platform.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    to="/signup"
+                    className="px-8 py-4 bg-white text-purple-600 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 text-center"
+                  >
+                    Get Started Free
+                  </Link>
+                  <Link
+                    to="/internships"
+                    className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300 text-center"
+                  >
+                    Explore Internships
+                  </Link>
+                </div>
+              </motion.div>
+
+              {/* Right Illustration Area - Laptop Mockup */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="relative hidden lg:flex items-center justify-center"
+              >
+                <div className="relative w-full h-[500px]">
+                  {/* Laptop Mockup */}
+                  <motion.div
+                    animate={{ y: [0, -15, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[450px]"
+                  >
+                    {/* Laptop Screen */}
+                    <div className="relative bg-slate-800 rounded-t-2xl p-3 shadow-2xl">
+                      {/* Screen Content */}
+                      <div className="bg-white rounded-lg overflow-hidden h-64">
+                        {/* Mock Dashboard */}
+                        <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 h-full">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg"></div>
+                              <div className="text-xs font-bold text-slate-700 font-brand">InternVault</div>
+                            </div>
+                            <div className="flex gap-1">
+                              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                            </div>
+                          </div>
+
+                          {/* Dashboard Cards */}
+                          <div className="grid grid-cols-2 gap-2 mb-3">
+                            <div className="bg-white rounded-lg p-2 shadow-sm">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                                  <BsBriefcase className="text-blue-600 text-xs" />
+                                </div>
+                                <div className="text-[10px] font-semibold text-slate-700">Internships</div>
+                              </div>
+                              <div className="text-lg font-bold text-slate-900">5,000+</div>
+                            </div>
+                            <div className="bg-white rounded-lg p-2 shadow-sm">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                                  <BsShieldCheck className="text-purple-600 text-xs" />
+                                </div>
+                                <div className="text-[10px] font-semibold text-slate-700">Verified</div>
+                              </div>
+                              <div className="text-lg font-bold text-slate-900">100%</div>
+                            </div>
+                          </div>
+
+                          {/* Chart Visualization */}
+                          <div className="bg-white rounded-lg p-2 shadow-sm">
+                            <div className="flex items-end gap-1 h-16">
+                              <div className="flex-1 bg-gradient-to-t from-blue-400 to-blue-300 rounded-t" style={{ height: '60%' }}></div>
+                              <div className="flex-1 bg-gradient-to-t from-purple-400 to-purple-300 rounded-t" style={{ height: '80%' }}></div>
+                              <div className="flex-1 bg-gradient-to-t from-indigo-400 to-indigo-300 rounded-t" style={{ height: '70%' }}></div>
+                              <div className="flex-1 bg-gradient-to-t from-blue-400 to-blue-300 rounded-t" style={{ height: '90%' }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Laptop Base */}
+                      <div className="h-2 bg-slate-700 rounded-b-2xl"></div>
+                      <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-slate-600 rounded-full"></div>
+                    </div>
+                  </motion.div>
+
+                  {/* Floating Feature Badges */}
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-16 right-8 bg-white rounded-xl shadow-lg p-3 w-36"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
+                        <BsShieldCheck className="text-white text-sm" />
+                      </div>
+                      <div>
+                        <div className="text-[9px] text-slate-500">Scam Free</div>
+                        <div className="text-sm font-bold text-slate-900">100%</div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    animate={{ y: [0, -12, 0] }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                    className="absolute bottom-32 left-4 bg-white rounded-xl shadow-lg p-3 w-36"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
+                        <BsStars className="text-white text-sm" />
+                      </div>
+                      <div>
+                        <div className="text-[9px] text-slate-500">AI Match</div>
+                        <div className="text-sm font-bold text-slate-900">Smart</div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Decorative circles */}
+                  <div className="absolute top-8 left-12 w-20 h-20 bg-blue-300/20 rounded-full blur-2xl"></div>
+                  <div className="absolute bottom-16 right-16 w-24 h-24 bg-purple-300/20 rounded-full blur-2xl"></div>
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Feature Cards Section - Below Hero */}
+          <section className="py-16 bg-slate-50">
+            <div className="max-w-7xl mx-auto px-6">
+              {/* Feature Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  {
+                    icon: <BsShieldCheck />,
+                    title: "Scam-Free Guarantee",
+                    desc: "AI-powered verification ensures 100% authentic opportunities",
+                    color: "text-green-600",
+                    bg: "bg-green-50"
+                  },
+                  {
+                    icon: <BsStars />,
+                    title: "Smart AI Matching",
+                    desc: "Get personalized internship recommendations based on your profile",
+                    color: "text-purple-600",
+                    bg: "bg-purple-50"
+                  },
+                  {
+                    icon: <BsLightningCharge />,
+                    title: "One-Click Apply",
+                    desc: "Apply to multiple internships instantly with your saved profile",
+                    color: "text-amber-600",
+                    bg: "bg-amber-50"
+                  }
+                ].map((feature, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.15 }}
+                    className="p-6 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center"
+                  >
+                    <div className={`w-16 h-16 ${feature.bg} ${feature.color} rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4`}>
+                      {feature.icon}
+                    </div>
+                    <h3 className="font-bold text-lg text-slate-900 mb-2">{feature.title}</h3>
+                    <p className="text-sm text-slate-600">{feature.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Comprehensive Features Section */}
+          <section className="my-32 py-16 bg-white relative mx-4 shadow-sm rounded-2xl">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="text-center mb-16">
+                <span className="text-blue-600 font-bold tracking-wider uppercase text-xs">Complete Platform</span>
+                <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4 text-slate-900">Everything You Need in One Place</h2>
+                <p className="text-lg text-slate-600 max-w-3xl mx-auto">From finding internships to landing your dream job - InternVault provides all the tools and resources you need to succeed.</p>
+              </div>
+
+              {/* Core Features */}
+              <div className="mb-16">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <BsBriefcase className="text-blue-600" /> Core Features
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[
+                    {
+                      icon: <BsSearch className="text-2xl" />,
+                      title: "Internship Search",
+                      desc: "Browse thousands of verified internship opportunities from top companies",
+                      link: "/internships",
+                      color: "text-blue-600",
+                      bg: "bg-blue-50"
+                    },
+                    {
+                      icon: <BsShieldCheck className="text-2xl" />,
+                      title: "InternChat - Scam Detector",
+                      desc: "AI-powered chatbot to verify company authenticity and detect fake offers",
+                      link: "/internchat",
+                      color: "text-green-600",
+                      bg: "bg-green-50"
+                    },
+                    {
+                      icon: <BsFileEarmarkText className="text-2xl" />,
+                      title: "Resume Builder & ATS Optimizer",
+                      desc: "Create ATS-friendly resumes and optimize them for maximum impact",
+                      link: "/tools",
+                      color: "text-purple-600",
+                      bg: "bg-purple-50"
+                    },
+                    {
+                      icon: <BsCodeSquare className="text-2xl" />,
+                      title: "SkillVault",
+                      desc: "Access curated learning roadmaps and skill development resources",
+                      link: "/skillvault",
+                      color: "text-indigo-600",
+                      bg: "bg-indigo-50"
+                    }
+                  ].map((feature, i) => (
+                    <Link
+                      key={i}
+                      to={feature.link}
+                      className="group p-6 bg-white border border-slate-200 rounded-xl hover:shadow-lg transition-all duration-300 hover:border-blue-300"
+                    >
+                      <div className={`w-12 h-12 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                        {feature.icon}
+                      </div>
+                      <h4 className="font-bold text-lg mb-2 text-slate-900">{feature.title}</h4>
+                      <p className="text-sm text-slate-600 leading-relaxed">{feature.desc}</p>
+                      <div className="flex items-center gap-1 mt-3 text-blue-600 text-sm font-semibold">
+                        Explore <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Interview & Career Tools */}
+              <div className="mb-16">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <BsChatDots className="text-purple-600" /> Interview & Career Tools
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[
+                    {
+                      icon: <BsChatDots className="text-xl" />,
+                      title: "Interview Dojo",
+                      desc: "Practice with AI-powered mock interviews",
+                      link: "/interview-dojo",
+                      color: "text-purple-600",
+                      bg: "bg-purple-50"
+                    },
+                    {
+                      icon: <BsLightningCharge className="text-xl" />,
+                      title: "Cold Email Generator",
+                      desc: "Create personalized outreach emails to recruiters",
+                      link: "/cold-email",
+                      color: "text-teal-600",
+                      bg: "bg-teal-50"
+                    },
+                    {
+                      icon: <BsStars className="text-xl" />,
+                      title: "Skill Radar",
+                      desc: "Visualize your skill profile and identify gaps",
+                      link: "/tools",
+                      color: "text-pink-600",
+                      bg: "bg-pink-50"
+                    },
+                    {
+                      icon: <BsBuildings className="text-xl" />,
+                      title: "News Feed",
+                      desc: "Stay updated with latest internship news and trends",
+                      link: "/news",
+                      color: "text-cyan-600",
+                      bg: "bg-cyan-50"
+                    }
+                  ].map((tool, i) => (
+                    <Link
+                      key={i}
+                      to={tool.link}
+                      className="group p-5 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all duration-300"
+                    >
+                      <div className={`w-10 h-10 ${tool.bg} ${tool.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                        {tool.icon}
+                      </div>
+                      <h4 className="font-bold text-base mb-1 text-slate-900">{tool.title}</h4>
+                      <p className="text-xs text-slate-600">{tool.desc}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* For Recruiters & TPOs */}
+              <div className="mb-16">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <BsBuildings className="text-emerald-600" /> For Recruiters & TPOs
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      icon: <BsFileEarmarkText className="text-2xl" />,
+                      title: "Post Internships",
+                      desc: "Create and manage internship listings, reach thousands of qualified students",
+                      color: "text-blue-600",
+                      bg: "bg-blue-50"
+                    },
+                    {
+                      icon: <BsPersonPlus className="text-2xl" />,
+                      title: "Applicant Management",
+                      desc: "Track, filter, and manage applications with advanced analytics",
+                      color: "text-purple-600",
+                      bg: "bg-purple-50"
+                    },
+                    {
+                      icon: <BsCodeSquare className="text-2xl" />,
+                      title: "Code Challenges",
+                      desc: "Create coding assessments and evaluate technical skills",
+                      color: "text-indigo-600",
+                      bg: "bg-indigo-50"
+                    }
+                  ].map((feature, i) => (
+                    <div
+                      key={i}
+                      className="p-6 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all duration-300"
+                    >
+                      <div className={`w-12 h-12 ${feature.bg} ${feature.color} rounded-xl flex items-center justify-center mb-4`}>
+                        {feature.icon}
+                      </div>
+                      <h4 className="font-bold text-lg mb-2 text-slate-900">{feature.title}</h4>
+                      <p className="text-sm text-slate-600">{feature.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Additional Features */}
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <BsStars className="text-amber-500" /> Additional Features
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {[
+                    { name: "Project Showcase", icon: <BsCodeSquare /> },
+                    { name: "Favorites & Bookmarks", icon: <BsStar /> },
+                    { name: "Student Dashboard", icon: <BsGraphUp /> },
+                    { name: "Report Fraud", icon: <BsShieldCheck /> },
+                    { name: "Courses & Learning", icon: <BsFileEarmarkText /> },
+                    { name: "Skill Assessments", icon: <BsCodeSquare /> },
+                    { name: "Host Internships", icon: <BsBriefcase /> },
+                    { name: "Real-time Notifications", icon: <BsLightningCharge /> }
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-white hover:shadow-sm transition-all"
+                    >
+                      <div className="text-blue-600 text-lg">{item.icon}</div>
+                      <span className="text-sm font-semibold text-slate-700">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="mt-16 text-center">
+                <div className="inline-block p-8 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl text-white shadow-xl">
+                  <h3 className="text-2xl font-bold mb-3">Ready to Get Started?</h3>
+                  <p className="text-blue-100 mb-6 max-w-md">Join thousands of students who have already found their dream internships through InternVault</p>
+                  <Link to="/signup" className="inline-block bg-white text-blue-600 px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-50 transition">
+                    Create Free Account
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section >
+
+          {/* InternChat Section */}
+
+        </>
+      );
+    }
+
+    // 2. LOGGED IN VIEW (Welcome Animation)
+    // Don't show for recruiters
+    if (user?.role === 'recruiter') {
+      return null;
+    }
+
+    return <WelcomeAnimation user={user} />;
+
+    // Default fallback
+    return null;
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -94,563 +681,104 @@ export function Home() {
 
   const floatVariants = {
     animate: {
-      y: [0, -15, 0],
+      y: [0, -20, 0],
       transition: {
-        duration: 4,
+        duration: 6,
         repeat: Infinity,
         ease: "easeInOut"
       }
     }
   };
 
+
   return (
-    <div className="mt-16 bg-slate-50 text-slate-900 font-sans overflow-hidden">
+    <div className="min-h-screen bg-slate-50 font-sans">
 
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center px-6 max-w-7xl mx-auto z-10">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          className="text-center max-w-5xl mx-auto"
-        >
+      {/* Main Content */}
+      <div className="relative">
 
+        {/* Dynamic Content Based on Role */}
+        {renderContent()}
 
-          <motion.h1 variants={itemVariants} className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]">
-            Unlock Your <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 relative">
-              Dream Career
-              <svg className="absolute w-full h-2 -bottom-1 left-0 text-blue-200 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none">
-                <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
-              </svg>
-            </span>
-          </motion.h1>
-
-          <motion.p variants={itemVariants} className="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto font-medium leading-relaxed">
-            Connect with top-tier companies, verify your skills, and land the internship you deserve. <span className="text-slate-900 font-semibold">Fast. Secure. Verified.</span>
-          </motion.p>
-
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
-            {!isLoggedIn && (
-              <Link to="/signup" className="group relative px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-base overflow-hidden shadow-xl shadow-blue-900/20 hover:shadow-2xl hover:shadow-blue-900/30 hover:-translate-y-1 transition-all duration-300">
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative flex items-center gap-2">
-                  Start Your Journey
-                  <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-            )}
-            <Link to="/internships" className="px-6 py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-base hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm hover:shadow-md">
-              Browse Opportunities
-            </Link>
-          </motion.div>
-
-          {/* Floaters Decoration */}
-          <motion.div
-            variants={{
-              hidden: { opacity: 0 },
-              visible: { opacity: 1, transition: { delay: 1, duration: 1 } }
-            }}
-            className="absolute top-1/2 left-0 w-full h-full pointer-events-none hidden lg:block"
-          >
-            {/* Left Floater */}
+        {/* New Internship Notification Popup - Unified (Glassmorphism) */}
+        <AnimatePresence>
+          {isLoggedIn && user?.role !== 'recruiter' && showNotification && currentNotification && (
             <motion.div
-              variants={floatVariants}
-              animate="animate"
-              className="absolute top-0 left-10 p-3 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 flex items-center gap-2.5"
+              initial={{ opacity: 0, x: 100, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 100, scale: 0.9 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed bottom-16 right-6 z-50 w-80 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/60 overflow-hidden"
             >
-              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                <BsShieldCheck size={16} />
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-500 font-medium">Status</p>
-                <p className="text-xs font-bold text-slate-800">Verified Offer</p>
-              </div>
-            </motion.div>
-
-            {/* Right Floater */}
-            <motion.div
-              variants={floatVariants}
-              animate="animate"
-              className="absolute top-20 right-10 p-3 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 flex items-center gap-2.5"
-            >
-              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                <BsLightningCharge size={16} />
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-500 font-medium">Speed</p>
-                <p className="text-xs font-bold text-slate-800">Instant Apply</p>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Feature Highlights - Replacements for Stats */}
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-wrap justify-center gap-4 py-8 border-y border-slate-200/60 bg-white/50 backdrop-blur-sm rounded-3xl"
-          >
-            {[
-              { label: "AI Matching", value: "Smart Search", icon: <BsStars />, color: "text-amber-500", bg: "bg-amber-100" },
-              { label: "Verification", value: "100% Genuine", icon: <BsShieldCheck />, color: "text-green-600", bg: "bg-green-100" },
-              { label: "Cost", value: "Always Free", icon: <BsPeople />, color: "text-blue-600", bg: "bg-blue-100" },
-              { label: "Upskilling", value: "Real Projects", icon: <BsCodeSquare />, color: "text-purple-600", bg: "bg-purple-100" },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2.5 px-5 py-2.5 bg-white rounded-2xl shadow-sm border border-slate-100">
-                <div className={`w-8 h-8 rounded-full ${item.bg} flex items-center justify-center ${item.color}`}>
-                  {item.icon}
-                </div>
-                <div className="text-left">
-                  <p className="text-[10px] text-slate-500 font-medium">{item.label}</p>
-                  <p className="text-sm font-bold text-slate-900">{item.value}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-
-        </motion.div>
-      </section>
-
-      {/* Value Props */}
-      <section className="my-32 py-16 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-blue-600 font-bold tracking-wider uppercase text-xs">Why Choose Us</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-4 text-slate-900">Premium Features for <br />Premium Careers</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">We've reimagined the internship search experience to put you in control.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: <BsShieldCheck className="text-3xl text-white" />,
-                title: "100% Verified Listings",
-                desc: "Every opportunity is manually vetted by our team and AI. No outdated listings, no scams, just real jobs.",
-                color: "bg-blue-500",
-                gradient: "from-blue-500 to-blue-600"
-              },
-              {
-                icon: <BsCodeSquare className="text-3xl text-white" />,
-                title: "Skill Validation",
-                desc: "Prove your worth with our built-in skill assessments. Stand out to recruiters with verified badges.",
-                color: "bg-purple-500",
-                gradient: "from-purple-500 to-indigo-600"
-              },
-              {
-                icon: <GoOrganization className="text-3xl text-white" />,
-                title: "Direct Access",
-                desc: "Skip the black hole. Apply directly to hiring managers and get feedback on your applications.",
-                color: "bg-emerald-500",
-                gradient: "from-emerald-500 to-teal-600"
-              }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ y: -8 }}
-                className="group p-1 rounded-[1.5rem] bg-gradient-to-br from-slate-100 to-white hover:from-blue-100 hover:to-indigo-100 transition-colors duration-500"
+              {/* Close button */}
+              <button
+                onClick={dismissNotification}
+                className="absolute top-2 right-2 w-6 h-6 text-slate-500 hover:text-slate-800 hover:bg-white/50 rounded-full transition-all z-10 flex items-center justify-center"
               >
-                <div className="bg-white p-6 h-full rounded-[1.3rem] relative overflow-hidden">
-                  <div className={`w-14 h-14 rounded-2xl ${item.color} bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                    {item.icon}
-                  </div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-900">{item.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                    {item.desc}
-                  </p>
-                  <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500" />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                <BsX size={18} />
+              </button>
 
-      {/* Chatbot Verification Section */}
-      <section className="my-32 py-16 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            {/* Left Side - Image Slider */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="flex justify-center lg:justify-start order-2 lg:order-1"
-            >
-              <ImageSlider />
-            </motion.div>
-
-            {/* Right Side - Text Content */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-center lg:text-left order-1 lg:order-2"
-            >
-
-
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight"
-              >
-                Still Don't Know Which One is{" "}
-                <motion.span
-                  initial={{ backgroundPosition: "200% center" }}
-                  animate={{ backgroundPosition: "-200% center" }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-[length:200%_auto]"
-                >
-                  Real or Fake?
-                </motion.span>
-              </motion.h2>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="text-xl text-slate-600 mb-8 leading-relaxed"
-              >
-                Don't risk your career with fake internship offers. Our AI-powered chatbot analyzes company details, reviews, and registration data to give you instant verification results.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              >
-                <Link
-                  to="/internchat"
-                  className="group inline-flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors duration-300"
-                >
-                  Try Our InternChatbot
-                  <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </motion.div>
-            </motion.div>
-
-          </div>
-        </div>
-
-
-      </section>
-
-      {/* SkillVault Section */}
-      <section className="my-32 py-16 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            {/* Left Side - Text Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-center lg:text-left order-1"
-            >
-
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight"
-              >
-                Still Stuck on{" "}
-                <motion.span
-                  initial={{ backgroundPosition: "200% center" }}
-                  animate={{ backgroundPosition: "-200% center" }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-[length:200%_auto]"
-                >
-                  What to Learn?
-                </motion.span>
-              </motion.h2>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-xl text-slate-600 mb-8 leading-relaxed"
-              >
-                Don't have the skills to apply for internships? No worries! Visit our SkillVault to discover curated learning paths, hands-on projects, and resources to build job-ready skills.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <Link
-                  to="/skillvault"
-                  className="group inline-flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors duration-300"
-                >
-                  Explore SkillVault
-                  <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </motion.div>
-            </motion.div>
-
-            {/* Right Side - Image Slider */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex justify-center lg:justify-end order-2"
-            >
-              <SkillVaultSlider />
-            </motion.div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Tools Section */}
-      <section className="my-32 py-16 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            {/* Left Side - Image Slider */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="flex justify-center lg:justify-start order-2 lg:order-1"
-            >
-              <ToolsSlider />
-            </motion.div>
-
-            {/* Right Side - Text Content */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-center lg:text-left order-1 lg:order-2"
-            >
-
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight"
-              >
-                Need the Right{" "}
-                <motion.span
-                  initial={{ backgroundPosition: "200% center" }}
-                  animate={{ backgroundPosition: "-200% center" }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-[length:200%_auto]"
-                >
-                  Tools to Succeed?
-                </motion.span>
-              </motion.h2>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-xl text-slate-600 mb-8 leading-relaxed"
-              >
-                Discover essential tools and resources to boost your productivity. From project templates to interview prep, we've got everything you need to stand out.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <Link
-                  to="/tools"
-                  className="group inline-flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors duration-300"
-                >
-                  Explore Tools
-                  <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </motion.div>
-            </motion.div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Internship Hosting Section */}
-      <section className="my-32 py-16 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-            {/* Left Side - Text Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-center lg:text-left order-1"
-            >
-
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-tight"
-              >
-                Found a Verified{" "}
-                <motion.span
-                  initial={{ backgroundPosition: "200% center" }}
-                  animate={{ backgroundPosition: "-200% center" }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 bg-[length:200%_auto]"
-                >
-                  Internship?
-                </motion.span>
-              </motion.h2>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="text-xl text-slate-600 mb-8 leading-relaxed"
-              >
-                You don't need to be a recruiter to help! Students can host and share verified internship opportunities they've found. Contribute to the community by posting authentic roles for your peers.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <Link
-                  to="/host"
-                  className="group inline-flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors duration-300"
-                >
-                  Share an Internship
-                  <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </motion.div>
-            </motion.div>
-
-            {/* Right Side - Image */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex justify-center lg:justify-end order-2"
-            >
-              <div className="w-full max-w-[600px]">
-                <img
-                  src={s16}
-                  alt="Host internships on InternVault"
-                  className="hosting-image w-full h-auto object-contain"
-                />
-              </div>
-            </motion.div>
-
-          </div>
-        </div>
-      </section>
-
-
-      {/* Live Notification Popup */}
-      <AnimatePresence mode="wait">
-        {!loading && currentAd && (
-          <motion.div
-            key={currentAd._id}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-16 right-6 z-50 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden"
-          >
-            {/* Close button */}
-            <button
-              onClick={() => dismissAd(currentAd._id)}
-              className="absolute top-2 right-2 w-7 h-7 bg-white/80 backdrop-blur-sm hover:bg-red-50 rounded-full flex items-center justify-center text-gray-500 hover:text-red-600 transition-all z-10 shadow-sm"
-              aria-label="Dismiss notification"
-            >
-              <BsX className="text-lg" />
-            </button>
-
-            {/* Minimal horizontal layout */}
-            <div className="flex items-center gap-3 p-4">
-              {/* Compact logo */}
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0 border border-blue-100">
-                {currentAd.imageUrl ? (
-                  <img
-                    src={currentAd.imageUrl}
-                    alt={currentAd.companyName}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <BsBriefcase className="text-xl text-blue-600" />
-                )}
-              </div>
-
-              {/* Compact content */}
-              <div className="flex-1 min-w-0 pr-6">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                  <span className="text-xs font-semibold text-green-700">
-                    {Math.max(0, Math.floor((new Date(currentAd.expiresAt) - new Date()) / (1000 * 60 * 60)))}h left
-                  </span>
-                  {currentAd.verificationStatus === 'Verified' && (
-                    <span className="flex items-center gap-1 bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
-                      <BsShieldCheck /> Verified
-                    </span>
+              {/* Horizontal compact layout */}
+              <div className="flex items-center gap-3 p-3">
+                {/* Logo */}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-lg shadow-blue-900/10 ${currentNotification.isCodeChallenge ? "bg-gradient-to-br from-purple-500 to-pink-600" : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                  } `}>
+                  {currentNotification.imageUrl ? (
+                    <img src={currentNotification.imageUrl} alt="Logo" className="w-full h-full object-cover rounded-xl" />
+                  ) : currentNotification.isCodeChallenge ? (
+                    <BsCodeSquare size={20} />
+                  ) : (
+                    <BsBriefcase size={20} />
                   )}
                 </div>
 
-                <h4 className="font-bold text-gray-900 text-sm leading-tight truncate mb-0.5">
-                  {currentAd.companyName}
-                </h4>
+                {/* Content */}
+                <div className="flex-1 min-w-0 pr-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                    <span className="text-xs font-bold text-emerald-700">New Opportunity</span>
+                  </div>
 
-                <p className="text-xs text-gray-500">New internship opportunity</p>
+                  <h4 className="font-bold text-slate-900 text-sm leading-tight truncate mb-0.5">
+                    {currentNotification.title || currentNotification.companyName}
+                  </h4>
+
+                  <p className="text-xs text-slate-500 truncate font-medium">
+                    {currentNotification.tpoId?.organization || currentNotification.companyName || "Student Hosted"}
+                  </p>
+                </div>
+
+                {/* Action button */}
+                {currentNotification.tpoId || currentNotification.isRecruiter || currentNotification.isCodeChallenge ? (
+                  <Link
+                    to={currentNotification.isCodeChallenge ? `/code-challenge/${currentNotification._id}` : `/internship/${currentNotification._id}`}
+                    onClick={dismissNotification}
+                    className="flex-shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-xs hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-1.5"
+                  >
+                    {currentNotification.isCodeChallenge ? "Solve" : "View"}
+                    <BsArrowRight className="text-xs" />
+                  </Link>
+                ) : (
+                  <a
+                    href={currentNotification.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={dismissNotification}
+                    className="flex-shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-xs hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-1.5"
+                  >
+                    Apply
+                    <BsArrowUpRight className="text-xs" />
+                  </a>
+                )}
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              {/* Compact action button */}
-              <a
-                href={currentAd.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-xs hover:bg-blue-700 transition-all shadow-sm hover:shadow-md flex items-center gap-1.5"
-              >
-                Apply
-                <BsArrowUpRight className="text-xs" />
-              </a>
-            </div>
+        {/* News Ticker - Hide for recruiters */}
+        {user?.role !== 'recruiter' && <NewsTicker />}
 
-            {/* Progress indicator for multiple ads */}
-            {visibleAds.length > 1 && (
-              <div className="flex gap-1 px-4 pb-3">
-                {visibleAds.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`h-0.5 flex-1 rounded-full transition-all ${index === currentAdIndex ? 'bg-blue-600' : 'bg-gray-200'}`}
-                  />
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* News Ticker */}
-      <NewsTicker />
+      </div>
 
     </div>
   );

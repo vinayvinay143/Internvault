@@ -17,7 +17,7 @@ import { Course } from "./pages/courses";
 import { SkillPrompt } from "./pages/skillprompt";
 import { Project } from "./pages/project";
 import { Favorites } from "./pages/favourites";
-import { SkillRadar, CoffeeDetector, InternshipSwiper, Tools } from "./pages/Tools";
+import { CoffeeDetector, InternshipSwiper, Tools } from "./pages/Tools";
 import { ComparisonTool, CompanyIntelligence, AICareerCoach, PodcastPlayer, AIInterviewBuddy, MatchingAlgorithm, InternshipHeatmap } from "./pages/AdditionalTools";
 import { NewsFeed } from "./pages/NewsFeed";
 
@@ -27,8 +27,19 @@ import { Dashboard } from "./pages/dashboard";
 import { InternChat } from "./pages/InternChat";
 import { ColdEmail } from "./pages/ColdEmail";
 import { ResumeAnalyzer } from "./pages/ResumeAnalyzer";
-import { InterviewDojo } from "./pages/InterviewDojo";
+
 import { ReportFraud } from "./pages/ReportFraud";
+import { TPOInternships } from "./pages/TPOInternships";
+import { TPOApplicants } from "./pages/TPOApplicants";
+import { StudentInternshipDetail } from "./pages/StudentInternshipDetail";
+import { RecruiterDashboard } from "./pages/RecruiterDashboard";
+import { RecruiterInternships } from "./pages/RecruiterInternships";
+import { RecruiterApplicants } from "./pages/RecruiterApplicants";
+import { RecruiterCodeDetection } from "./pages/RecruiterCodeDetection";
+import { RecruiterChallengeSubmissions } from "./pages/RecruiterChallengeSubmissions";
+import { RecruiterProfile } from "./pages/RecruiterProfile";
+import { StudentCodeChallenges } from "./pages/StudentCodeChallenges";
+import { StudentCodeSubmission } from "./pages/StudentCodeSubmission";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -67,14 +78,23 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/internchat" element={<InternChat user={user} />} />
           <Route path="/report-fraud" element={<ReportFraud />} />
+          <Route path="/tpo-internships" element={<TPOInternships user={user} />} />
+          <Route path="/tpo/applicants/:internshipId" element={<TPOApplicants user={user} />} />
+          <Route path="/recruiter/dashboard" element={<RecruiterDashboard user={user} />} />
+          <Route path="/recruiter/internships" element={<RecruiterInternships user={user} />} />
+          <Route path="/recruiter/applicants/:internshipId" element={<RecruiterApplicants user={user} />} />
+          <Route path="/recruiter/code-detection" element={<RecruiterCodeDetection user={user} />} />
+          <Route path="/recruiter/challenge-submissions/:id" element={<RecruiterChallengeSubmissions user={user} />} />
+          <Route path="/recruiter/profile" element={<RecruiterProfile user={user} setUser={setUser} />} />
+          <Route path="/code-challenges" element={<StudentCodeChallenges user={user} />} />
+          <Route path="/code-challenge/:id" element={<StudentCodeSubmission user={user} />} />
+          <Route path="/internship/:id" element={<ProtectedRoute user={user}><StudentInternshipDetail user={user} /></ProtectedRoute>} />
 
 
           {/* Protected Tools Routes */}
-          <Route path="/tools/interview-dojo" element={<ProtectedRoute user={user}><InterviewDojo /></ProtectedRoute>} />
           <Route path="/tools/cold-email" element={<ProtectedRoute user={user}><ColdEmail /></ProtectedRoute>} />
           <Route path="/tools/resume-analyzer" element={<ProtectedRoute user={user}><ResumeAnalyzer /></ProtectedRoute>} />
           <Route path="/tools/internship-swiper" element={<ProtectedRoute user={user}><div className="pt-24"><InternshipSwiper /></div></ProtectedRoute>} />
-          <Route path="/tools/skill-radar" element={<ProtectedRoute user={user}><div className="pt-24"><SkillRadar /></div></ProtectedRoute>} />
           <Route path="/tools/coffee-detector" element={<ProtectedRoute user={user}><div className="pt-24"><CoffeeDetector /></div></ProtectedRoute>} />
 
           {/* New Tools */}

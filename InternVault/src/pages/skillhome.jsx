@@ -5,7 +5,7 @@ export function Skillhome() {
 
         {/* Heading */}
         <h1 className="text-4xl font-extrabold mb-3" style={{ color: "hsl(213.3, 96.9%, 40%)" }}>
-          🚀 Top Emerging Skills in 2025 – SkillVault
+          🚀 Top Emerging Skills 
         </h1>
 
         <p className="text-lg mb-8 opacity-80">
