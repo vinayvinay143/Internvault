@@ -7,7 +7,6 @@ import "./index.css";
 const checkEnvVars = () => {
   const missingKeys = [];
   if (!import.meta.env.VITE_GEMINI_API_KEY) missingKeys.push("VITE_GEMINI_API_KEY");
-  if (!import.meta.env.VITE_GROQ_API_KEY) missingKeys.push("VITE_GROQ_API_KEY");
 
   if (missingKeys.length > 0) {
     /*

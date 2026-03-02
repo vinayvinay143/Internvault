@@ -362,14 +362,14 @@ export function InternChat({ user }) {
                 searchContext = "\\n\\n CRITICAL: Web search returned NO matching results. This might be a ghost company.\\n";
             }
 
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+            const response = await fetch(`${API_URL}/ai/chat`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`,
                 },
                 body: JSON.stringify({
-                    // This part is inside the `body: JSON.stringify({...})` block of the fetch request
                     model: "llama-3.3-70b-versatile",
                     messages: [
                         {
@@ -440,65 +440,14 @@ export function InternChat({ user }) {
 - **DESCRIPTIVE TITLES**: The Source Title must describe the content (e.g., "Reddit Thread on Fees", "Glassdoor Complaint about Scam"). Do not just write "Reddit" or "Glassdoor".
 - **SPECIFIC URLS**: Use the exact long URL from the search results.
 - **IF URL NOT FOUND**: Write "(Link Not Available)" instead of inventing a link or using a generic homepage.
-- **Example**: 1. Reddit Thread on Scams - (Link Not Available)
-
-***
-
-EXAMPLES:
-
-Example 1 (SCAM):
-Search contains: "Kintsugi asked me to pay for training... Source: Reddit (https://reddit.com/r/scams)"
-→ Output:
-
-1. **VERDICT**
- FAKE
-
-2. **REASONS**
-- Multiple sources report they ask students to pay for training courses
-- This is a common internship scam tactic
-
-3. **PROOFS**
-1. Reddit Discussion - Kintsugi Scam Alert - [Source](https://reddit.com/r/scams)
-2. Quora - Is Kintsugi Legitimate? - [Source](https://qm.com)
-
-Example 2 (REAL - Good Company):
-Search contains: "Google official website google.com"
-→ Output:
-
-1. **VERDICT**
- REAL
-
-2. **REASONS**
-- Officially registered company with verified CIN
-- No scam reports found in search results
-
-3. **PROOFS**
-1. MCA Corporate Registration - [Source](https://mca.gov.in)
-2. Google Official Website - [Source](https://www.google.com)
-
-Example 3 (REAL - Bad Reviews but Legit):
-Search contains: "SkillDzire reviews... Source: AmbitionBox (https://ambitionbox.com)..."
-→ Output:
-
-1. **VERDICT**
- REAL
-
-2. **REASONS**
-- Company has verifiable online presence and employee reviews
-- Reviews mention poor experience but do not indicate financial fraud or fake offers
-
-3. **PROOFS**
-1. AmbitionBox Reviews - [Source](https://ambitionbox.com)
-2. Official Website - [Source](https://skilldzire.com)
-
-${searchContext}`
+- **Example**: 1. Reddit Thread on Scams - (Link Not Available)`
                         },
                         {
                             role: "user",
                             content: userMessage
                         }
                     ],
-                    temperature: 0.0, // Maximum consistency and rule-following
+                    temperature: 0.0,
                     max_tokens: 1000,
                 }),
             });
